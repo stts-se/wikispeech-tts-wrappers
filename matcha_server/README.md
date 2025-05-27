@@ -74,4 +74,4 @@ sys.path.append(vendor_dir)
 
 ---
 
-_This work was supported by the Swedish Inheritance Fund (Allmänna arvsfonden) through the grant "Wikispeech – Talsyntes och taldatainsamlare." (2024–2027)._
+_This work was supported by the Swedish Inheritance Fund (Allmänna arvsfonden) through the grant "Wikispeech – Talsyntes och taldatainsamlare." (2024–2026)._
