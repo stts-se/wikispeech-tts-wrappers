@@ -1,5 +1,7 @@
 # Server for Matcha-TTS
 
+This is a wrapper server for runtime use of the [Matcha-TTS](https://github.com/shivammehta25/Matcha-TTS) text-to-speech engine.
+
 ## Installation
 
 **1. Install [uv](https://docs.astral.sh/uv/getting-started/installation)**
