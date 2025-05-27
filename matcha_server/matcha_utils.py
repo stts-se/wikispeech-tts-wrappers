@@ -49,7 +49,7 @@ def create_path(p,create=False):
     return p
 
 
-def do_clear_audio(audio_path):
+def clear_audio(audio_path):
     logger.info(f"Clearing audio set to true")
     n=0
     for fn in os.listdir(audio_path):

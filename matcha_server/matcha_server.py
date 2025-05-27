@@ -6,7 +6,7 @@ import os, sys
 import symbolset
 from matcha_utils import(
     create_path,
-    do_clear_audio,
+    clear_audio,
     find_model,
     get_device,
     intersperse,
@@ -45,15 +45,15 @@ def load_config():
         data = json.load(file)
         paths.output = create_path(data['output_path'], create=True)
         paths.models = list(map(create_path, data['model_paths']))
-        paths.models.insert(0,".")
+        #paths.models.insert(0,".")
         force_cpu = data.get('force_cpu', False)
 
-        clear_audio = True
+        do_clear_audio = True
         if 'clear_audio_on_startup' in data:
-            clear_audio = ['clear_audio_on_startup']
+            do_clear_audio = ['clear_audio_on_startup']
 
-        if clear_audio:
-            do_clear_audio(paths.output)
+        if do_clear_audio:
+            clear_audio(paths.output)
             
         
         ## read voices in config file
