@@ -55,10 +55,10 @@ Use your browser to go to http://127.0.0.1:8000/docs
 
 Output files will be in the `output_path` folder defined in the config file, default: `./audio_files`:
 
-* wav -- audio output
-* png -- spectrogram
-* lab -- word alignment (could be used as input in Audacity or other software)
-* json -- same as server response
+* wav – audio output
+* png – spectrogram
+* lab – word alignment (could be used as input in Audacity or other software)
+* json – same as server response
 
 There are currently two ways to listen to the generated audio:
 
