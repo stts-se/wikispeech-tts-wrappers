@@ -28,6 +28,8 @@ import os, sys
 
 ####### New functions ##############################################################
 
+def create_tensor(speakers,device,dtype=torch.long):
+    return torch.tensor(speakers,device=device,dtype=dtype)
 
 # if the same model/file is found in multiple paths, the first one will be used
 def find_model(name, paths):

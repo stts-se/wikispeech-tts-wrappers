@@ -5,20 +5,17 @@ import os, sys
 # Local imports
 import symbolset, synth
 from matcha_utils import(
-    create_path,
     clear_audio,
+    create_path,
+    create_tensor,
     find_model,
     get_device,
-    #intersperse,
     load_matcha,
     load_vocoder,
-    #unbatched_synthesis,
     validate_args
 )
 
-# Other matcha-related imports
 from argparse import Namespace
-import torch
 
 # Logging
 import logging
@@ -88,7 +85,8 @@ def load_config():
             device = get_device(args) # gpu/cpu # TODO move out
             model = load_matcha(voice['model'], model_path, device)
             vocoder, denoiser = load_vocoder(voice['vocoder'], vocoder_path, device)
-            spk = torch.tensor([args.spk], device=device, dtype=torch.long) if args.spk is not None else None
+
+            spk = create_tensor([args.spk], device) if args.spk is not None else None
             pzer = None
             if "phonemizer" in voice:
                 phner = voice["phonemizer"]
