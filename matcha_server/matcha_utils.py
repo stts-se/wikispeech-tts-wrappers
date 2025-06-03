@@ -68,25 +68,39 @@ def save_output(matcha_output: dict, parsed_output, folder: str, basename: str):
     folder.mkdir(exist_ok=True, parents=True)
     parsed_output['audio'] = str(folder.resolve() / f"{basename}.wav")
 
-    # save audio + spectrogram
-    plot_spectrogram_to_numpy(np.array(matcha_output["mel"].squeeze().float().cpu()), folder / f"{basename}.png")
+    # save spectrogram
+    png_file = folder / f"{basename}.png"
+    plot_spectrogram_to_numpy(np.array(matcha_output["mel"].squeeze().float().cpu()), png_file)
     np.save(folder / f"{basename}", matcha_output["mel"].cpu().numpy())
-    sf.write(folder / f"{basename}.wav", matcha_output["waveform"], 22050, "PCM_24")
+
+    # save wav file
+    wav_file = folder / f"{basename}.wav"
+    sf.write(wav_file, matcha_output["waveform"], 22050, "PCM_24")
 
     # save label file
-    labFile = os.path.join(folder, f"{basename}.lab")
-    with open(labFile, "w") as f:
+    lab_file = os.path.join(folder, f"{basename}.lab")
+    with open(lab_file, "w") as f:
         for token in parsed_output['alignment']:
             f.write(f"{token['start_time']}\t{token['end_time']}\t{token['phonemes']}\n")
 
     # save json
     import json
-    jsonFile = os.path.join(folder, f"{basename}.json")
+    json_file = os.path.join(folder, f"{basename}.json")
     logger.debug(f"phoneme alignment {parsed_output}")
-    with open(jsonFile, 'w') as f:
+    with open(json_file, 'w') as f:
         json.dump(parsed_output, f, ensure_ascii=False, indent=4)
-        
-    #shutil.copy(src, dst) 
+
+    # copy to latest
+    output_files = {
+        png_file: folder / "latest.png",
+        json_file: folder / "latest.json",
+        wav_file: folder / "latest.wav",
+        lab_file: folder / "latest.lab"
+    }
+    import shutil
+    for source,dest in output_files.items():
+        print(source, dest)
+        shutil.copy(source,dest)
         
     return parsed_output
 
@@ -145,7 +159,6 @@ def batched_synthesis_NONFUNCT(args, device, model, vocoder, denoiser, params, s
                 entry = save_output(output, entry, args.output_folder, base_name)
                 res.append(entry)
                 logger.info(f"[+] Waveform saved: {entry['audio']}")
-                save_output(output, entry, args.output_folder, "latest")
 
     #logger.info("".join(["="] * 100))
     logger.info(f"[🍵] Average Matcha-TTS RTF: {np.mean(total_rtf):.4f} ± {np.std(total_rtf)}")
@@ -198,7 +211,6 @@ def unbatched_synthesis(args, device, model, vocoder, denoiser, params, spk, sym
         entry = save_output(output, entry, args.output_folder, base_name)
         res.append(entry)
         logger.info(f"[+] Waveform saved: {entry['audio']}")
-        save_output(output, entry, args.output_folder, "latest")
 
     #logger.info("".join(["="] * 100))
     logger.info(f"[🍵] Average Matcha-TTS RTF: {np.mean(total_rtf):.4f} ± {np.std(total_rtf)}")
