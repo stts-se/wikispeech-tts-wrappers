@@ -51,6 +51,21 @@ uvicorn matcha_server:app --env-file config_sample.env
 Use your browser to go to http://127.0.0.1:8000/docs
 
 
+**7. Audio and other output**
+
+Output files will be in the `output_path` folder defined in the config file, default: `./audio_files`:
+
+* wav -- audio output
+* png -- spectrogram
+* lab -- word alignment (could be used as input in Audacity or other software)
+* json -- same as server response
+
+There are currently two ways to listen to the generated audio:
+
+1. Play the file `latest.wav` in your `output_path`
+2. Use your browser to copy the `audio` path from the server response, and paste it in the browser's address field as `http://127.0.0.1/static/AUDIO.wav`
+
+
 <!--
 --------
 
