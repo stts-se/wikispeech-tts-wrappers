@@ -51,6 +51,7 @@ uvicorn matcha_server:app --env-file config_sample.env
 Use your browser to go to http://127.0.0.1:8000/docs
 
 
+<!--
 --------
 
 # Vendoring dependencies (experimental)
@@ -71,3 +72,4 @@ parent_dir = os.path.abspath(os.path.dirname(__file__))
 vendor_dir = os.path.join(parent_dir, 'vendor/lib/python3.10/site-packages')
 sys.path.append(vendor_dir)
 ```
+-->
