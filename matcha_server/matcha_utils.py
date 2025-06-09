@@ -86,7 +86,6 @@ def save_output(matcha_output: dict, parsed_output, folder: str, basename: str):
     # save json
     import json
     json_file = os.path.join(folder, f"{basename}.json")
-    logger.debug(f"phoneme alignment {parsed_output}")
     with open(json_file, 'w') as f:
         json.dump(parsed_output, f, ensure_ascii=False, indent=4)
 

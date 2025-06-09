@@ -174,7 +174,6 @@ async def synthesize_en_us_ljspeech(input_type: str = 'text',
                             speaking_rate = speaking_rate)
 
           
-
 @app.get("/voices/")
 async def voices():
     global synths
