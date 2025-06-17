@@ -119,12 +119,42 @@ async def synthesize_sv_se_nst(input_type: str = 'phonemes',
 
 @app.get("/synthesize/en_us_bryce")
 async def synthesize_en_us_bryce(input_type: str = 'text',
-                               input: str = "summer is finally here",
+                               input: str = "hello, my name is bryce",
                                length_scale: Optional[float] = None,
                                noise_scale: Optional[float] = None,
                                noise_w: Optional[float] = None,
                                sentence_silence: float = 0.0):
     return await synthesize(voice = 'en_US-bryce-medium',
+                            input_type = input_type,
+                            input = input,
+                            length_scale = length_scale,
+                            noise_scale = noise_scale,
+                            noise_w = noise_w,
+                            sentence_silence = sentence_silence)
+
+@app.get("/synthesize/en_us_norman")
+async def synthesize_en_us_norman(input_type: str = 'text',
+                               input: str = "hello, my name is norman",
+                               length_scale: Optional[float] = None,
+                               noise_scale: Optional[float] = None,
+                               noise_w: Optional[float] = None,
+                               sentence_silence: float = 0.0):
+    return await synthesize(voice = 'en_US-norman-medium',
+                            input_type = input_type,
+                            input = input,
+                            length_scale = length_scale,
+                            noise_scale = noise_scale,
+                            noise_w = noise_w,
+                            sentence_silence = sentence_silence)
+
+@app.get("/synthesize/ar_jo_kareem")
+async def synthesize_ar_jo_kareem(input_type: str = 'text',
+                               input: str = "ويكيبيديا العربية",
+                               length_scale: Optional[float] = None,
+                               noise_scale: Optional[float] = None,
+                               noise_w: Optional[float] = None,
+                               sentence_silence: float = 0.0):
+    return await synthesize(voice = 'ar_JO-kareem-medium',
                             input_type = input_type,
                             input = input,
                             length_scale = length_scale,
@@ -159,11 +189,11 @@ async def synthesize(voice: str = "en_US-bryce-medium",
         logger.error(msg)
         raise HTTPException(status_code=400, detail=msg)
     res = []
+    import uuid
+    uid = uuid.uuid4()
     try:
         for i, input in enumerate(inputs):
-            import uuid
-            uid = uuid.uuid4()
-            basename = f"utt_{uid}_{i:03d}"
+            basename = f"utt_{uid}_{i+1:03d}"
             synthesize_args = {
                 "speaker_id": None,
                 "length_scale": length_scale,
