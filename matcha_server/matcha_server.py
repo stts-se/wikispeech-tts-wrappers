@@ -232,7 +232,7 @@ async def synthesize(voice: str = 'sv_se_hb',
     # return type
     if return_type == 'json':
         for i, obj in enumerate(res):
-            obj['audio'] = f"/static/{os.path.basename(obj['audio'])}"             
+            #obj['audio'] = f"/static/{os.path.basename(obj['audio'])}"             
             res[i] = obj
             return res
     elif return_type == 'wav':

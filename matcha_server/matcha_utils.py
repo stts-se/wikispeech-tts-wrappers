@@ -90,7 +90,7 @@ def save_output(matcha_output: dict, parsed_output, folder: str, basename: str):
         json.dump(parsed_output, f, ensure_ascii=False, indent=4)
 
     # copy to latest
-    parsed_output_latest = parsed_output
+    parsed_output_latest = parsed_output.copy()
     parsed_output_latest['audio'] = str(folder.resolve() / "latest.wav")
     json_file_latest = os.path.join(folder, "latest.json")
     with open(json_file_latest, 'w') as f:
