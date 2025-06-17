@@ -46,7 +46,7 @@ uvicorn matcha_server:app --env-file config_sample.env
 ```
 
 
-**6. Test server**
+**6. Access server**
 
 Use your browser to go to http://127.0.0.1:8000/docs
 
