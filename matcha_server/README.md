@@ -31,7 +31,7 @@ cd -
 Replace `$HOME/.local/share/matcha_tts` if you want to save your models elsewhere. In that case, you also have to update `model_paths` in your config file (see below).
 
 
-**4. Verify config**
+**4. Check config**
 
 Verify paths and other config settings in `config_sample.json`
 

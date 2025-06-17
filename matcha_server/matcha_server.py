@@ -28,7 +28,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from dotenv import load_dotenv
-
+    
 load_dotenv()
 
 def load_config():
@@ -36,6 +36,8 @@ def load_config():
     global paths, synths
     
     json_config = os.getenv("MATCHA_CONFIG") # Reads from .env file passed to uvicorn
+    if not json_config:
+        raise RuntimeError("Config not provided. Start server with --env-file")
     loaded_names = []
     # Open and read the JSON file
     with open(json_config, 'r') as file:
