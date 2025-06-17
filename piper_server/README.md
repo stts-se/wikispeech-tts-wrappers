@@ -36,7 +36,7 @@ wget https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/sv/sv_SE/nst/med
 cd -
 ```
 
-**4. Verify config**
+**4. Check config**
 
 Verify paths and other config settings in `config_sample.env`
 
