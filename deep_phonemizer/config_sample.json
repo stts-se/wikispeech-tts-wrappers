@@ -1,0 +1,20 @@
+{
+    "_comment": "You can add multiple folders to model_paths. Environment variables are expanded, and relative paths are allowed. If the samme model is found in multiple folders, the first one will be used.",
+    "model_paths": [
+	"$HOME/.local/share/deep_phonemizer"
+    ],
+    "models": [
+	{
+	    "name": "sv_se_nst",
+	    "lang": "sv",
+	    "enabled": true,
+	    "model": "sv_se_best_model_20250331_forward_singlechar.pt"
+	},
+	{
+	    "name": "en_us_cmudict",
+	    "lang": "en_us",
+	    "enabled": true,
+	    "model": "en_us_cmudict_ipa_forward.pt"
+	}
+    ]
+}
