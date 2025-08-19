@@ -15,7 +15,7 @@ Supported version 1.2.0
 ```
 uv venv
 source .venv/bin/activate
-uv pip install piper-tts
+uv pip install piper-tts==1.2.0
 uv pip install "fastapi[standard]"
 uv pip install uvicorn
 ```
