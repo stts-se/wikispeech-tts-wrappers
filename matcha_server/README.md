@@ -11,7 +11,7 @@ Wrapper for runtime use of the [Matcha-TTS](https://github.com/shivammehta25/Mat
 ```
 uv venv
 source .venv/bin/activate
-uv pip install Matcha-TTS
+uv pip install Matcha-TTS==0.0.7.2
 ```
 
 Supported Matcha version: [0.0.7.2](https://pypi.org/project/matcha-tts/0.0.7.2)
