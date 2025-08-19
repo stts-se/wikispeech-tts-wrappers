@@ -1,6 +1,6 @@
 # Server for Piper TTS
 
-Piper URL: https://github.com/rhasspy/piper
+Piper URL: [https://github.com/OHF-Voice/piper1-gpl](https://github.com/OHF-Voice/piper1-gpl)
 
 Supported version 1.2.0
 
