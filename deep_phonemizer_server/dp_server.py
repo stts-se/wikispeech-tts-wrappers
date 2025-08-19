@@ -81,22 +81,27 @@ def sv_put_back_length(trans: str) -> str:
     return trans.replace("I", "iː").replace("Y", "yː").replace("E", "eː").replace("Ɛ", "ɛː").replace("Æ", "æː").replace("Ø", "øː").replace("Œ", "ɶː").replace("U", "uː").replace("O", "oː").replace("Ʉ", "ʉː").replace("Ʊ", "ʊː").replace("Ɑ", "ɑː").replace("A", "aː").replace('°', '"') # NB: last one changes tone 2 main stress
 
 post_proc = {
-    'sv': sv_put_back_length
+    'sv': sv_put_back_length,
+    'swe': sv_put_back_length
 }
 def no_postproc(trans: str) -> str:
     return trans
 
 import re
-@app.get("/phonemize/sv_se_nst/{text}")
-async def phonemize_sv(text: str = "jag kan ge dig svenska fonem"):
-    return await phonemize("sv_se_nst", text)
+@app.get("/phonemize/sv_se_braxen_full_sv")
+async def phonemize_sv(text = "jag kan ge dig svenska fonem"):
+    return await phonemize("sv_se_braxen_full_sv", text)
 
-@app.get("/phonemize/en_us_cmudict/{text}")
-async def phonemize_en_us(text: str = "this model does not have word stress at all"):
+@app.get("/phonemize/sv_se_braxen_full_langs")
+async def phonemize_sv_langs(text = "hejsan en français", lang = "fre"):
+    return await phonemize("sv_se_braxen_full_langs", text, lang)
+
+@app.get("/phonemize/en_us_cmudict")
+async def phonemize_en_us(text = "this model does not have word stress at all"):
     return await phonemize("en_us_cmudict", text)
 
 @app.get("/phonemize/{model_name}/{text}")
-async def phonemize(model_name: str, text: str):
+async def phonemize(model_name: str, text: str, lang: str=""):
     global phoners
     if not model_name in phoners:
         msg = f"No such model: {model_name}"
@@ -104,10 +109,12 @@ async def phonemize(model_name: str, text: str):
         raise HTTPException(status_code=404, detail=msg)
     phoner = phoners[model_name]
     words = re.split(r'[," ]+', text.replace(".", ""))
-    phonemes = [{'g': w, 'p': post_proc.get(phoner.lang,no_postproc)(phoner.deep_phonemizer(w.lower(), lang=phoner.lang))} for w in words if w != ""]
+    if lang == "":
+        lang = phoner.lang
+    phonemes = [{'g': w, 'p': post_proc.get(phoner.lang,no_postproc)(phoner.deep_phonemizer(w.lower(), lang=lang))} for w in words if w != ""]
     return {
         'name': phoner.name,
-        'lang': phoner.lang,
+        'lang': lang,
         'phonemes': phonemes
     }
 

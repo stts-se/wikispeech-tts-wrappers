@@ -5,10 +5,16 @@
     ],
     "models": [
 	{
-	    "name": "sv_se_nst",
+	    "name": "sv_se_braxen_full_sv",
 	    "lang": "sv",
 	    "enabled": true,
-	    "model": "sv_se_best_model_20250331_forward_singlechar.pt"
+	    "model": "dp_single_char_swe_sv.pt"
+	},
+	{
+	    "name": "sv_se_braxen_full_langs",
+	    "lang": "swe",
+	    "enabled": true,
+	    "model": "dp_single_char_swe_langs.pt"
 	},
 	{
 	    "name": "en_us_cmudict",
