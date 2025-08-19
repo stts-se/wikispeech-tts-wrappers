@@ -148,8 +148,8 @@ async def synthesize_en_us_norman(input_type: str = 'text',
                             sentence_silence = sentence_silence)
 
 @app.get("/synthesize/ar_jo_kareem")
-async def synthesize_ar_jo_kareem(input_type: str = 'text',
-                               input: str = "ويكيبيديا العربية",
+async def synthesize_ar_jo_kareem(input_type: str = 'phonemes',
+                               input: str = "wikibˈiːdia alʕarabˈiːa",
                                length_scale: Optional[float] = None,
                                noise_scale: Optional[float] = None,
                                noise_w: Optional[float] = None,
