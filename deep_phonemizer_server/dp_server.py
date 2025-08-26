@@ -18,6 +18,10 @@ from dp.phonemizer import Phonemizer
 from dotenv import load_dotenv
 import json
 
+parentdir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+sys.path.insert(0, parentdir)
+from tools import phn_mapper
+
 load_dotenv()
 
 # Logging
@@ -39,9 +43,10 @@ if not json_config:
         raise RuntimeError("Config not provided. Start server with --env-file")
 
 phoners={}
-    
+mappers={}
+
 # if the same model/file is found in multiple paths, the first one will be used
-def find_model(name, paths):
+def find_file(name, paths):
     for p in paths:
         f = os.path.join(p, name)
         if os.path.isfile(f):
@@ -60,7 +65,12 @@ def load_config():
                 continue
             model_file = model['model']
             lang = model['lang']
-            path = find_model(model_file,model_paths)
+            if 'maptable' in model:
+                maptable=model['maptable']
+                mapper=phn_mapper.PhnMapper("",find_file(maptable,model_paths))
+                mappers[name] = mapper
+                
+            path = find_file(model_file,model_paths)
             if path is None:
                 raise IOError(f"Failed to find model {model_file}")
             dp = Phonemizer.from_checkpoint(path)
@@ -80,12 +90,16 @@ app = FastAPI(lifespan=lifespan,swagger_ui_parameters={"tryItOutEnabled": True})
 def sv_put_back_length(trans: str) -> str:
     return trans.replace("I", "iː").replace("Y", "yː").replace("E", "eː").replace("Ɛ", "ɛː").replace("Æ", "æː").replace("Ø", "øː").replace("Œ", "ɶː").replace("U", "uː").replace("O", "oː").replace("Ʉ", "ʉː").replace("Ʊ", "ʊː").replace("Ɑ", "ɑː").replace("A", "aː").replace('°', '"') # NB: last one changes tone 2 main stress
 
-post_proc = {
-    'sv': sv_put_back_length,
-    'swe': sv_put_back_length
-}
-def no_postproc(trans: str) -> str:
-    return trans
+def post_proc(lang, name, trans):
+    if name in mappers:
+        return mappers[name].convert_trans(trans)[0]
+    else:
+        return trans
+    #'sv': sv_put_back_length,
+    #'swe': sv_put_back_length
+
+#def no_postproc(trans: str) -> str:
+#    return trans
 
 import re
 @app.get("/phonemize/sv_se_braxen_full_sv")
@@ -111,7 +125,7 @@ async def phonemize(model_name: str, text: str, lang: str=""):
     words = re.split(r'[," ]+', text.replace(".", ""))
     if lang == "":
         lang = phoner.lang
-    phonemes = [{'g': w, 'p': post_proc.get(phoner.lang,no_postproc)(phoner.deep_phonemizer(w.lower(), lang=lang))} for w in words if w != ""]
+    phonemes = [{'g': w, 'p': post_proc(phoner.lang, model_name, phoner.deep_phonemizer(w.lower(), lang=lang))} for w in words if w != ""]
     return {
         'name': phoner.name,
         'lang': lang,

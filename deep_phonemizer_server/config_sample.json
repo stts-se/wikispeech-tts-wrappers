@@ -8,7 +8,8 @@
 	    "name": "sv_se_braxen_full_sv",
 	    "lang": "sv",
 	    "enabled": true,
-	    "model": "dp_single_char_swe_sv.pt"
+	    "model": "dp_single_char_swe_sv.pt",
+	    "maptable": "sv_se_braxen_single2multi.txt"
 	},
 	{
 	    "name": "sv_se_braxen_full_langs",
