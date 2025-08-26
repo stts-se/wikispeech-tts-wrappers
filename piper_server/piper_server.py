@@ -117,6 +117,21 @@ async def synthesize_sv_se_nst(input_type: str = 'phonemes',
                             noise_w = noise_w,
                             sentence_silence = sentence_silence)
 
+@app.get("/synthesize/sv_se_lisa")
+async def synthesize_sv_se_lisa(input_type: str = 'phonemes',
+                               input: str = "jɑːɡ ɛːr ɛn pˈɪɡ madˈam",
+                               length_scale: Optional[float] = None,
+                               noise_scale: Optional[float] = None,
+                               noise_w: Optional[float] = None,
+                               sentence_silence: float = 0.0):
+    return await synthesize(voice = 'sv_SE-lisa-medium',
+                            input_type = input_type,
+                            input = input,
+                            length_scale = length_scale,
+                            noise_scale = noise_scale,
+                            noise_w = noise_w,
+                            sentence_silence = sentence_silence)
+
 @app.get("/synthesize/en_us_bryce")
 async def synthesize_en_us_bryce(input_type: str = 'text',
                                input: str = "hello, my name is bryce",
