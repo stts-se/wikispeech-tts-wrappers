@@ -42,7 +42,7 @@ cd -
 
 ___4.2 Additional Matcha models___
 
-Download additional models for Matcha from [STTS Google Drive](https://drive.google.com/drive/folders/1g8tw6tKBd32gcgHbPSTPg5b8dFhQ8SOP?usp=sharing) and save to `$HOME/.local/share/matcha_tts`.
+Download additional models for Matcha from [STTS Google Drive](https://drive.google.com/drive/folders/1g8tw6tKBd32gcgHbPSTPg5b8dFhQ8SOP?usp=sharing) and save to `$HOME/.local/share/matcha_tts`
 
 ___4.3 Phonetization models___
 
