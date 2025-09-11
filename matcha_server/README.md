@@ -12,11 +12,16 @@ Wrapper for runtime use of the [Matcha-TTS](https://github.com/shivammehta25/Mat
 uv venv
 source .venv/bin/activate
 uv pip install Matcha-TTS==0.0.7.2
+uv pip install -r requirements.txt
 ```
 
 Supported Matcha version: [0.0.7.2](https://pypi.org/project/matcha-tts/0.0.7.2)
 
 **3. Download models**
+
+Download models to `$HOME/.local/share/matcha_tts`:
+
+* Matcha models
 
 ```
 mkdir -p $HOME/.local/share/matcha_tts
@@ -29,6 +34,12 @@ cd -
 ```
 
 Replace `$HOME/.local/share/matcha_tts` if you want to save your models elsewhere. In that case, you also have to update `model_paths` in your config file (see below).
+
+
+* Additional models
+
+Download additional models from STTS Google Drive: https://drive.google.com/drive/folders/1WG4rehk1ljiLxNxW84UszkASd8gZcIJW?usp=sharing
+
 
 
 **4. Check config**

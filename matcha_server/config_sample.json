@@ -53,7 +53,7 @@
 	},
 	{
 	    "name": "sv_se_nst_STTS-test",
-	    "enabled": true,
+	    "enabled": false,
 	    "vocoder": "hifigan_univ_v1",
 	    "_comment": "martin_singlechar_ipa är STTS testmodell",
 	    "model": "martin_singlechar_ipa.ckpt",

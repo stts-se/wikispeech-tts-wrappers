@@ -16,6 +16,12 @@ parser.add_argument('--matcha-speaker', type=int, default=None)
 parser.add_argument('-p', '--phoneme_input', action='store_true')
 parser.add_argument('input', help='text/phonemes (default: text)')
 
+# EXAMPLE COMMANDS
+
+#python matcha_cli.py -d ~/.local/share/deep_phonemizer/dp_single_char_swe_langs.pt -m ~/.local/share/matcha_tts/martin_singlechar_ipa.ckpt -v ~/.local/share/matcha_tts/hifigan_univ_v1 -l swe "idag är det torsdag"
+#
+#python matcha_cli.py -d ~/.local/share/deep_phonemizer/joakims_best_model_no_optim.pt -m ~/.local/share/matcha_tts/svensk_multi.ckpt -v ~/.local/share/matcha_tts/hifigan_univ_v1 -l sv --matcha-speaker 1 "idag är det torsdag"
+
 args = parser.parse_args()
 
 print("Starting imports...",file=sys.stderr)
