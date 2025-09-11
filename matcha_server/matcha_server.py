@@ -157,6 +157,15 @@ async def synthesize_sv_se_nst(input_type: str = 'phonemes',
                             input = input,
                             speaking_rate = speaking_rate)
 
+@app.get("/synthesize/sv_se_nst_STTS-test")
+async def synthesize_sv_se_nst(input_type: str = 'phonemes',
+                               input: str = "vˈI t°ɛstar t°Ɑlsynt`Es",
+                               speaking_rate: float = 1.0):
+    return await synthesize(voice = 'sv_se_nst_STTS-test',
+                            input_type = input_type,
+                            input = input,
+                            speaking_rate = speaking_rate)
+
 @app.get("/synthesize/en_us_vctk")
 async def synthesize_en_us_vctk(input_type: str = 'phonemes',
                                 input: str = "ðɛɹ mˈʌst biː ɐn ˈeɪndʒəl",
@@ -228,6 +237,7 @@ async def synthesize(voice: str = 'sv_se_hb',
     try:
         res = synths[voice].synthesize(params)
     except RuntimeError as e:
+        logger.error(f"Matcha error: {e}")
         raise HTTPException(status_code=500, detail="Internal server error, see server log for details")
         
 

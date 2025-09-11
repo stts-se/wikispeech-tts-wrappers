@@ -45,8 +45,30 @@
 	    },
             "denoiser_strength": 0.00025,
             "steps": 10,
-	    "spk": 2,
+	    "spk": 1,
+	    ".comment": "0 är martin-rösten; 1 är en kvinnoröst",
 	    "spk_range": [0, 3],
+            "temperature": 0.667,
+            "batch_size": 32
+	},
+	{
+	    "name": "sv_se_nst_STTS-test",
+	    "enabled": true,
+	    "vocoder": "hifigan_univ_v1",
+	    "_comment": "martin_singlechar_ipa är STTS testmodell",
+	    "model": "martin_singlechar_ipa.ckpt",
+	    "phonemizer": {
+		"type": "espeak",
+		"lang": "sv"
+	    },
+	    "symbols": {
+		"pad": "_",
+		"punctuation" : ";:,.!?¡¿—…\"«»“” ",
+		"letters" : "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
+		"letters_ipa": "#`°ˈ̝̯aAãæÆⱭbɕdðɖeEəɛƐfghɧIɪjklɭmnɳŋoOøØŒɶɔɵprRɾsʂʃtʈuUʉɄʊƱvwYʏʒθ"
+	    },
+            "denoiser_strength": 0.00025,
+            "steps": 10,
             "temperature": 0.667,
             "batch_size": 32
 	},
