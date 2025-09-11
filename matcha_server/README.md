@@ -17,7 +17,14 @@ uv pip install Matcha-TTS==0.0.7.2
 
 Supported Matcha version: [0.0.7.2](https://pypi.org/project/matcha-tts/0.0.7.2)
 
-**3. Download models**
+**3. Workaround for PyTorch**
+
+```
+sed -i 's/checkpoint = torch.load(checkpoint_path, map_location=device)/checkpoint = torch.load(checkpoint_path, map_l
+ocation=device, weights_only=False)/' .venv/lib/python3.10/site-packages/dp/model/model.py
+```
+
+**4. Download models**
 
 Replace `$HOME/.local/share/matcha_tts` if you want to save your models elsewhere. In that case, you also have to update `model_paths` in your config file (see below).
 
@@ -41,7 +48,7 @@ __Phonetization models__
 
 Download phonetization models for Deep Phonemizer from [STTS Google Drive](https://drive.google.com/drive/folders/1XAgg_fu7Ay4eEad0n5WW7m-IX1XKIXNz?usp=sharing) and save to `$HOME/.local/share/deep_phonemizer`
 
-**4. Check config**
+**5. Check config**
 
 Verify paths and other config settings in `config_sample.json`
 
@@ -49,19 +56,19 @@ _Notes on specific voices_
 
 In order to use the Swedish test voices `hb_last.ckpt` and `svensk_multi.ckpt` (disabled by default), you need to save those checkpoint files in your `model_paths` list (as defined in the config file).
 
-**5. Start server**
+**6. Start server**
 
 ```
 uvicorn matcha_server:app --env-file config_sample.env
 ```
 
 
-**6. Access server**
+**7. Access server**
 
 Use your browser to go to http://127.0.0.1:8000/docs
 
 
-**7. Audio and other output**
+**8. Audio and other output**
 
 Output files will be in the `output_path` folder defined in the config file, default: `./audio_files`:
 
