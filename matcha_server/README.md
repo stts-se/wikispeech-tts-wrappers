@@ -11,17 +11,17 @@ Wrapper for runtime use of the [Matcha-TTS](https://github.com/shivammehta25/Mat
 ```
 uv venv
 source .venv/bin/activate
-uv pip install Matcha-TTS==0.0.7.2
 uv pip install -r requirements.txt
+uv pip install Matcha-TTS==0.0.7.2
 ```
 
 Supported Matcha version: [0.0.7.2](https://pypi.org/project/matcha-tts/0.0.7.2)
 
 **3. Download models**
 
-Download models to `$HOME/.local/share/matcha_tts`:
+Replace `$HOME/.local/share/matcha_tts` if you want to save your models elsewhere. In that case, you also have to update `model_paths` in your config file (see below).
 
-* Matcha models
+__Matcha models__
 
 ```
 mkdir -p $HOME/.local/share/matcha_tts
@@ -33,14 +33,13 @@ curl -L https://github.com/shivammehta25/Matcha-TTS-checkpoints/releases/downloa
 cd -
 ```
 
-Replace `$HOME/.local/share/matcha_tts` if you want to save your models elsewhere. In that case, you also have to update `model_paths` in your config file (see below).
+__Additional Matcha models__
 
+Download additional models for Matcha from [STTS Google Drive](https://drive.google.com/drive/folders/1g8tw6tKBd32gcgHbPSTPg5b8dFhQ8SOP?usp=sharing) and save to `$HOME/.local/share/matcha_tts`.
 
-* Additional models
+__Phonetization models__
 
-Download additional models from STTS Google Drive: https://drive.google.com/drive/folders/1WG4rehk1ljiLxNxW84UszkASd8gZcIJW?usp=sharing
-
-
+Download phonetization models for Deep Phonemizer from [STTS Google Drive](https://drive.google.com/drive/folders/1XAgg_fu7Ay4eEad0n5WW7m-IX1XKIXNz?usp=sharing) and save to `$HOME/.local/share/deep_phonemizer`
 
 **4. Check config**
 
