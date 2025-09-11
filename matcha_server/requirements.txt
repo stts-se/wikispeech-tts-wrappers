@@ -1,0 +1,4 @@
+deep-phonemizer
+dotenv
+fastapi
+uvicorn
