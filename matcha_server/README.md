@@ -67,8 +67,7 @@ uvicorn matcha_server:app --env-file config_sample.env
 
 Use your browser to go to http://127.0.0.1:8000/docs
 
-
-**8. Audio and other output**
+___7.1 Audio and other output___
 
 Output files will be in the `output_path` folder defined in the config file, default: `./audio_files`:
 
@@ -84,6 +83,10 @@ There are currently two ways to listen to the generated audio:
 
 Please note that the server's default setting is to clear the `output_path` on startup. This can be configured in the config file (see `config_sample.json`).
 
+
+**8. Cmdline client**
+
+`python matcha_cli.py -h`
 
 <!--
 --------
