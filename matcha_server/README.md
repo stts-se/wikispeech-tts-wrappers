@@ -28,7 +28,7 @@ ocation=device, weights_only=False)/' .venv/lib/python3.10/site-packages/dp/mode
 
 Replace `$HOME/.local/share/matcha_tts` if you want to save your models elsewhere. In that case, you also have to update `model_paths` in your config file (see below).
 
-__Matcha models__
+___4.1 Matcha models___
 
 ```
 mkdir -p $HOME/.local/share/matcha_tts
@@ -40,11 +40,11 @@ curl -L https://github.com/shivammehta25/Matcha-TTS-checkpoints/releases/downloa
 cd -
 ```
 
-__Additional Matcha models__
+___4.2 Additional Matcha models___
 
 Download additional models for Matcha from [STTS Google Drive](https://drive.google.com/drive/folders/1g8tw6tKBd32gcgHbPSTPg5b8dFhQ8SOP?usp=sharing) and save to `$HOME/.local/share/matcha_tts`.
 
-__Phonetization models__
+___4.3 Phonetization models___
 
 Download phonetization models for Deep Phonemizer from [STTS Google Drive](https://drive.google.com/drive/folders/1XAgg_fu7Ay4eEad0n5WW7m-IX1XKIXNz?usp=sharing) and save to `$HOME/.local/share/deep_phonemizer`
 
