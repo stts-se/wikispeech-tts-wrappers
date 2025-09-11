@@ -29,11 +29,10 @@ sed -i 's/checkpoint = torch.load(checkpoint_path, map_location=device)/checkpoi
 mkdir -p $HOME/.local/share/deep_phonemizer
 cd $HOME/.local/share/deep_phonemizer
 wget https://public-asai-dl-models.s3.eu-central-1.amazonaws.com/DeepPhonemizer/en_us_cmudict_ipa_forward.pt
-wget https://morf.se/~hanna/deep_phonemizer/gpu_models/dp_single_char_swe_sv.pt
-wget https://morf.se/~hanna/deep_phonemizer/gpu_models/dp_single_char_swe_langs.pt
-wget https://morf.se/~hanna/deep_phonemizer/gpu_models/sv_se_braxen_single2multi.txt
 cd -
 ```
+
+Download additional models from [STTS Google Drive](https://drive.google.com/drive/folders/1XAgg_fu7Ay4eEad0n5WW7m-IX1XKIXNz?usp=sharing)
 
 **5. Check config**
 
