@@ -71,7 +71,7 @@ if args.input_type not in ["phonemes","mixed"] and not args.phonemizer:
     parser.error(" --phonemizer is required for input_type phonemes/mixed")
     os.exit(1)
 
-if args.input_type not in ["text","phoneme","mixed"]:
+if args.input_type not in ["text","phonemes","mixed"]:
     parser.error(f"--input_type takes values text, phonemes or mixed; found {args.input_type}")
     os.exit(1)
         
@@ -146,7 +146,7 @@ def process_text(i: int, input: str, device: torch.device):
         #print(f"{phn=}\t{cleaned_text=}")
     else:
         for w in s.split(" "):
-            words.append(w)
+            words.append({"phn": w})
         cleaned_text = cleaned_text_to_sequence(input)
         #print(f"{input=}\t{cleaned_text=}")
 
@@ -173,7 +173,7 @@ index = 0
 text_processed = process_text(index, args.input, voice.device)
 
 
-print(text_processed)
+#print(text_processed)
 #print(voice.steps, voice.temperature, voice.speaker, voice.speaking_rate)
 
 spk = torch.tensor([voice.speaker],device=voice.device) if voice.speaker is not None else None
@@ -193,12 +193,15 @@ result = {}
 if len(aligned) == len(text_processed['words']):
     for idx, w in enumerate(text_processed['words']):
         ali = aligned[idx]
-        ali["word"] = w['orth']
+        if 'orth' in w:
+            ali["orth"] = w['orth']
 
+print("[+] Transcription with alignment", aligned)
 json_output = Path(args.output_file).with_suffix('.json')
 import json
 with open(json_output, 'w', encoding='utf-8') as f:
     json.dump(aligned, f, ensure_ascii=False, indent=4)
+    print(f"[+] Alignment saved: {json_output}")
 
 with torch.no_grad():
     output["waveform"] = to_waveform(output["mel"], vocoder, denoiser, voice.denoiser_strength)
