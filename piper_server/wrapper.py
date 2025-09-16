@@ -23,7 +23,7 @@ class Voice:
             
         return phonemize_espeak(text, self.pvoice.config.espeak_voice)
         #raise ValueError(f"Unexpected phoneme type: {self.pvoice.config.phoneme_type}")
-        
+
     def synthesize_phonemes(
         self,
         sentence_phonemes: Iterable[str],
@@ -50,16 +50,6 @@ class Voice:
                     sentence_silence=sentence_silence,
             ):
                 wf.writeframes(audio_bytes)
-
-    def phonemize(self, text: str) -> List[List[str]]:
-        """Text to phonemes grouped by sentence."""
-        #if self.pvoice.config.phoneme_type == PhonemeType.ESPEAK:
-        if self.pvoice.config.espeak_voice == "ar":
-            # Arabic diacritization
-            # https://github.com/mush42/libtashkeel/
-            text = tashkeel_run(text)
-
-        return phonemize_espeak(text, self.pvoice.config.espeak_voice)
 
     def synthesize_phonemes_raw(
         self,
