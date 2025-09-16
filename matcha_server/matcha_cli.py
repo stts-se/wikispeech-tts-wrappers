@@ -129,17 +129,24 @@ def process_text(i: int, input: str, device: torch.device):
 
     s = input.lower()
     s = s.replace(".","")
-    
+
+    words = []
     if not args.input_type == "phonemes":
         phn_list = []
         for w in s.split(" "):
             result = voice.phonemizer.phonemize(w)            
-            print(f"{w}\t{result}")
+            #print(f"{w}\t{result}")
             phn_list.append(result)
+            words.append({
+                "orth": w,
+                "phn": result
+            })
         phn = " ".join(phn_list)
         cleaned_text = cleaned_text_to_sequence(phn)
         #print(f"{phn=}\t{cleaned_text=}")
     else:
+        for w in s.split(" "):
+            words.append(w)
         cleaned_text = cleaned_text_to_sequence(input)
         #print(f"{input=}\t{cleaned_text=}")
 
@@ -152,7 +159,7 @@ def process_text(i: int, input: str, device: torch.device):
     x_phones = sequence_to_text(x.squeeze(0).tolist())
     #print(f"[{i}] - Phonetised text: {x_phones[1::2]}")
 
-    return {"phonemes": {x_phones[1::2]}, "x_orig": input, "x": x, "x_lengths": x_lengths, "x_phones": x_phones}
+    return {"words": words, "x_orig": input, "x": x, "x_lengths": x_lengths, "x_phones": x_phones}
 
 
 checkpoint_path = Path(voice.model)
@@ -182,10 +189,16 @@ output = model.synthesise(
 import alignment
 id2symbol={i: s for i, s in enumerate(symbols)} 
 aligned = alignment.align(text_processed, output, id2symbol)
-print(aligned)
-#result = {}
-#transcribed = text_processed['phonemes']
-#for word 
+result = {}
+if len(aligned) == len(text_processed['words']):
+    for idx, w in enumerate(text_processed['words']):
+        ali = aligned[idx]
+        ali["word"] = w['orth']
+
+json_output = Path(args.output_file).with_suffix('.json')
+import json
+with open(json_output, 'w', encoding='utf-8') as f:
+    json.dump(aligned, f, ensure_ascii=False, indent=4)
 
 with torch.no_grad():
     output["waveform"] = to_waveform(output["mel"], vocoder, denoiser, voice.denoiser_strength)
