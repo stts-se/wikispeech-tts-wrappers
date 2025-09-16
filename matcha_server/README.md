@@ -87,6 +87,8 @@ Please note that the server's default setting is to clear the `output_path` on s
 
 `python matcha_cli.py -h`
 
+Check example commands in the top part of matcha_cli.py
+
 <!--
 --------
 
