@@ -20,8 +20,7 @@ Supported Matcha version: [0.0.7.2](https://pypi.org/project/matcha-tts/0.0.7.2)
 **3. Workaround for PyTorch**
 
 ```
-sed -i 's/checkpoint = torch.load(checkpoint_path, map_location=device)/checkpoint = torch.load(checkpoint_path, map_l
-ocation=device, weights_only=False)/' .venv/lib/python3.10/site-packages/dp/model/model.py
+sed -i 's/checkpoint = torch.load(checkpoint_path, map_location=device)/checkpoint = torch.load(checkpoint_path, map_location=device, weights_only=False)/' .venv/lib/python3.10/site-packages/dp/model/model.py
 ```
 
 **4. Download models**

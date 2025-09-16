@@ -13,9 +13,9 @@ logger.setLevel(logging.DEBUG)
 
 # python matcha_cli.py -m ~/.local/share/matcha_tts/svensk_multi.ckpt -v ~/.local/share/matcha_tts/hifigan_univ_v1 --phonemizer ~/.local/share/deep_phonemizer/joakims_best_model_no_optim.pt -l sv --matcha-speaker 1 "jag är joakims röst" --symbols symbols/symbols_joakims.txt
 
-# python matcha_cli.py --config_file config_hl_matcha_cli.json --voice sv_se_nst_STTS-test --phonemizer sv_se_braxen_full_sv "här använder vi en configfil"
+# python matcha_cli.py --config_file config_sample_cli.json --voice sv_se_nst_STTS-test --phonemizer sv_se_braxen_full_sv "här använder vi en configfil"
 
-# python matcha_cli.py --config_file config_hl_matcha_cli.json --voice en_us_vctk --phonemizer espeak "and this is espeak with a config file" --matcha-speaker 3
+# python matcha_cli.py --config_file config_sample_cli.json --voice en_us_vctk --phonemizer espeak "and this is espeak with a config file" --matcha-speaker 3
 
 import argparse
 
@@ -91,13 +91,13 @@ output_name = os.path.basename(args.output_file)
 output_name = Path(output_name).with_suffix('')
 output_folder = os.path.dirname(args.output_file)
 
-print("Starting imports...",file=sys.stderr)
+print("[+] Starting imports...",file=sys.stderr)
 
 from matcha.utils.utils import intersperse
 from matcha.cli import to_waveform, save_to_folder, load_matcha, load_vocoder
 import torch
 
-print("... imports completed",file=sys.stderr)
+print("    ... imports completed",file=sys.stderr)
 
 # Mappings from symbol to numeric ID and vice versa:
 _symbol_to_id = {s: i for i, s in enumerate(symbols)}
@@ -124,25 +124,24 @@ def sequence_to_text(sequence):
     return result
 
 def process_text(i: int, input: str, device: torch.device):
-    print(f"[{i}] - Input text: {input}")
+    #print(f"[{i}] - Input text: {input}")
 
 
     s = input.lower()
     s = s.replace(".","")
-
+    
     if not args.input_type == "phonemes":
         phn_list = []
         for w in s.split(" "):
-            #result = phonemizer(w, lang=lang)
             result = voice.phonemizer.phonemize(w)            
             print(f"{w}\t{result}")
             phn_list.append(result)
         phn = " ".join(phn_list)
         cleaned_text = cleaned_text_to_sequence(phn)
-        print(f"{phn=}\t{cleaned_text=}")
+        #print(f"{phn=}\t{cleaned_text=}")
     else:
         cleaned_text = cleaned_text_to_sequence(input)
-        print(f"{input=}\t{cleaned_text=}")
+        #print(f"{input=}\t{cleaned_text=}")
 
     x = torch.tensor(
         intersperse(cleaned_text, 0),
@@ -151,9 +150,9 @@ def process_text(i: int, input: str, device: torch.device):
     )[None]
     x_lengths = torch.tensor([x.shape[-1]], dtype=torch.long, device=device)
     x_phones = sequence_to_text(x.squeeze(0).tolist())
-    print(f"[{i}] - Phonetised text: {x_phones[1::2]}")
+    #print(f"[{i}] - Phonetised text: {x_phones[1::2]}")
 
-    return {"x_orig": input, "x": x, "x_lengths": x_lengths, "x_phones": x_phones}
+    return {"phonemes": {x_phones[1::2]}, "x_orig": input, "x": x, "x_lengths": x_lengths, "x_phones": x_phones}
 
 
 checkpoint_path = Path(voice.model)
@@ -168,7 +167,7 @@ text_processed = process_text(index, args.input, voice.device)
 
 
 print(text_processed)
-print(voice.steps, voice.temperature, voice.speaker, voice.speaking_rate)
+#print(voice.steps, voice.temperature, voice.speaker, voice.speaking_rate)
 
 spk = torch.tensor([voice.speaker],device=voice.device) if voice.speaker is not None else None
 output = model.synthesise(
@@ -183,11 +182,13 @@ output = model.synthesise(
 import alignment
 id2symbol={i: s for i, s in enumerate(symbols)} 
 aligned = alignment.align(text_processed, output, id2symbol)
-print("alignment", aligned)
+print(aligned)
+#result = {}
+#transcribed = text_processed['phonemes']
+#for word 
 
 with torch.no_grad():
     output["waveform"] = to_waveform(output["mel"], vocoder, denoiser, voice.denoiser_strength)
-
 
 location = save_to_folder(output_name, output, output_folder)
 print(f"[+] Waveform saved: {location}")
