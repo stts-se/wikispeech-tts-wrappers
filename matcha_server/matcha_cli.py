@@ -1,4 +1,21 @@
 import sys
+import os
+from pathlib import Path
+
+# Logging
+import logging
+logger = logging.getLogger('matcha')
+logger.setLevel(logging.DEBUG)
+
+# EXAMPLE COMMANDS
+
+# python matcha_cli.py -d ~/.local/share/deep_phonemizer/dp_single_char_swe_langs.pt -m ~/.local/share/matcha_tts/martin_singlechar_ipa.ckpt -v ~/.local/share/matcha_tts/hifigan_univ_v1 -l swe "jag är nikolajs martinröst" --symbols symbols/symbols_martin_singlechar.txt
+
+# python matcha_cli.py -d ~/.local/share/deep_phonemizer/joakims_best_model_no_optim.pt -m ~/.local/share/matcha_tts/svensk_multi.ckpt -v ~/.local/share/matcha_tts/hifigan_univ_v1 -l sv --matcha-speaker 1 "jag är joakims röst" --symbols symbols/symbols_joakims.txt
+
+# python matcha_cli.py --config_file config_hl.json --voice sv_se_nst_STTS-test --phonemizer sv_se_braxen_full_sv "topphattanka"
+
+# python matcha_cli.py --config_file config_hl.json --voice en_us_vctk --phonemizer espeak "autumn is near" --matcha-speaker 3
 
 import argparse
 
@@ -7,43 +24,78 @@ parser = argparse.ArgumentParser(
                     description='Matcha client with option to use deep phonemizer for transcriptions',
 #                    epilog='<Extra help text>'
 )
-parser.add_argument('-d', '--deep_phonemizer')
-parser.add_argument('-m', '--model', required=True)
-parser.add_argument('-v', '--vocoder', required=True)
-parser.add_argument('-l', '--dp-lang', required=True)
-parser.add_argument('--matcha-speaker', type=int, default=None)
 
-parser.add_argument('-p', '--phoneme_input', action='store_true')
-parser.add_argument('input', help='text/phonemes (default: text)')
+# Using config file
+parser.add_argument('--config_file')
+parser.add_argument('--voice')
 
-# EXAMPLE COMMANDS
 
-#python matcha_cli.py -d ~/.local/share/deep_phonemizer/dp_single_char_swe_langs.pt -m ~/.local/share/matcha_tts/martin_singlechar_ipa.ckpt -v ~/.local/share/matcha_tts/hifigan_univ_v1 -l swe "idag är det torsdag"
-#
-#python matcha_cli.py -d ~/.local/share/deep_phonemizer/joakims_best_model_no_optim.pt -m ~/.local/share/matcha_tts/svensk_multi.ckpt -v ~/.local/share/matcha_tts/hifigan_univ_v1 -l sv --matcha-speaker 1 "idag är det torsdag"
+# Using cmdline args
+parser.add_argument('-m', '--model', help="Path to voice model (.ckpt)")
+parser.add_argument('-v', '--vocoder', help="Path to vocoder (usually no extension)")
+parser.add_argument('-l', '--phonemizer-lang')
+parser.add_argument('--symbols', default="", type=str, help="File or string")
+
+parser.add_argument('--steps', default=10, type=int)
+parser.add_argument('--temperature', default=0.667, type=float)
+parser.add_argument('--denoiser-strength', default=0.00025, type=float)
+parser.add_argument('--device', type=str)
+parser.add_argument('--matcha-speaker', type=int, default=None) # default is fetched from voice config
+parser.add_argument('--speaking-rate', type=float, default=0.85, help="higher value=>slower, lower=>faster, 1.0=neutral, default=0.85") # default is fetched from voice config
+
+parser.add_argument('--phonemizer')
+
+parser.add_argument('-i', '--input_type', default="text", help="text, phonemes or mixed")
+parser.add_argument('input', help='input text/phonemes')
+
+#base_name = f"utterance_{i:03d}"
+default_file=os.path.join(os.getcwd(), "utterance_001.wav")
+parser.add_argument('-o', '--output-file', default=default_file, help=f"Default: {default_file}")
 
 args = parser.parse_args()
 
+if args.config_file:
+    if args.voice is None:
+        parser.error("--config_file requires --voice")
+        os.exit(1)
+    if args.symbols is not None:
+        parser.error("--symbols is not allowed with --config_file")
+        os.exit(1)
+
+if not args.config_file:
+    if  (args.model is None or args.vocoder is None):
+        parser.error("--config_file unset requires --model and --vocoder")
+        os.exit(1)
+
+if args.input_type not in ["phonemes","mixed"] and not args.phonemizer:
+    parser.error(" --phonemizer is required for input_type phonemes/mixed")
+    os.exit(1)
+
+if args.input_type not in ["text","phoneme","mixed"]:
+    parser.error(f"--input_type takes values text, phonemes or mixed; found {args.input_type}")
+    os.exit(1)
+        
+
+import voice_config
+if args.config_file:
+    voice = voice_config.load_from_config(args)
+else:
+    voice = voice_config.load_from_args(args)
+voice.validate()
+print(f"************ Loaded voice: {voice.name}: {voice}")
+symbols = voice.symbols
+SPACE_ID = symbols.index(" ")
+
+
+output_name = os.path.basename(args.output_file)
+output_name = Path(output_name).with_suffix('')
+output_folder = os.path.dirname(args.output_file)
+
 print("Starting imports...",file=sys.stderr)
 
-
 from matcha.utils.utils import intersperse
-
 from matcha.cli import to_waveform, save_to_folder, load_matcha, load_vocoder
-from pathlib import Path
-import os
 import torch
-
-# importing local symbols from working folder
-if "martin_singlechar" in args.model:
-    print(f"Loading symbols matcha_cli_symbols_martin_singlechar", file=sys.stderr)
-    from matcha_cli_symbols_martin_singlechar import symbols
-elif "svensk_multi" in args.model:
-    print(f"Loading symbols matcha_cli_symbols_joakims", file=sys.stderr)
-    from matcha_cli_symbols_joakims import symbols
-else:
-    print(f"No symbols.py for model {args.model}",file=sys.stderr)
-    sys.exit(1)
 
 print("... imports completed",file=sys.stderr)
 
@@ -71,17 +123,18 @@ def sequence_to_text(sequence):
         result += s
     return result
 
-def process_text_ws_svenska(i: int, input: str, device: torch.device):
+def process_text(i: int, input: str, device: torch.device):
     print(f"[{i}] - Input text: {input}")
 
 
     s = input.lower()
     s = s.replace(".","")
 
-    if not args.phoneme_input:    
+    if not args.input_type == "phonemes":
         phn_list = []
         for w in s.split(" "):
-            result = phonemizer(w, lang=lang)
+            #result = phonemizer(w, lang=lang)
+            result = voice.phonemizer.phonemize(w)            
             print(f"{w}\t{result}")
             phn_list.append(result)
         phn = " ".join(phn_list)
@@ -103,54 +156,43 @@ def process_text_ws_svenska(i: int, input: str, device: torch.device):
     return {"x_orig": input, "x": x, "x_lengths": x_lengths, "x_phones": x_phones}
 
 
-device = "cpu"
-phonemizer = None
-if not args.phoneme_input:
-    from dp.phonemizer import Phonemizer
-    phonemizer = Phonemizer.from_checkpoint(args.deep_phonemizer)
-    lang = args.dp_lang
+device = voice.device
+# phonemizer = None
+# if not args.phoneme_input:
+#     from dp.phonemizer import Phonemizer
+#     phonemizer = Phonemizer.from_checkpoint(voice.phonemizer)
+#     lang = voice.phonemizer_lang
     
 
-model_name = args.model
+model_name = voice.model
 checkpoint_path = Path(model_name)
 
-vocoder_checkpoint_path = args.vocoder # "/home/hanna/.local/share/matcha_tts/hifigan_univ_v1"
+vocoder_checkpoint_path = voice.vocoder
 vocoder_name = os.path.basename(vocoder_checkpoint_path)
 
 model = load_matcha(model_name, checkpoint_path, device)
 vocoder, denoiser = load_vocoder(vocoder_name, vocoder_checkpoint_path, device)
 
-#args
-steps = 10
-temperature = 0.667
-speaking_rate = 0.85
-denoiser_strength = 0.00025
-output_folder = os.getcwd()
-
-
-i = 0
-base_name = f"utterance_{i:03d}"
-
-
-text_processed = process_text_ws_svenska(i, args.input, device)
+index = 0
+text_processed = process_text(index, args.input, device)
 
 
 print(text_processed)
-print(steps, temperature, args.matcha_speaker, speaking_rate)
+print(voice.steps, voice.temperature, voice.speaker, voice.speaking_rate)
 
-spk = torch.tensor([args.matcha_speaker],device=device) if args.matcha_speaker is not None else None
+spk = torch.tensor([voice.speaker],device=device) if voice.speaker is not None else None
 output = model.synthesise(
     text_processed["x"],
     text_processed["x_lengths"],
-    n_timesteps=steps,
-    temperature=temperature,
+    n_timesteps=voice.steps,
+    temperature=voice.temperature,
     spks=spk,
-    length_scale=speaking_rate,
+    length_scale=voice.speaking_rate,
 )
 
 with torch.no_grad():
-    output["waveform"] = to_waveform(output["mel"], vocoder, denoiser, denoiser_strength)
+    output["waveform"] = to_waveform(output["mel"], vocoder, denoiser, voice.denoiser_strength)
 
 
-location = save_to_folder(base_name, output, output_folder)
+location = save_to_folder(output_name, output, output_folder)
 print(f"[+] Waveform saved: {location}")
