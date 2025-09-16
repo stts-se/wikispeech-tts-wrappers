@@ -9,13 +9,13 @@ logger.setLevel(logging.DEBUG)
 
 # EXAMPLE COMMANDS
 
-# python matcha_cli.py -d ~/.local/share/deep_phonemizer/dp_single_char_swe_langs.pt -m ~/.local/share/matcha_tts/martin_singlechar_ipa.ckpt -v ~/.local/share/matcha_tts/hifigan_univ_v1 -l swe "jag är nikolajs martinröst" --symbols symbols/symbols_martin_singlechar.txt
+# python matcha_cli.py -m ~/.local/share/matcha_tts/martin_singlechar_ipa.ckpt -v ~/.local/share/matcha_tts/hifigan_univ_v1 --phonemizer ~/.local/share/deep_phonemizer/dp_single_char_swe_langs.pt -l swe "jag är nikolajs martinröst" --symbols symbols/symbols_martin_singlechar.txt
 
-# python matcha_cli.py -d ~/.local/share/deep_phonemizer/joakims_best_model_no_optim.pt -m ~/.local/share/matcha_tts/svensk_multi.ckpt -v ~/.local/share/matcha_tts/hifigan_univ_v1 -l sv --matcha-speaker 1 "jag är joakims röst" --symbols symbols/symbols_joakims.txt
+# python matcha_cli.py -m ~/.local/share/matcha_tts/svensk_multi.ckpt -v ~/.local/share/matcha_tts/hifigan_univ_v1 --phonemizer ~/.local/share/deep_phonemizer/joakims_best_model_no_optim.pt -l sv --matcha-speaker 1 "jag är joakims röst" --symbols symbols/symbols_joakims.txt
 
-# python matcha_cli.py --config_file config_hl.json --voice sv_se_nst_STTS-test --phonemizer sv_se_braxen_full_sv "topphattanka"
+# python matcha_cli.py --config_file config_hl_matcha_cli.json --voice sv_se_nst_STTS-test --phonemizer sv_se_braxen_full_sv "här använder vi en configfil"
 
-# python matcha_cli.py --config_file config_hl.json --voice en_us_vctk --phonemizer espeak "autumn is near" --matcha-speaker 3
+# python matcha_cli.py --config_file config_hl_matcha_cli.json --voice en_us_vctk --phonemizer espeak "and this is espeak with a config file" --matcha-speaker 3
 
 import argparse
 
@@ -34,12 +34,12 @@ parser.add_argument('--voice')
 parser.add_argument('-m', '--model', help="Path to voice model (.ckpt)")
 parser.add_argument('-v', '--vocoder', help="Path to vocoder (usually no extension)")
 parser.add_argument('-l', '--phonemizer-lang')
-parser.add_argument('--symbols', default="", type=str, help="File or string")
+parser.add_argument('--symbols', default=None, type=str, help="File or string")
 
 parser.add_argument('--steps', default=10, type=int)
 parser.add_argument('--temperature', default=0.667, type=float)
 parser.add_argument('--denoiser-strength', default=0.00025, type=float)
-parser.add_argument('--device', type=str)
+parser.add_argument('--device', type=str, default="cpu")
 parser.add_argument('--matcha-speaker', type=int, default=None) # default is fetched from voice config
 parser.add_argument('--speaking-rate', type=float, default=0.85, help="higher value=>slower, lower=>faster, 1.0=neutral, default=0.85") # default is fetched from voice config
 
@@ -82,7 +82,7 @@ if args.config_file:
 else:
     voice = voice_config.load_from_args(args)
 voice.validate()
-print(f"************ Loaded voice: {voice.name}: {voice}")
+print(f"[+] Loaded voice: {voice.name}: {voice}")
 symbols = voice.symbols
 SPACE_ID = symbols.index(" ")
 
@@ -156,31 +156,21 @@ def process_text(i: int, input: str, device: torch.device):
     return {"x_orig": input, "x": x, "x_lengths": x_lengths, "x_phones": x_phones}
 
 
-device = voice.device
-# phonemizer = None
-# if not args.phoneme_input:
-#     from dp.phonemizer import Phonemizer
-#     phonemizer = Phonemizer.from_checkpoint(voice.phonemizer)
-#     lang = voice.phonemizer_lang
-    
+checkpoint_path = Path(voice.model)
 
-model_name = voice.model
-checkpoint_path = Path(model_name)
+vocoder_name = os.path.basename(voice.vocoder)
 
-vocoder_checkpoint_path = voice.vocoder
-vocoder_name = os.path.basename(vocoder_checkpoint_path)
-
-model = load_matcha(model_name, checkpoint_path, device)
-vocoder, denoiser = load_vocoder(vocoder_name, vocoder_checkpoint_path, device)
+model = load_matcha(voice.model, checkpoint_path, voice.device)
+vocoder, denoiser = load_vocoder(vocoder_name, voice.vocoder, voice.device)
 
 index = 0
-text_processed = process_text(index, args.input, device)
+text_processed = process_text(index, args.input, voice.device)
 
 
 print(text_processed)
 print(voice.steps, voice.temperature, voice.speaker, voice.speaking_rate)
 
-spk = torch.tensor([voice.speaker],device=device) if voice.speaker is not None else None
+spk = torch.tensor([voice.speaker],device=voice.device) if voice.speaker is not None else None
 output = model.synthesise(
     text_processed["x"],
     text_processed["x_lengths"],
@@ -189,6 +179,11 @@ output = model.synthesise(
     spks=spk,
     length_scale=voice.speaking_rate,
 )
+
+import alignment
+id2symbol={i: s for i, s in enumerate(symbols)} 
+aligned = alignment.align(text_processed, output, id2symbol)
+print("alignment", aligned)
 
 with torch.no_grad():
     output["waveform"] = to_waveform(output["mel"], vocoder, denoiser, voice.denoiser_strength)
