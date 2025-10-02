@@ -2,6 +2,9 @@ import sys
 import os
 from pathlib import Path
 
+# imports from this repo
+import voice_config
+
 # Logging
 # import logging
 # logger = logging.getLogger('matcha')
@@ -25,11 +28,11 @@ parser = argparse.ArgumentParser(
 #                    epilog='<Extra help text>'
 )
 
-# Using config file
+# With config file
 parser.add_argument('--config_file')
 parser.add_argument('--voice')
 
-# Using cmdline args
+# With cmdline args
 parser.add_argument('-m', '--model', help="Path to voice model (.ckpt)")
 parser.add_argument('-v', '--vocoder', help="Path to vocoder (usually no extension)")
 parser.add_argument('-l', '--phonemizer-lang')
@@ -49,7 +52,7 @@ parser.add_argument('input', help='input text/phonemes')
 
 #base_name = f"utterance_{i:03d}"
 default_dir=os.path.join(os.getcwd(), "audio_files")
-os.makedirs(default_dir)
+os.makedirs(default_dir, exist_ok=True)
 default_file=os.path.join(default_dir, "utterance_001.wav")
 parser.add_argument('-o', '--output-file', default=default_file, help=f"Default: {default_file}")
 
@@ -77,7 +80,6 @@ if args.input_type not in ["text","phonemes","mixed"]:
     os.exit(1)
         
 
-import voice_config
 if args.config_file:
     voices = voice_config.load_config(args.config_file)
     if args.voice in voices:
@@ -89,6 +91,20 @@ else:
 voice.validate()
 print(f"[+] Loaded voice: {voice.name}: {voice}")
 
+### RESET VOICE PROPERTIES IF INCLUDED IN args
+if args.speaking_rate:
+    voice.speaking_rate=args.speaking_rate
+if args.matcha_speaker:
+    voice.speaker=args.matcha_speaker
+if args.steps:
+    voice.steps=args.steps
+if args.temperature:
+    voice.temperature=args.temperature
+if args.device:
+    voice.device=args.device
+if args.denoiser_strength:
+    voice.denoiser_strength=args.denoiser_strength
+                               
 ### SELECT PHONEMIZER
 if args.phonemizer == None:
     voice.selected_phonemizer = voice.phonemizers[0]
@@ -104,6 +120,8 @@ else:
         raise Exception(f"No phonemizer named {args.phonemizer} for voice {voice.name}")
 
 print(f"[+] Selected phonemizer: {voice.selected_phonemizer}")
+
+voice.validate()
 
 symbols = voice.symbols
 SPACE_ID = symbols.index(" ")

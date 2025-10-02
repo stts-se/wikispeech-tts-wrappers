@@ -34,6 +34,8 @@ class VoiceConfig:
         return f"{dict}"
 
     def validate(__self__):
+        if __self__.speaking_rate < -1.0 or __self__.speaking_rate > 5.0:
+            raise Exception(f"Invalid speaking rate: {__self__.speaking_rate} (expected -1.0 < speaking_rate < 5.0)")
         if __self__.symbols == "":
             raise Exception(f"No symbols defined for voice {__self__.name}")
 
@@ -68,14 +70,6 @@ def load_from_args(args):
                        selected_phonemizer=phonemizer)
     
 
-def get_or_else(value1, value2, default=None):
-    if value1 is not None:
-        return value1
-    elif value2 is not None:
-        return value2
-    else:
-        return default
-    
 def load_config(config_file):
     with open(config_file, 'r') as file:
         data = json.load(file)
