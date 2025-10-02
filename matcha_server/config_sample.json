@@ -3,19 +3,23 @@
     "clear_audio_on_startup": true,
     "force_cpu": false,
     "model_paths": [
-	"$HOME/.local/share/matcha_tts"
+	"$HOME/.local/share/matcha_tts",
+	"$HOME/.local/share/deep_phonemizer"
     ],
     "output_path": "audio_files",
     "voices": [
 	{
 	    "name": "sv_se_hb",
-	    "enabled": false,
+	    "enabled": true,
 	    "vocoder": "hifigan_univ_v1",
 	    "model": "hb_last.ckpt",
-	    "phonemizer": {
-		"type": "espeak",
-		"lang": "sv"
-	    },
+	    "phonemizers": [
+		{
+		    "name": "espeak",
+		    "type": "espeak",
+		    "lang": "sv"
+		}
+	    ],
 	    "symbols": {
 		"pad": "_",
 		"punctuation": ";:,.!?¡¿—…\"«»“” ",
@@ -29,14 +33,17 @@
 	},
 	{
 	    "name": "sv_se_nst",
-	    "enabled": false,
+	    "enabled": true,
 	    "vocoder": "hifigan_univ_v1",
 	    "_comment": "svensk_multi är joakims modell",
 	    "model": "svensk_multi.ckpt",
-	    "phonemizer": {
-		"type": "espeak",
-		"lang": "sv"
-	    },
+	    "phonemizers": [
+		{
+		    "name": "espeak",
+		    "type": "espeak",
+		    "lang": "sv"
+		}
+	    ],
 	    "symbols": {
 		"pad": "_",
 		"punctuation" : ";:,.!?¡¿—…\"«»“” ",
@@ -53,14 +60,30 @@
 	},
 	{
 	    "name": "sv_se_nst_STTS-test",
-	    "enabled": false,
+	    "enabled": true,
 	    "vocoder": "hifigan_univ_v1",
 	    "_comment": "martin_singlechar_ipa är STTS testmodell",
 	    "model": "martin_singlechar_ipa.ckpt",
-	    "phonemizer": {
-		"type": "espeak",
-		"lang": "sv"
-	    },
+	    "phonemizers": [
+		{
+		    "name": "sv_se_braxen_full_sv",
+		    "type": "deep_phonemizer",
+		    "lang": "sv",
+		    "model": "dp_single_char_swe_sv.pt"
+		},
+		{
+		    "name": "sv_se_braxen_full_langs",
+		    "type": "deep_phonemizer",
+		    "lang": "swe",
+		    "model": "dp_single_char_swe_langs.pt"
+		},
+		{
+		    "enabled": false,
+		    "name": "espeak",
+		    "type": "espeak",
+		    "lang": "sv"
+		}
+	    ],
 	    "symbols": {
 		"pad": "_",
 		"punctuation" : ";:,.!?¡¿—…\"«»“” ",
@@ -76,10 +99,13 @@
 	    "name": "en_us_vctk",
 	    "vocoder": "hifigan_univ_v1",
 	    "model": "matcha_vctk.ckpt",
-	    "phonemizer": {
-		"type": "espeak",
-		"lang": "en-us"
-	    },
+	    "phonemizers": [
+		{
+		    "name": "espeak",
+		    "type": "espeak",
+		    "lang": "en-us"
+		}
+	    ],
 	    "symbols": {
 		"pad": "_",
 		"punctuation": ";:,.!?¡¿—…\"«»“” ",
@@ -98,10 +124,13 @@
 	    "name": "en_us_ljspeech",
 	    "vocoder": "hifigan_T2_v1",
 	    "model": "matcha_ljspeech.ckpt",
-	    "phonemizer": {
-		"type": "espeak",
-		"lang": "en-us"
-	    },
+	    "phonemizers": [
+		{
+		    "name": "espeak",
+		    "type": "espeak",
+		    "lang": "en-us"
+		}
+	    ],
 	    "symbols": {
 		"pad": "_",
 		"punctuation": ";:,.!?¡¿—…\"«»“” ",
