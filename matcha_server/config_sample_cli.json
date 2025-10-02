@@ -66,11 +66,6 @@
 	    "model": "martin_singlechar_ipa.ckpt",
 	    "phonemizers": [
 		{
-		    "name": "espeak",
-		    "type": "espeak",
-		    "lang": "sv"
-		},
-		{
 		    "name": "sv_se_braxen_full_sv",
 		    "type": "deep_phonemizer",
 		    "lang": "sv",
@@ -81,6 +76,12 @@
 		    "type": "deep_phonemizer",
 		    "lang": "swe",
 		    "model": "dp_single_char_swe_langs.pt"
+		},
+		{
+		    "enabled": false,
+		    "name": "espeak",
+		    "type": "espeak",
+		    "lang": "sv"
 		}
 	    ],
 	    "symbols": {
