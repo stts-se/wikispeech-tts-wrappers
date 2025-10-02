@@ -23,11 +23,13 @@ class VoiceConfig:
     speaker: object
     symbols: str
 
-    phonemizer: object
+    phonemizers: list
+    selected_phonemizer: object
 
     def __str__(self):
         dict = asdict(self)
-        dict['phonemizer'] = f"{self.phonemizer}"
+        dict['phonemizers'] = f"{self.phonemizers}"
+        dict['selected_phonemizer'] = f"{self.selected_phonemizer}"
         dict['symbols'] = "".join(self.symbols)
         return f"{dict}"
 
@@ -62,7 +64,8 @@ def load_from_args(args):
                        device=args.device,
                        denoiser_strength=args.denoiser_strength,
                        symbols=symbols,
-                       phonemizer=phonemizer)
+                       phonemizers=[phonemizer],
+                       selected_phonemizer=phonemizer)
     
 
 def get_or_else(value1, value2, default=None):
@@ -73,56 +76,48 @@ def get_or_else(value1, value2, default=None):
     else:
         return default
     
-def load_from_config(args):
-    found_voice = False
-    with open(args.config_file, 'r') as file:
+def load_config(config_file):
+    with open(config_file, 'r') as file:
         data = json.load(file)
         model_paths = list(map(os.path.expandvars, data['model_paths']))
         force_cpu = data.get('force_cpu', False)
 
+        voices = {}
         ## read voices in config file
         for voice in data['voices']:
             name = voice['name']
-            if name != args.voice:
-                continue
-            if 'enabled' in voice and voice['enabled'] == False:
-                raise Exception(f"Voice {args.voice} is not enabled")
-
-            found_voice = True
+            if name in voices:
+                raise Exception(f"Config file contains duplicate voices named {name}")
+            
             symbols = [voice['symbols']['pad']] + list(voice['symbols']['punctuation']) + list(voice['symbols']['letters']) + list(voice['symbols']['letters_ipa'])
             
-            phonemizer = None
-            if not args.input_type == "phonemes" or args.input_type == "mixed":
-                for phizer in voice['phonemizers']:
-                    if phizer['name'] != args.phonemizer:
-                        continue
-                    if 'enabled' in phizer and phizer['enabled'] == False:
-                        raise Exception(f"Phonemizer {args.phonemizer} is not enabled")
+            phonemizers = []
+            for phizer in voice['phonemizers']:
+                if phizer.get('enabled', True):
                     if phizer['type'] == "deep_phonemizer":
-                              phonemizer = Phonemizer(args.phonemizer, phizer['type'], phizer['lang'], find_file(phizer['model'],model_paths))
+                        phonemizers.append(Phonemizer(phizer['name'], phizer['type'], phizer['lang'], find_file(phizer['model'], model_paths)))
                     elif phizer['type'] == "espeak":
-                              phonemizer = Phonemizer(args.phonemizer, phizer['type'], phizer['lang'])
+                        phonemizers.append(Phonemizer(phizer['name'], phizer['type'], phizer['lang']))
                     else:
-                        raise Exception(f"Unknown phonemizer type {type} for {args.phonemizer}")
+                        raise Exception(f"Unknown phonemizer type {type} for {phizer['name']}")
+                    
+            if len(phonemizers) == 0:
+                raise Exception(f"Couldn't find phonemizer for voice '{voice['name']}' in config file {config_file}")
 
-            return VoiceConfig(name=args.voice,
-                               model=find_file(voice['model'], model_paths),
-                               vocoder=find_file(voice['vocoder'], model_paths),
-                               speaking_rate=get_or_else(args.speaking_rate, voice.get('speaking_rate',1.0)),
-                               speaker=get_or_else(args.matcha_speaker, voice.get('spk',None)),
-                               steps=get_or_else(args.steps, voice.get('steps',10)),
-                               temperature=get_or_else(args.temperature, voice.get('temperature',0.667)),
-                               device=get_or_else(args.device,voice.get('device','cpu')),
-                               denoiser_strength=get_or_else(args.denoiser_strength,voice.get('denoiser_strength',0.00025)),
-                               symbols=symbols,
-                               phonemizer=phonemizer)
-            
-    if found_voice:
-        raise Exception(f"Couldn't find a phonemizer named '{args.phonemizer}' for voice '{args.voice}' in config file {args.config_file}")
-    else:
-        raise Exception(f"Couldn't find a voice named '{args.voice}' in config file {args.config_file}")
-    return None
-
+            voice = VoiceConfig(name=voice['name'],
+                                model=find_file(voice['model'], model_paths),
+                                vocoder=find_file(voice['vocoder'], model_paths),
+                                speaking_rate=voice.get('speaking_rate',1.0),
+                                speaker=voice.get('spk',None),
+                                steps=voice.get('steps',10),
+                                temperature=voice.get('temperature',0.667),
+                                device=voice.get('device','cpu'),
+                                denoiser_strength=voice.get('denoiser_strength',0.00025),
+                                symbols=symbols,
+                                phonemizers=phonemizers,
+                                selected_phonemizer=phonemizers[0]) ## default phonemizer
+            voices[name] = voice
+    return voices
 
 class Phonemizer:
     name: str

@@ -3,15 +3,15 @@ import os
 from pathlib import Path
 
 # Logging
-import logging
-logger = logging.getLogger('matcha')
-logger.setLevel(logging.DEBUG)
+# import logging
+# logger = logging.getLogger('matcha')
+# logger.setLevel(logging.DEBUG)
 
 # EXAMPLE COMMANDS
 
-# python matcha_cli.py -m ~/.local/share/matcha_tts/martin_singlechar_ipa.ckpt -v ~/.local/share/matcha_tts/hifigan_univ_v1 --phonemizer ~/.local/share/deep_phonemizer/dp_single_char_swe_langs.pt -l swe "jag är nikolajs martinröst" --symbols symbols/symbols_martin_singlechar.txt
+# python matcha_cli.py -m ~/.local/share/matcha_tts/martin_singlechar_ipa.ckpt -v ~/.local/share/matcha_tts/hifigan_univ_v1 --phonemizer ~/.local/share/deep_phonemizer/dp_single_char_swe_langs.pt -l swe "jag är nikolajs martinröst" --symbols cli_symbols/symbols_martin_singlechar.txt
 
-# python matcha_cli.py -m ~/.local/share/matcha_tts/svensk_multi.ckpt -v ~/.local/share/matcha_tts/hifigan_univ_v1 --phonemizer ~/.local/share/deep_phonemizer/joakims_best_model_no_optim.pt -l sv --matcha-speaker 1 "jag är joakims röst" --symbols symbols/symbols_joakims.txt
+# python matcha_cli.py -m ~/.local/share/matcha_tts/svensk_multi.ckpt -v ~/.local/share/matcha_tts/hifigan_univ_v1 --phonemizer ~/.local/share/deep_phonemizer/joakims_best_model_no_optim.pt -l sv --matcha-speaker 1 "jag är joakims röst" --symbols cli_symbols/symbols_joakims.txt
 
 # python matcha_cli.py --config_file config_sample_cli.json --voice sv_se_nst_STTS-test --phonemizer sv_se_braxen_full_sv "här använder vi en configfil"
 
@@ -28,7 +28,6 @@ parser = argparse.ArgumentParser(
 # Using config file
 parser.add_argument('--config_file')
 parser.add_argument('--voice')
-
 
 # Using cmdline args
 parser.add_argument('-m', '--model', help="Path to voice model (.ckpt)")
@@ -49,7 +48,9 @@ parser.add_argument('-i', '--input_type', default="text", help="text, phonemes o
 parser.add_argument('input', help='input text/phonemes')
 
 #base_name = f"utterance_{i:03d}"
-default_file=os.path.join(os.getcwd(), "utterance_001.wav")
+default_dir=os.path.join(os.getcwd(), "audio_files")
+os.makedirs(default_dir)
+default_file=os.path.join(default_dir, "utterance_001.wav")
 parser.add_argument('-o', '--output-file', default=default_file, help=f"Default: {default_file}")
 
 args = parser.parse_args()
@@ -78,31 +79,50 @@ if args.input_type not in ["text","phonemes","mixed"]:
 
 import voice_config
 if args.config_file:
-    voice = voice_config.load_from_config(args)
+    voices = voice_config.load_config(args.config_file)
+    if args.voice in voices:
+        voice = voices[args.voice]
+    else:
+        raise Exception(f"Couldn't find a voice named '{args.voice}' in config file {args.config_file}")    
 else:
     voice = voice_config.load_from_args(args)
 voice.validate()
 print(f"[+] Loaded voice: {voice.name}: {voice}")
+
+### SELECT PHONEMIZER
+if args.phonemizer == None:
+    voice.selected_phonemizer = voice.phonemizers[0]
+elif args.config_file == None:
+    voice.selected_phonemizer = voice.phonemizers[0]
+else:
+    found_named_phonemizer = False
+    for phoner in voice.phonemizers:
+        if phoner.name == args.phonemizer:
+            voice.selected_phonemizer = phoner
+            found_named_phonemizer = True
+    if not found_named_phonemizer:
+        raise Exception(f"No phonemizer named {args.phonemizer} for voice {voice.name}")
+
+print(f"[+] Selected phonemizer: {voice.selected_phonemizer}")
+
 symbols = voice.symbols
 SPACE_ID = symbols.index(" ")
-
 
 output_name = os.path.basename(args.output_file)
 output_name = Path(output_name).with_suffix('')
 output_folder = os.path.dirname(args.output_file)
 
-print("[+] Starting imports...",file=sys.stderr)
+print("[+] Starting Matcha imports...",file=sys.stderr)
 
 from matcha.utils.utils import intersperse
 from matcha.cli import to_waveform, save_to_folder, load_matcha, load_vocoder
 import torch
 
-print("    ... imports completed",file=sys.stderr)
+print("    ... Matcha imports completed",file=sys.stderr)
 
 # Mappings from symbol to numeric ID and vice versa:
 _symbol_to_id = {s: i for i, s in enumerate(symbols)}
 _id_to_symbol = {i: s for i, s in enumerate(symbols)}  # pylint: disable=unnecessary-comprehension
-
 
 def cleaned_text_to_sequence(cleaned_text):
     """Converts a string of text to a sequence of IDs corresponding to the symbols in the text.
@@ -134,7 +154,7 @@ def process_text(i: int, input: str, device: torch.device):
     if not args.input_type == "phonemes":
         phn_list = []
         for w in s.split(" "):
-            result = voice.phonemizer.phonemize(w)            
+            result = voice.selected_phonemizer.phonemize(w)
             #print(f"{w}\t{result}")
             phn_list.append(result)
             words.append({
@@ -158,23 +178,19 @@ def process_text(i: int, input: str, device: torch.device):
     x_lengths = torch.tensor([x.shape[-1]], dtype=torch.long, device=device)
     x_phones = sequence_to_text(x.squeeze(0).tolist())
     #print(f"[{i}] - Phonetised text: {x_phones[1::2]}")
-
     return {"words": words, "x_orig": input, "x": x, "x_lengths": x_lengths, "x_phones": x_phones}
 
+            
+
+
+### SYNTHESIZE
 
 checkpoint_path = Path(voice.model)
-
 vocoder_name = os.path.basename(voice.vocoder)
-
 model = load_matcha(voice.model, checkpoint_path, voice.device)
 vocoder, denoiser = load_vocoder(vocoder_name, voice.vocoder, voice.device)
-
 index = 0
 text_processed = process_text(index, args.input, voice.device)
-
-
-#print(text_processed)
-#print(voice.steps, voice.temperature, voice.speaker, voice.speaking_rate)
 
 spk = torch.tensor([voice.speaker],device=voice.device) if voice.speaker is not None else None
 output = model.synthesise(
@@ -185,6 +201,8 @@ output = model.synthesise(
     spks=spk,
     length_scale=voice.speaking_rate,
 )
+
+## PROCESS ALIGNMENT
 
 import alignment
 id2symbol={i: s for i, s in enumerate(symbols)} 
