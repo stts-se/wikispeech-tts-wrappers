@@ -101,7 +101,7 @@ async def voices():
     res = []
     for k,v in global_cfg.voices.items():
         # TODO: simple json representation
-        res.append(f"{v}")
+        res.append(v.as_json())
     return res
 
 @app.get("/symbol_set/")

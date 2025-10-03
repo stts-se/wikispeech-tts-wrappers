@@ -21,13 +21,13 @@ class Voice:
     name: str
     model: str
     vocoder: str
-    speaking_rate: float
 
     steps: int
     temperature: float
     denoiser_strength: float
     device: str
 
+    speaking_rate: float
     speaker: object
     symbols: str
     
@@ -50,6 +50,25 @@ class Voice:
     def __str__(self):
         dict = asdict(self)
         return f"{dict}"
+
+    def as_json(self):
+        obj = {
+            "name": self.name,
+            "model": self.model,
+            "vocoder": self. vocoder,
+            "steps": self.steps,
+            "temperature": self.temperature,
+            "denoiser_strength": self.denoiser_strength,
+            "device": self.device,
+            
+            "speaking_rate": self.speaking_rate,
+            "speaker": self.speaker,
+            "symbols": "".join(self.symbols),
+
+            #"phonemizers": self.phonemizers,
+            "selected_phonemizer": self.selected_phonemizer.as_json()
+        }
+        return obj
 
     def validate(self, fail_on_error = True):
         if self.speaking_rate < -1.0 or self.speaking_rate > 5.0:

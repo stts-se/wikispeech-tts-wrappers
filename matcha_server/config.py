@@ -121,6 +121,15 @@ class Phonemizer:
             logger.error(msg)
 
 
+    def as_json(self):
+        obj = {
+            "name": self.name,
+            "type": self.tpe,
+            "lang": self.lang,
+            "path": self.path,
+        }
+        return obj
+
     def phonemize(self, input):
         if self.tpe == "deep_phonemizer":
             return self.pher(input, lang=self.lang)
