@@ -58,11 +58,13 @@ async def synthesize_sv_se_hb(input_type: str = 'phonemes',
 @app.get("/synthesize/sv_se_nst")
 async def synthesize_sv_se_nst(input_type: str = 'phonemes',
                                input: str = "jˈɑ:g t°ʏkər v°ɛldɪt m°ʏkət ˈɔm ɪtɐlɪˈe:nsk mˈɑ:t .",
-                               speaking_rate: float = 1.0):
+                               speaking_rate: float = 1.0,
+                               speaker_id: int = 1):
     return await synthesize(voice = 'sv_se_nst',
                             input_type = input_type,
                             input = input,
-                            speaking_rate = speaking_rate)
+                            speaking_rate = speaking_rate,
+                            speaker_id = speaker_id)
 
 @app.get("/synthesize/sv_se_nst_STTS-test")
 async def synthesize_sv_se_nst(input_type: str = 'phonemes',
@@ -70,17 +72,18 @@ async def synthesize_sv_se_nst(input_type: str = 'phonemes',
                                speaking_rate: float = 1.0):
     return await synthesize(voice = 'sv_se_nst_STTS-test',
                             input_type = input_type,
-                            input = input,
-                            speaking_rate = speaking_rate)
+                            input = input)
 
 @app.get("/synthesize/en_us_vctk")
 async def synthesize_en_us_vctk(input_type: str = 'phonemes',
                                 input: str = "ðɛɹ mˈʌst biː ɐn ˈeɪndʒəl",
-                                speaking_rate: float = 1.0):
+                                speaking_rate: float = 1.0,
+                                speaker_id: int = 4):
     return await synthesize(voice = 'en_us_vctk',
                             input_type = input_type,
                             input = input,
-                            speaking_rate = speaking_rate)
+                            speaking_rate = speaking_rate,
+                            speaker_id = speaker_id)
 
 @app.get("/synthesize/en_us_ljspeech")
 async def synthesize_en_us_ljspeech(input_type: str = 'text',
@@ -94,20 +97,21 @@ async def synthesize_en_us_ljspeech(input_type: str = 'text',
           
 @app.get("/voices/")
 async def voices():
-    global synths
+    global global_cfg
     res = []
     for k,v in global_cfg.voices.items():
-        res.append(v.config)
+        # TODO: simple json representation
+        res.append(f"{v}")
     return res
 
 @app.get("/symbol_set/")
 async def symbols_set(voice: str):
-    global synths
-    if voice in synths:
-        symset = global_cfg.voices[voice].symbolset
-        return {
-            "symbols": symset.symbols,
-        }
+    global global_cfg
+    for k,v in global_cfg.voices.items():
+        if v.name == voice:
+            return {
+                "symbols": v.symbols,
+            }
     msg = f"No such voice: {voice}"
     raise HTTPException(status_code=404, detail=msg)
     
@@ -119,6 +123,7 @@ async def synthesize(voice: str = 'sv_se_hb',
                      #input: str="Vi testar talsyntes. Det är kul.",
                      input: str = "viː tˈɛstar tˈɑːlsyntˌeːs",
                      speaking_rate: float = 1.0,
+                     speaker_id: int = None,
                      return_type: str = 'json'):
     if voice not in global_cfg.voices:
         msg = f"No such voice: {voice}"
@@ -133,7 +138,7 @@ async def synthesize(voice: str = 'sv_se_hb',
         inputs.remove("")
     params = Namespace(
         speaking_rate = speaking_rate,
-        spk = None,
+        speaker = speaker_id,
     )
     global input_types
     if input_type not in input_types:
@@ -142,7 +147,6 @@ async def synthesize(voice: str = 'sv_se_hb',
         raise HTTPException(status_code=400, detail=msg)
     try:
         res = global_cfg.voices[voice].synthesize_all(inputs, input_type, global_cfg.output_path, params)
-        print(res)
     except RuntimeError as e:
         logger.error(f"Matcha error: {e}")
         raise HTTPException(status_code=500, detail="Internal server error, see server log for details")

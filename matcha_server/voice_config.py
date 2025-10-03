@@ -125,10 +125,11 @@ class Voice:
         uid = uuid.uuid4()
         res = []
         i = 0
+        spk_id = tools.get_or_else(params.speaker, self.speaker)
         for input in inputs:
             input = input.strip()
             i = i+1
-            base_name = f"utt_{uid}_{i:03d}_spk_{params.spk:03d}" if params.spk is not None else f"utt_{uid}_{i:03d}"
+            base_name = f"utt_{uid}_{i:03d}_spk_{spk_id:03d}" if spk_id is not None else f"utt_{uid}_{i:03d}"
             output_file = os.path.join(output_folder, base_name)
             res.append(self.synthesize(input, input_type, output_file, params))
         if len(res) > 0:
@@ -149,8 +150,9 @@ class Voice:
 
         ### SYNTHESIZE
         text_processed = self.process_text(input, input_type)
+        spk_id = tools.get_or_else(params.speaker, self.speaker)
 
-        spk = torch.tensor([self.speaker],device=self.device) if self.speaker is not None else None
+        spk = torch.tensor([spk_id],device=self.device) if spk_id is not None else None
         output = self.matcha_model.synthesise(
             text_processed["x"],
             text_processed["x_lengths"],
@@ -177,6 +179,8 @@ class Voice:
         result = {
             "input": input,
             "input_type": input_type,
+            "speaking_rate": params.speaking_rate,
+            "speaker_id": spk_id,         
         }
         if len(phonemes) > 0:
             result["phonemes"]=" ".join(phonemes)
@@ -208,7 +212,6 @@ class Voice:
 
 
 def copy_to_latest(result,output_folder):
-    print(result)
     basename = Path(result["audio"]).with_suffix("")
 
     wav_file = os.path.join(output_folder, basename.with_suffix('.wav'))
