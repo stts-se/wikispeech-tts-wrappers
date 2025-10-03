@@ -1,15 +1,23 @@
-import json
-import sys, os
-from pathlib import Path
-
 # Logging
 import logging
 logger = logging.getLogger('matcha')
-logger.setLevel(logging.DEBUG)
+
+logger.debug("Starting Matcha imports...")
+from matcha.utils.utils import intersperse
+from matcha.cli import to_waveform, save_to_folder, load_matcha, load_vocoder
+import torch
+logger.debug("    ... Matcha imports completed")
+
+# Imports from this repo
+import alignment, tools
+
+import sys, os
+from pathlib import Path
+import json
 
 from dataclasses import dataclass, asdict
 @dataclass
-class VoiceConfig:
+class Voice:
     name: str
     model: str
     vocoder: str
@@ -22,130 +30,202 @@ class VoiceConfig:
 
     speaker: object
     symbols: str
-
+    
     phonemizers: list
-    selected_phonemizer: object
+    selected_phonemizer: object    
 
+    def __post_init__(self):
+        self.SPACE_ID = self.symbols.index(" ")
+        
+        # Mappings from symbol to numeric ID and vice versa:
+        self.symbol2id = {s: i for i, s in enumerate(self.symbols)}
+        self.id2symbol = {i: s for i, s in enumerate(self.symbols)}  # pylint: disable=unnecessary-comprehension
+
+        self.loaded = False
+        self.matcha_model = None
+        self.matcha_vocoder = None
+        self.matcha_denoiser = None
+
+    
     def __str__(self):
         dict = asdict(self)
-        dict['phonemizers'] = f"{self.phonemizers}"
-        dict['selected_phonemizer'] = f"{self.selected_phonemizer}"
-        dict['symbols'] = "".join(self.symbols)
         return f"{dict}"
 
-    def validate(__self__):
-        if __self__.speaking_rate < -1.0 or __self__.speaking_rate > 5.0:
-            raise Exception(f"Invalid speaking rate: {__self__.speaking_rate} (expected -1.0 < speaking_rate < 5.0)")
-        if __self__.symbols == "":
-            raise Exception(f"No symbols defined for voice {__self__.name}")
+    def validate(self, fail_on_error = True):
+        if self.speaking_rate < -1.0 or self.speaking_rate > 5.0:
+            msg = f"Invalid speaking rate: {self.speaking_rate} (expected -1.0 < speaking_rate < 5.0)"
+            if fail_on_error:
+                raise Exception(msg)
+            else:
+                logger.error(msg)
+        if self.symbols == "":
+            msg = f"No symbols defined for voice {self.name}"
+            if fail_on_error:
+                raise Exception(msg)
+            else:
+                logger.error(msg)
 
-def find_file(name, paths):
-    for p in paths:
-        f = os.path.join(p, name)
-        if os.path.isfile(f):
-            return f
-    return None
-    
-def load_from_args(args):
-    symbols = args.symbols
-    if os.path.isfile(args.symbols):
-        with open(args.symbols, 'r') as file:
-            symbols = file.read()
-        
-    if args.phonemizer == "espeak":
-        phonemizer = Phonemizer("espeak", "espeak", args.phonemizer_lang)
-    else:
-        phonemizer = Phonemizer("deep_phonemizer", "deep_phonemizer", args.phonemizer_lang, args.phonemizer)
-    return VoiceConfig(name="cmdline_voice",
-                       model=args.model,
-                       vocoder=args.vocoder,
-                       speaking_rate=args.speaking_rate,
-                       speaker=args.matcha_speaker,
-                       steps=args.steps,
-                       temperature=args.temperature,
-                       device=args.device,
-                       denoiser_strength=args.denoiser_strength,
-                       symbols=symbols,
-                       phonemizers=[phonemizer],
-                       selected_phonemizer=phonemizer)
-    
-
-def load_config(config_file):
-    with open(config_file, 'r') as file:
-        data = json.load(file)
-        model_paths = list(map(os.path.expandvars, data['model_paths']))
-        force_cpu = data.get('force_cpu', False)
-
-        voices = {}
-        ## read voices in config file
-        for voice in data['voices']:
-            name = voice['name']
-            if name in voices:
-                raise Exception(f"Config file contains duplicate voices named {name}")
-            
-            symbols = [voice['symbols']['pad']] + list(voice['symbols']['punctuation']) + list(voice['symbols']['letters']) + list(voice['symbols']['letters_ipa'])
-            
-            phonemizers = []
-            for phizer in voice['phonemizers']:
-                if phizer.get('enabled', True):
-                    if phizer['type'] == "deep_phonemizer":
-                        phonemizers.append(Phonemizer(phizer['name'], phizer['type'], phizer['lang'], find_file(phizer['model'], model_paths)))
-                    elif phizer['type'] == "espeak":
-                        phonemizers.append(Phonemizer(phizer['name'], phizer['type'], phizer['lang']))
-                    else:
-                        raise Exception(f"Unknown phonemizer type {type} for {phizer['name']}")
-                    
-            if len(phonemizers) == 0:
-                raise Exception(f"Couldn't find phonemizer for voice '{voice['name']}' in config file {config_file}")
-
-            voice = VoiceConfig(name=voice['name'],
-                                model=find_file(voice['model'], model_paths),
-                                vocoder=find_file(voice['vocoder'], model_paths),
-                                speaking_rate=voice.get('speaking_rate',1.0),
-                                speaker=voice.get('spk',None),
-                                steps=voice.get('steps',10),
-                                temperature=voice.get('temperature',0.667),
-                                device=voice.get('device','cpu'),
-                                denoiser_strength=voice.get('denoiser_strength',0.00025),
-                                symbols=symbols,
-                                phonemizers=phonemizers,
-                                selected_phonemizer=phonemizers[0]) ## default phonemizer
-            voices[name] = voice
-    return voices
-
-class Phonemizer:
-    name: str
-    tpe: str
-    lang: str
-    pher: object
-    def __init__(self, name, tpe, lang, path=None):
-        self.name = name
-        self.tpe = tpe
-        self.lang = lang
-        self.path = path
-        try:
-            if tpe == "deep_phonemizer":
-                from dp.phonemizer import Phonemizer
-                self.pher = Phonemizer.from_checkpoint(path)
-            elif tpe == "espeak":
-                import phonemizer
-                self.pher = phonemizer.backend.EspeakBackend(
-                    language=lang,
-                    preserve_punctuation=True,
-                    with_stress=True,
-                    language_switch="remove-flags",
-                    logger=logger,
-                )
-        except RuntimeError as e:
-            msg = f"Couldn't load phonetizer for voice {name}: {e}. Voice will not be loaded."
-            logger.error(msg)
+    def cleaned_text_to_sequence(self, cleaned_text):
+        """Converts a string of text to a sequence of IDs corresponding to the symbols in the text.
+        Args:
+          text: string to convert to a sequence
+        Returns:
+          List of integers corresponding to the symbols in the text
+        """
+        sequence = [self.symbol2id[symbol] for symbol in cleaned_text]
+        return sequence
 
 
-    def phonemize(self, input):
-        if self.tpe == "deep_phonemizer":
-            return self.pher(input, lang=self.lang)
+    def sequence_to_text(self, sequence):
+        """Converts a sequence of IDs back to a string"""
+        result = ""
+        for symbol_id in sequence:
+            s = self.id2symbol[symbol_id]
+            result += s
+        return result
+
+    def process_text(self, input: str, input_type: str):
+        #print(f"[{i}] - Input text: {input}")
+
+        s = input.lower()
+        s = s.replace(".","")
+
+        words = []
+        if not input_type == "phonemes":
+            phn_list = []
+            for w in s.split(" "):
+                result = self.selected_phonemizer.phonemize(w)
+                #print(f"{w}\t{result}")
+                phn_list.append(result)
+                words.append({
+                    "orth": w,
+                    "phonemes": result
+                })
+            phn = " ".join(phn_list)
+            cleaned_text = self.cleaned_text_to_sequence(phn)
+            #print(f"{phn=}\t{cleaned_text=}")
         else:
-            return self.pher.phonemize([input], strip=True, njobs=1)[0]
+            for w in s.split(" "):
+                words.append({"phonemes": w})
+            cleaned_text = self.cleaned_text_to_sequence(input)
+            #print(f"{input=}\t{cleaned_text=}")
 
-    def __str__(self):
-        return f"(name={self.name},lang={self.lang},model={self.path})"
+        x = torch.tensor(
+            intersperse(cleaned_text, 0),
+            dtype=torch.long,
+            device=self.device,
+        )[None]
+        x_lengths = torch.tensor([x.shape[-1]], dtype=torch.long, device=self.device)
+        x_phones = self.sequence_to_text(x.squeeze(0).tolist())
+        #print(f"[{i}] - Phonetised text: {x_phones[1::2]}")
+        return {"words": words, "x_orig": input, "x": x, "x_lengths": x_lengths, "x_phones": x_phones}
+
+    def synthesize_all(self, inputs, input_type, output_folder, params):
+        import uuid
+        uid = uuid.uuid4()
+        res = []
+        i = 0
+        for input in inputs:
+            input = input.strip()
+            i = i+1
+            base_name = f"utt_{uid}_{i:03d}_spk_{params.spk:03d}" if params.spk is not None else f"utt_{uid}_{i:03d}"
+            output_file = os.path.join(output_folder, base_name)
+            res.append(self.synthesize(input, input_type, output_file, params))
+        if len(res) > 0:
+            copy_to_latest(res[len(res)-1],output_folder)
+        return res
+    
+    def synthesize(self, input, input_type, output_file, params):
+        output_name = os.path.basename(output_file)
+        output_name = Path(output_name).with_suffix('')
+        output_folder = os.path.dirname(output_file)
+            
+        if not self.loaded:
+            checkpoint_path = Path(self.model)
+            vocoder_name = os.path.basename(self.vocoder)
+            self.matcha_model = load_matcha(self.model, checkpoint_path, self.device)
+            self.matcha_vocoder, self.matcha_denoiser = load_vocoder(vocoder_name, self.vocoder, self.device)
+            self.loaded = True
+
+        ### SYNTHESIZE
+        text_processed = self.process_text(input, input_type)
+
+        spk = torch.tensor([self.speaker],device=self.device) if self.speaker is not None else None
+        output = self.matcha_model.synthesise(
+            text_processed["x"],
+            text_processed["x_lengths"],
+            n_timesteps=self.steps,
+            temperature=self.temperature,
+            spks=spk,
+            length_scale=tools.get_or_else(params.speaking_rate, self.speaking_rate),
+        )
+
+        ## PROCESS ALIGNMENT
+        import alignment
+        id2symbol={i: s for i, s in enumerate(self.symbols)} 
+        tokens = text_processed['words']
+
+        phonemes = []
+        for token in tokens:
+            if "phonemes" in token:
+                phonemes.append(token["phonemes"])
+        aligned = alignment.align(text_processed, output, self.id2symbol)
+        if len(tokens) == len(aligned):
+            for idx, w in enumerate(tokens):
+                tokens[idx] = tokens[idx] | aligned[idx]
+                    
+        result = {
+            "input": input,
+            "input_type": input_type,
+        }
+        if len(phonemes) > 0:
+            result["phonemes"]=" ".join(phonemes)
+        result["tokens"] = tokens
+        result["audio"] = f"{Path(os.path.basename(output_file)).with_suffix('.wav')}"
+
+        ## SAVE OUTPUT
+
+        # json file
+        json_output = Path(output_file).with_suffix('.json')
+        with open(json_output, 'w', encoding='utf-8') as f:
+            json.dump(result, f, ensure_ascii=False, indent=4)
+            logger.debug(f"JSON output saved: {json_output}")
+
+        # wav file
+        with torch.no_grad():
+            output["waveform"] = to_waveform(output["mel"], self.matcha_vocoder, self.matcha_denoiser, self.denoiser_strength)
+
+        location = save_to_folder(output_name, output, output_folder)
+        logger.debug(f"Waveform saved: {location}")
+
+        # label file
+        lab_file = os.path.join(output_folder, f"{output_name}.lab")
+        with open(lab_file, "w") as f:
+            for token in result['tokens']:
+                f.write(f"{token['start_time']}\t{token['end_time']}\t{token['phonemes']}\n")
+
+        return result
+
+
+def copy_to_latest(result,output_folder):
+    print(result)
+    basename = Path(result["audio"]).with_suffix("")
+
+    wav_file = os.path.join(output_folder, basename.with_suffix('.wav'))
+    png_file = os.path.join(output_folder, basename.with_suffix('.png'))
+    lab_file = os.path.join(output_folder, basename.with_suffix('.lab'))
+
+    latest_json = result.copy()
+    latest_json['audio'] = "latest.wav"
+    with open(os.path.join(output_folder, "latest.json"), 'w') as f:
+        json.dump(latest_json, f, ensure_ascii=False, indent=4)
+        
+    output_files = {
+        wav_file: os.path.join(output_folder, "latest.wav"),
+        png_file: os.path.join(output_folder, "latest.png"),
+        lab_file: os.path.join(output_folder, "latest.lab")
+    }
+    import shutil
+    for source, dest in output_files.items():
+        shutil.copy(source, dest)
+        

@@ -2,19 +2,6 @@
 
 import os, sys
 
-# Local imports
-import symbolset, synth
-from matcha_utils import(
-    clear_audio,
-    create_path,
-    create_tensor,
-    find_model,
-    get_device,
-    load_matcha,
-    load_vocoder,
-    validate_args
-)
-
 from argparse import Namespace
 
 # Logging
@@ -22,115 +9,35 @@ import logging
 logger = logging.getLogger('uvicorn')
 logger.setLevel(logging.DEBUG)
 
+# Imports from this repo
+import config, tools
+
 # Other imports
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from dotenv import load_dotenv
-    
+
 load_dotenv()
-
-def load_config():
-    import json
-    global paths, synths
-    
-    json_config = os.getenv("MATCHA_CONFIG") # Reads from .env file passed to uvicorn
-    if not json_config:
-        raise RuntimeError("Config not provided. Start server with --env-file")
-    loaded_names = []
-    # Open and read the JSON file
-    with open(json_config, 'r') as file:
-        data = json.load(file)
-        paths.output = create_path(data['output_path'], create=True)
-        paths.models = list(map(create_path, data['model_paths']))
-        force_cpu = data.get('force_cpu', False)
-
-        do_clear_audio = True
-        if 'clear_audio_on_startup' in data:
-            do_clear_audio = ['clear_audio_on_startup']
-
-        if do_clear_audio:
-            clear_audio(paths.output)
-                    
-        ## read voices in config file
-        for voice in data['voices']:
-            if 'enabled' in voice and voice['enabled'] == False:
-                continue
-            name = voice['name']
-            model = voice['model']
-            vocoder = voice['vocoder']
-
-            ## TODO move setup code to voice.py 
-            args = Namespace(
-                name=name,
-                cpu=force_cpu,
-                denoiser_strength=voice.get('denoiser_strength',0.00025),
-                speaking_rate=voice.get('speaking_rate',1.0),
-                steps=voice.get('steps',10),
-                temperature=voice.get('temperature',0.667),
-                batch_size=voice.get('batch_size',32),
-                spk=voice.get('spk',None),
-                output_folder=paths.output
-            )
-            if 'spk_range' in voice:
-                #args.spk_range=tuple(voice['spk_range']) # TODO
-                args.spk_range = (0, 107)
-            model_path = find_model(model,paths.models)
-            if model_path is None:
-                raise IOError(f"Failed to find model {model}")
-            vocoder_path = find_model(vocoder,paths.models)
-            args.checkpoint_path = model_path
-            args.vocoder = vocoder_path
-            #args = validate_args(args)
-            logger.debug(f"load_config voice: {voice} args: {args}")
-            device = get_device(args) # gpu/cpu # TODO move out
-            model = load_matcha(voice['model'], model_path, device)
-            vocoder, denoiser = load_vocoder(voice['vocoder'], vocoder_path, device)
-
-            spk = create_tensor([args.spk], device) if args.spk is not None else None
-            pzer = None
-            if "phonemizer" in voice:
-                phner = voice["phonemizer"]
-                if phner["type"] == "espeak":
-                    import phonemizer
-                    try:
-                        pzer = phonemizer.backend.EspeakBackend(
-                            language=phner["lang"],
-                            preserve_punctuation=True,
-                            with_stress=True,
-                            language_switch="remove-flags",
-                            logger=logger,
-                        )
-                    except RuntimeError as e:
-                        msg = f"Couldn't load phonetizer for voice {name}: {e}. Voice will not be loaded."
-                        logger.error(msg)
-                        continue
-                else:
-                    raise IOError(f"Invalid phonemizer type: {phner['type']}")
-            if 'symbols' in voice:
-                symbols = voice['symbols']
-            else:
-                    raise IOError(f"Voice {name} lacks required 'symbols' definition")
-            s = synth.Synthesizer(args, device, model, vocoder, denoiser, spk, pzer,  symbolset.Symbols(symbols), config=voice)
-
-            synths[name] = s
-            loaded_names.append(name)
-    logger.info(f"Loaded voices: {loaded_names}")
-
 
 input_types = ['text','phonemes']
 return_types = ['json','wav']
 
-synths = {}
-paths = Namespace()
+global_cfg = None
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    load_config()
+    global global_cfg
+    json_config = os.getenv("MATCHA_CONFIG") # Reads from .env file passed to uvicorn
+    if not json_config:
+        raise RuntimeError("Config not provided. Start server with --env-file")
+    global_cfg = config.load_config(json_config)
+    for v in global_cfg.voices:
+        global_cfg.voices[v].validate(fail_on_error=False)
 
     global paths
-    app.mount("/static", StaticFiles(directory=paths.output), name="static")
+    app.mount("/static", StaticFiles(directory=global_cfg.output_path), name="static")
     # ->  http://127.0.0.1:8000/static/FILENAME.wav    
 
     yield
@@ -189,7 +96,7 @@ async def synthesize_en_us_ljspeech(input_type: str = 'text',
 async def voices():
     global synths
     res = []
-    for k,v in synths.items():
+    for k,v in global_cfg.voices.items():
         res.append(v.config)
     return res
 
@@ -197,7 +104,7 @@ async def voices():
 async def symbols_set(voice: str):
     global synths
     if voice in synths:
-        symset = synths[voice].symbolset
+        symset = global_cfg.voices[voice].symbolset
         return {
             "symbols": symset.symbols,
         }
@@ -213,21 +120,20 @@ async def synthesize(voice: str = 'sv_se_hb',
                      input: str = "viː tˈɛstar tˈɑːlsyntˌeːs",
                      speaking_rate: float = 1.0,
                      return_type: str = 'json'):
-    if voice not in synths:
+    if voice not in global_cfg.voices:
         msg = f"No such voice: {voice}"
         logger.error(msg)
         raise HTTPException(status_code=404, detail=msg)
         
     import re
-    inputs = re.split(r"[.!?]+( +|$)", input)
+    input = input.strip()
+    input = re.sub("  +"," ",input)
+    inputs = re.split(r" *[.!?]+(?: +|$)", input)
     while "" in inputs:
         inputs.remove("")
-    while " " in inputs:
-        inputs.remove(" ")
-    params = Namespace (
-        input = inputs,
-        input_type = input_type,
+    params = Namespace(
         speaking_rate = speaking_rate,
+        spk = None,
     )
     global input_types
     if input_type not in input_types:
@@ -235,7 +141,8 @@ async def synthesize(voice: str = 'sv_se_hb',
         logger.error(msg)
         raise HTTPException(status_code=400, detail=msg)
     try:
-        res = synths[voice].synthesize(params)
+        res = global_cfg.voices[voice].synthesize_all(inputs, input_type, global_cfg.output_path, params)
+        print(res)
     except RuntimeError as e:
         logger.error(f"Matcha error: {e}")
         raise HTTPException(status_code=500, detail="Internal server error, see server log for details")
