@@ -110,7 +110,7 @@ async def symbols_set(voice: str):
     for k,v in global_cfg.voices.items():
         if v.name == voice:
             return {
-                "symbols": v.symbols,
+                "symbols": "".join(v.symbols),
             }
     msg = f"No such voice: {voice}"
     raise HTTPException(status_code=404, detail=msg)
