@@ -110,7 +110,7 @@ class Voice:
     def process_text(self, input: str, input_type: str):
         #print(f"[{i}] - Input text: {input}")
 
-        s = input.lower()
+        s = input
         s = s.replace(".","")
 
         words = []

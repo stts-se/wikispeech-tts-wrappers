@@ -68,7 +68,7 @@ async def synthesize_sv_se_nst(input_type: str = 'phonemes',
 
 @app.get("/synthesize/sv_se_nst_STTS-test")
 async def synthesize_sv_se_nst(input_type: str = 'mixed',
-                               input: str = "jag tycker om [[v°ɔfl`ur]]",
+                               input: str = "så här skickar man in [[bl°and`ad]] input",
                                speaking_rate: float = 1.0):
     return await synthesize(voice = 'sv_se_nst_STTS-test',
                             input_type = input_type,

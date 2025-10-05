@@ -24,6 +24,8 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(leve
 
 # python matcha_cli.py --config_file config_sample.json --voice en_us_ljspeech "l j speech is a public domain voice" --speaking-rate 1.5
 
+# python matcha_cli.py --config_file config_sample.json --voice sv_se_nst_STTS-test --phonemizer sv_se_braxen_full_sv "här använder vi en json [[k°ɔnfɪgf\`Il]]"
+
 
 import argparse
 
@@ -53,9 +55,9 @@ parser.add_argument('--speaking-rate', type=float, default=0.85, help="higher va
 parser.add_argument('--phonemizer')
 
 input_types = ['text','phonemes','mixed']
-parser.add_argument('-i', '--input_type', default="mixed", help=f"{input_types}; for mixed input, orth input is expected, but you can put phoneme input in [[double brackets]]")
+parser.add_argument('-i', '--input-type', default="mixed", help=f"{input_types}; for mixed input, orth input is expected, but you can put phoneme input in [[double brackets]]")
 
-parser.add_argument('input', help='input text/phonemes/mixed')
+parser.add_argument('input', help='input (text, phonemes or mixed)')
 
 #base_name = f"utterance_{i:03d}"
 default_dir=os.path.join(os.getcwd(), "audio_files")
