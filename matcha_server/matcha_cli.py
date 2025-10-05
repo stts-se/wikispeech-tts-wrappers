@@ -52,14 +52,16 @@ parser.add_argument('--speaking-rate', type=float, default=0.85, help="higher va
 
 parser.add_argument('--phonemizer')
 
-parser.add_argument('-i', '--input_type', default="text", help="text, phonemes or mixed")
-parser.add_argument('input', help='input text/phonemes')
+input_types = ['text','phonemes','mixed']
+parser.add_argument('-i', '--input_type', default="mixed", help=f"{input_types}; for mixed input, orth input is expected, but you can put phoneme input in [[double brackets]]")
+
+parser.add_argument('input', help='input text/phonemes/mixed')
 
 #base_name = f"utterance_{i:03d}"
 default_dir=os.path.join(os.getcwd(), "audio_files")
 os.makedirs(default_dir, exist_ok=True)
-default_file=os.path.join(default_dir, "utterance_001.wav")
-parser.add_argument('-o', '--output-file', default=default_file, help=f"Default: {default_file}")
+default_file=os.path.join(default_dir, "cli_utterance_001.wav")
+parser.add_argument('-o', '--output-file', default=default_file, help=f"default: {default_file}")
 
 args = parser.parse_args()
 
@@ -79,11 +81,10 @@ if not args.config_file:
         parser.error(" --phonemizer is required for input_type phonemes/mixed when used without config file")
         os.exit(1)
 
-
-if args.input_type not in ["text","phonemes","mixed"]:
-    parser.error(f"--input_type takes values text, phonemes or mixed; found {args.input_type}")
+if args.input_type not in input_types:
+    parser.error(f"Invalid input type: '{input_type}'. Use one of the following: {input_types}")
     os.exit(1)
-        
+       
 
 if args.config_file:
     result = config.load_config(args.config_file)

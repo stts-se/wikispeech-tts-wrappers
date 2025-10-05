@@ -21,7 +21,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-input_types = ['text','phonemes']
+input_types = ['text','phonemes','mixed']
 return_types = ['json','wav']
 
 global_cfg = None
@@ -67,8 +67,8 @@ async def synthesize_sv_se_nst(input_type: str = 'phonemes',
                             speaker_id = speaker_id)
 
 @app.get("/synthesize/sv_se_nst_STTS-test")
-async def synthesize_sv_se_nst(input_type: str = 'phonemes',
-                               input: str = "vˈI t°ɛstar t°Ɑlsynt`Es",
+async def synthesize_sv_se_nst(input_type: str = 'mixed',
+                               input: str = "jag tycker om [[v°ɔfl`ur]]",
                                speaking_rate: float = 1.0):
     return await synthesize(voice = 'sv_se_nst_STTS-test',
                             input_type = input_type,

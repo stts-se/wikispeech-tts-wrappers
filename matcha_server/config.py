@@ -7,7 +7,7 @@ import logging
 logger = logging.getLogger('matcha')
 
 # Imports from this repo
-import tools, voice_config
+import tools, voice
 
 class MatchaConfig:
     voices: dict
@@ -26,18 +26,18 @@ def load_from_args(args):
         phonemizer = Phonemizer("espeak", "espeak", args.phonemizer_lang)
     else:
         phonemizer = Phonemizer("deep_phonemizer", "deep_phonemizer", args.phonemizer_lang, args.phonemizer)
-    return voice_config.Voice(name="cmdline_voice",
-                              model=args.model,
-                              vocoder=args.vocoder,
-                              speaking_rate=args.speaking_rate,
-                              speaker=args.speaker,
-                              steps=args.steps,
-                              temperature=args.temperature,
-                              device=args.device,
-                              denoiser_strength=args.denoiser_strength,
-                              symbols=symbols,
-                              phonemizers=[phonemizer],
-                              selected_phonemizer_index=0)
+    return voice.Voice(name="cmdline_voice",
+                       model=args.model,
+                       vocoder=args.vocoder,
+                       speaking_rate=args.speaking_rate,
+                       speaker=args.speaker,
+                       steps=args.steps,
+                       temperature=args.temperature,
+                       device=args.device,
+                       denoiser_strength=args.denoiser_strength,
+                       symbols=symbols,
+                       phonemizers=[phonemizer],
+                       selected_phonemizer_index=0)
     
 
 def load_config(config_file):
@@ -56,15 +56,15 @@ def load_config(config_file):
             tools.clear_audio(result.output_path)
 
         ## read voices in config file
-        for voice in data['voices']:
-            name = voice['name']
+        for voice_config in data['voices']:
+            name = voice_config['name']
             if name in result.voices:
                 raise Exception(f"Config file contains duplicate voices named {name}")
             
-            symbols = [voice['symbols']['pad']] + list(voice['symbols']['punctuation']) + list(voice['symbols']['letters']) + list(voice['symbols']['letters_ipa'])
+            symbols = [voice_config['symbols']['pad']] + list(voice_config['symbols']['punctuation']) + list(voice_config['symbols']['letters']) + list(voice_config['symbols']['letters_ipa'])
             
             phonemizers = []
-            for phizer in voice['phonemizers']:
+            for phizer in voice_config['phonemizers']:
                 if phizer.get('enabled', True):
                     if phizer['type'] == "deep_phonemizer":
                         phonemizers.append(Phonemizer(phizer['name'], phizer['type'], phizer['lang'], tools.find_file(phizer['model'], result.model_paths)))
@@ -74,21 +74,21 @@ def load_config(config_file):
                         raise Exception(f"Unknown phonemizer type {type} for {phizer['name']}")
                     
             if len(phonemizers) == 0:
-                raise Exception(f"Couldn't find phonemizer for voice '{voice['name']}' in config file {config_file}")
+                raise Exception(f"Couldn't find phonemizer for voice '{voice_config['name']}' in config file {config_file}")
 
-            voice = voice_config.Voice(name=voice['name'],
-                                       model=tools.find_file(voice['model'], result.model_paths),
-                                       vocoder=tools.find_file(voice['vocoder'], result.model_paths),
-                                       speaking_rate=voice.get('speaking_rate',1.0),
-                                       speaker=voice.get('spk',None),
-                                       steps=voice.get('steps',10),
-                                       temperature=voice.get('temperature',0.667),
-                                       device=voice.get('device','cpu'),
-                                       denoiser_strength=voice.get('denoiser_strength',0.00025),
-                                       symbols=symbols,
-                                       phonemizers=phonemizers,
-                                       selected_phonemizer_index=0) ## default phonemizer
-            result.voices[name] = voice
+            v = voice.Voice(name=voice_config['name'],
+                            model=tools.find_file(voice_config['model'], result.model_paths),
+                            vocoder=tools.find_file(voice_config['vocoder'], result.model_paths),
+                            speaking_rate=voice_config.get('speaking_rate',1.0),
+                            speaker=voice_config.get('spk',None),
+                            steps=voice_config.get('steps',10),
+                            temperature=voice_config.get('temperature',0.667),
+                            device=voice_config.get('device','cpu'),
+                            denoiser_strength=voice_config.get('denoiser_strength',0.00025),
+                            symbols=symbols,
+                            phonemizers=phonemizers,
+                            selected_phonemizer_index=0) ## default phonemizer
+            result.voices[name] = v
     logger.debug(f"Loaded config file {config_file}")
     return result
 

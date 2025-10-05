@@ -11,9 +11,11 @@ logger.debug("    ... Matcha imports completed")
 # Imports from this repo
 import alignment, tools
 
-import sys, os
+import sys, os, re
 from pathlib import Path
 import json
+
+phoneme_input_re = re.compile("\\[\\[(.*)\\]\\]")
 
 from dataclasses import dataclass, asdict
 @dataclass
@@ -112,24 +114,42 @@ class Voice:
         s = s.replace(".","")
 
         words = []
-        if not input_type == "phonemes":
+        if input_type == "text":
             phn_list = []
             for w in s.split(" "):
                 result = self.selected_phonemizer().phonemize(w)
-                #print(f"{w}\t{result}")
                 phn_list.append(result)
                 words.append({
+                    "input": w,
                     "orth": w,
                     "phonemes": result
                 })
             phn = " ".join(phn_list)
             cleaned_text = self.cleaned_text_to_sequence(phn)
-            #print(f"{phn=}\t{cleaned_text=}")
+        elif input_type == "mixed":
+            phn_list = []
+            for w in s.split(" "):
+                m = phoneme_input_re.match(w)
+                if m:
+                    phn_list.append(m.group(1))
+                    words.append({
+                        "input": w,
+                        "phonemes": m.group(1)
+                    })
+                else:
+                    result = self.selected_phonemizer().phonemize(w)
+                    phn_list.append(result)
+                    words.append({
+                        "input": w,
+                        "orth": w,
+                        "phonemes": result
+                    })
+            phn = " ".join(phn_list)
+            cleaned_text = self.cleaned_text_to_sequence(phn)
         else:
             for w in s.split(" "):
                 words.append({"phonemes": w})
             cleaned_text = self.cleaned_text_to_sequence(input)
-            #print(f"{input=}\t{cleaned_text=}")
 
         x = torch.tensor(
             intersperse(cleaned_text, 0),
@@ -193,6 +213,7 @@ class Voice:
             if "phonemes" in token:
                 phonemes.append(token["phonemes"])
         aligned = alignment.align(text_processed, output, self.id2symbol)
+        logger.debug(f"ALIGNED {aligned}")
         if len(tokens) == len(aligned):
             for idx, w in enumerate(tokens):
                 tokens[idx] = tokens[idx] | aligned[idx]
