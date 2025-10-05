@@ -30,14 +30,14 @@ def load_from_args(args):
                               model=args.model,
                               vocoder=args.vocoder,
                               speaking_rate=args.speaking_rate,
-                              speaker=args.matcha_speaker,
+                              speaker=args.speaker,
                               steps=args.steps,
                               temperature=args.temperature,
                               device=args.device,
                               denoiser_strength=args.denoiser_strength,
                               symbols=symbols,
                               phonemizers=[phonemizer],
-                              selected_phonemizer=phonemizer)
+                              selected_phonemizer_index=0)
     
 
 def load_config(config_file):
@@ -87,7 +87,7 @@ def load_config(config_file):
                                        denoiser_strength=voice.get('denoiser_strength',0.00025),
                                        symbols=symbols,
                                        phonemizers=phonemizers,
-                                       selected_phonemizer=phonemizers[0]) ## default phonemizer
+                                       selected_phonemizer_index=0) ## default phonemizer
             result.voices[name] = voice
     logger.debug(f"Loaded config file {config_file}")
     return result

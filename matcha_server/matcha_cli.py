@@ -16,11 +16,14 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(leve
 
 # python matcha_cli.py -m ~/.local/share/matcha_tts/martin_singlechar_ipa.ckpt -v ~/.local/share/matcha_tts/hifigan_univ_v1 --phonemizer ~/.local/share/deep_phonemizer/dp_single_char_swe_langs.pt -l swe "jag är nikolajs martinröst" --symbols cli_symbols/symbols_martin_singlechar.txt
 
-# python matcha_cli.py -m ~/.local/share/matcha_tts/svensk_multi.ckpt -v ~/.local/share/matcha_tts/hifigan_univ_v1 --phonemizer ~/.local/share/deep_phonemizer/joakims_best_model_no_optim.pt -l sv --matcha-speaker 1 "jag är joakims röst" --symbols cli_symbols/symbols_joakims.txt
+# python matcha_cli.py -m ~/.local/share/matcha_tts/svensk_multi.ckpt -v ~/.local/share/matcha_tts/hifigan_univ_v1 --phonemizer ~/.local/share/deep_phonemizer/joakims_best_model_no_optim.pt -l sv --speaker 1 "jag är joakims röst" --symbols cli_symbols/symbols_joakims.txt
 
 # python matcha_cli.py --config_file config_sample.json --voice sv_se_nst_STTS-test --phonemizer sv_se_braxen_full_sv "här använder vi en configfil"
 
-# python matcha_cli.py --config_file config_sample.json --voice en_us_vctk --phonemizer espeak "and this is espeak with a config file" --matcha-speaker 3
+# python matcha_cli.py --config_file config_sample.json --voice en_us_vctk --phonemizer espeak "and this is espeak with a config file" --speaker 3
+
+# python matcha_cli.py --config_file config_sample.json --voice en_us_ljspeech "l j speech is a public domain voice" --speaking-rate 1.5
+
 
 import argparse
 
@@ -44,7 +47,7 @@ parser.add_argument('--steps', default=10, type=int)
 parser.add_argument('--temperature', default=0.667, type=float)
 parser.add_argument('--denoiser-strength', default=0.00025, type=float)
 parser.add_argument('--device', type=str, default="cpu")
-parser.add_argument('--matcha-speaker', type=int, default=None) # default is fetched from voice config
+parser.add_argument('--speaker', type=int, default=None) # default is fetched from voice config
 parser.add_argument('--speaking-rate', type=float, default=0.85, help="higher value=>slower, lower=>faster, 1.0=neutral, default=0.85") # default is fetched from voice config
 
 parser.add_argument('--phonemizer')
@@ -96,8 +99,8 @@ logger.debug(f"Loaded voice: {voice.name}: {voice}")
 ### Set voice properties if included in args
 if args.speaking_rate:
     voice.speaking_rate=args.speaking_rate
-if args.matcha_speaker:
-    voice.speaker=args.matcha_speaker
+if args.speaker:
+    voice.speaker=args.speaker
 if args.steps:
     voice.steps=args.steps
 if args.temperature:
@@ -109,21 +112,21 @@ if args.denoiser_strength:
                                
 ### Select phonemizer
 if args.phonemizer == None:
-    voice.selected_phonemizer = voice.phonemizers[0]
+    voice.selected_phonemizer_index = 0
 elif args.config_file == None:
-    voice.selected_phonemizer = voice.phonemizers[0]
+    voice.selected_phonemizer_index = 0
 else:
     found_named_phonemizer = False
-    for phoner in voice.phonemizers:
+    for i, phoner in enumerate(voice.phonemizers):
         if phoner.name == args.phonemizer:
-            voice.selected_phonemizer = phoner
+            voice.selected_phonemizer_index = i
             found_named_phonemizer = True
     if not found_named_phonemizer:
         raise Exception(f"No phonemizer named {args.phonemizer} for voice {voice.name}")
 
-logger.debug(f"Selected phonemizer: {voice.selected_phonemizer}")
+logger.debug(f"Selected phonemizer: {voice.selected_phonemizer()}")
 
 voice.validate()
 
-result = voice.synthesize(args.input, args.input_type, args.output_file)
+result = voice.synthesize(args.input, args.input_type, args.output_file, args)
 print(f"[+] Final output {result}")

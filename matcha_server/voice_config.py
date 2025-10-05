@@ -32,7 +32,7 @@ class Voice:
     symbols: str
     
     phonemizers: list
-    selected_phonemizer: object    
+    selected_phonemizer_index: int
 
     def __post_init__(self):
         self.SPACE_ID = self.symbols.index(" ")
@@ -45,7 +45,6 @@ class Voice:
         self.matcha_model = None
         self.matcha_vocoder = None
         self.matcha_denoiser = None
-
     
     def __str__(self):
         dict = asdict(self)
@@ -65,8 +64,8 @@ class Voice:
             "speaker": self.speaker,
             "symbols": "".join(self.symbols),
 
-            #"phonemizers": self.phonemizers,
-            "selected_phonemizer": self.selected_phonemizer.as_json()
+            "phonemizers": list(map(lambda p: p.as_json(), self.phonemizers)),
+            "selected_phonemizer": self.selected_phonemizer().name
         }
         return obj
 
@@ -103,6 +102,9 @@ class Voice:
             result += s
         return result
 
+    def selected_phonemizer(self):
+        return self.phonemizers[self.selected_phonemizer_index]
+    
     def process_text(self, input: str, input_type: str):
         #print(f"[{i}] - Input text: {input}")
 
@@ -113,7 +115,7 @@ class Voice:
         if not input_type == "phonemes":
             phn_list = []
             for w in s.split(" "):
-                result = self.selected_phonemizer.phonemize(w)
+                result = self.selected_phonemizer().phonemize(w)
                 #print(f"{w}\t{result}")
                 phn_list.append(result)
                 words.append({
@@ -144,7 +146,7 @@ class Voice:
         uid = uuid.uuid4()
         res = []
         i = 0
-        spk_id = tools.get_or_else(params.speaker, self.speaker)
+        spk_id = tools.get_or_else(vars(params).get("speaker"), self.speaker)
         for input in inputs:
             input = input.strip()
             i = i+1
@@ -169,7 +171,7 @@ class Voice:
 
         ### SYNTHESIZE
         text_processed = self.process_text(input, input_type)
-        spk_id = tools.get_or_else(params.speaker, self.speaker)
+        spk_id = tools.get_or_else(vars(params).get("speaker"), self.speaker, None)
 
         spk = torch.tensor([spk_id],device=self.device) if spk_id is not None else None
         output = self.matcha_model.synthesise(
@@ -178,7 +180,7 @@ class Voice:
             n_timesteps=self.steps,
             temperature=self.temperature,
             spks=spk,
-            length_scale=tools.get_or_else(params.speaking_rate, self.speaking_rate),
+            length_scale=tools.get_or_else(vars(params).get("speaking_rate"), self.speaking_rate),
         )
 
         ## PROCESS ALIGNMENT
