@@ -1,11 +1,18 @@
 import os
 from pathlib import Path
 
-# Logging
-import logging
-logger = logging.getLogger('matcha')
-logger.setLevel(logging.DEBUG)
-
+logger = None
+def get_logger(name="matcha"):
+    global logger
+    if logger is not None:
+        return logger
+    import logging
+    logging.getLogger('matplotlib').setLevel(logging.WARNING)
+    logger = logging.getLogger(name)
+    logging.getLogger(name).setLevel(logging.DEBUG)
+    logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    return logger
+    
 # if the same model/file is found in multiple paths, the first one will be used
 def find_file(name, paths):
     for p in paths:
@@ -26,7 +33,7 @@ def create_path(p,create=True):
 
 
 def clear_audio(audio_path):
-    logger.info(f"Clearing audio set to true")
+    get_logger().info(f"Clearing audio set to true")
     n=0
     for fn in os.listdir(audio_path):
         file_path = os.path.join(audio_path, fn)
@@ -34,7 +41,7 @@ def clear_audio(audio_path):
             os.remove(file_path)
             n+=1
             #print(fn, "is removed")
-    logger.debug(f"Deleted {n} files from folder {audio_path}")
+    get_logger().debug(f"Deleted {n} files from folder {audio_path}")
    
 def get_or_else(value1, value2, default=None):
     if value1 is not None:

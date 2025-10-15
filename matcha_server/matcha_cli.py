@@ -3,14 +3,12 @@ import os
 from pathlib import Path
 
 # imports from this repo
-import config
+import tools
 
 # Logging
-import logging
-logging.getLogger('matplotlib').setLevel(logging.WARNING)
-logger = logging.getLogger('matcha')
-logging.getLogger('matcha').setLevel(logging.DEBUG)
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = tools.get_logger("matcha_cli")
+
+import config
 
 ### EXAMPLE COMMANDS WITH PUBLICLY AVAILABLE MODELS
 

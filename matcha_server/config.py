@@ -2,12 +2,11 @@ import json
 import sys, os
 from pathlib import Path
 
-# Logging
-import logging
-logger = logging.getLogger('matcha')
-
 # Imports from this repo
 import tools, voice
+
+# Logging
+logger = tools.get_logger()
 
 class MatchaConfig:
     voices: dict

@@ -4,13 +4,12 @@ import os, sys
 
 from argparse import Namespace
 
-# Logging
-import logging
-logger = logging.getLogger('matcha')
-logger.setLevel(logging.DEBUG)
-
 # Imports from this repo
-import config, tools
+import tools
+
+logger = tools.get_logger("matcha_server")
+
+import config
 
 # Other imports
 from contextlib import asynccontextmanager

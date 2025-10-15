@@ -1,6 +1,8 @@
+# Imports from this repo
+import alignment, tools
+
 # Logging
-import logging
-logger = logging.getLogger('matcha')
+logger = tools.get_logger()
 
 logger.debug("Starting Matcha imports...")
 from matcha.utils.utils import intersperse
@@ -8,15 +10,13 @@ from matcha.cli import to_waveform, save_to_folder, load_matcha, load_vocoder
 import torch
 logger.debug("    ... Matcha imports completed")
 
-# Imports from this repo
-import alignment, tools
 
 import sys, os, re
 from pathlib import Path
 import json
 
 phoneme_input_re = re.compile("\\[\\[(.*)\\]\\]")
-separate_comma_re = re.compile(" *, *")
+separate_comma_re = re.compile("(^|[^\\[]) *, *($|[^\\]])")
 wordsplit=re.compile(" +")
 
 from dataclasses import dataclass, asdict
@@ -114,7 +114,7 @@ class Voice:
 
         s = input
         s = s.replace(".","")
-        s = separate_comma_re.sub(" , ",s)
+        s = separate_comma_re.sub("\\1 , \\2",s)
 
         words = []
         if input_type == "text":
@@ -285,5 +285,6 @@ def copy_to_latest(result,output_folder):
     }
     import shutil
     for source, dest in output_files.items():
-        shutil.copy(source, dest)
+        if os.path.isfile(source):            
+            shutil.copy(source, dest)
         

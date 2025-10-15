@@ -1,9 +1,7 @@
 import torch
 
-# Logging
-import logging
-logger = logging.getLogger('matcha')
-logger.setLevel(logging.DEBUG)
+import tools
+logger = tools.get_logger()
 
 # Constants
 hop_length = 256            # Typically 256 in most models
