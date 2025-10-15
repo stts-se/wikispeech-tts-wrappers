@@ -60,14 +60,21 @@ def load_config(config_file):
             name = voice_config['name']
             if name in result.voices:
                 raise Exception(f"Config file contains duplicate voices named {name}")
-            
+
+            if not voice_config.get('enabled', True):
+                logger.debug(f"Skipping voice {name} (not enabled)")
+                continue
+
             symbols = [voice_config['symbols']['pad']] + list(voice_config['symbols']['punctuation']) + list(voice_config['symbols']['letters']) + list(voice_config['symbols']['letters_ipa'])
             
             phonemizers = []
             for phizer in voice_config['phonemizers']:
                 if phizer.get('enabled', True):
                     if phizer['type'] == "deep_phonemizer":
-                        phonemizers.append(Phonemizer(phizer['name'], phizer['type'], phizer['lang'], tools.find_file(phizer['model'], result.model_paths)))
+                        model_path = tools.find_file(phizer['model'], result.model_paths)
+                        if model_path is None:
+                            raise Exception(f"Couldn't find model {name} for {phizer['name']}. Looked in {result.model_paths}")
+                        phonemizers.append(Phonemizer(phizer['name'], phizer['type'], phizer['lang'], model_path))
                     elif phizer['type'] == "espeak":
                         phonemizers.append(Phonemizer(phizer['name'], phizer['type'], phizer['lang']))
                     else:
@@ -106,6 +113,10 @@ class Phonemizer:
         try:
             if tpe == "deep_phonemizer":
                 from dp.phonemizer import Phonemizer
+                if path is None:
+                    raise Exception(f"Deep phonemizer {name} cannot be loaded without a model path. Found None")
+                if not os.path.isfile(self.path):
+                    raise Exception(f"Model path for deep phonemizer {name} does not exist: {path}")
                 self.pher = Phonemizer.from_checkpoint(path)
             elif tpe == "espeak":
                 import phonemizer

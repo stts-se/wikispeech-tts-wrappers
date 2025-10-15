@@ -42,34 +42,41 @@ curl -L https://github.com/shivammehta25/Matcha-TTS-checkpoints/releases/downloa
 cd -
 ```
 
-___4.2 Additional Matcha models___
+___4.2 Additional models___
 
-Download additional models for Matcha from [STTS Google Drive](https://drive.google.com/drive/folders/1g8tw6tKBd32gcgHbPSTPg5b8dFhQ8SOP?usp=sharing) and save to `$HOME/.local/share/matcha_tts`
+For now, these models are only available for users approved by STTS. Some of these will be made publicly available once we sort out some licensing issues.
 
-___4.3 Phonetization models___
+Download additional Matcha models from [STTS Google Drive](https://drive.google.com/drive/folders/1g8tw6tKBd32gcgHbPSTPg5b8dFhQ8SOP?usp=sharing) and save to `$HOME/.local/share/matcha_tts`
 
-Download phonetization models for Deep Phonemizer from [STTS Google Drive](https://drive.google.com/drive/folders/1XAgg_fu7Ay4eEad0n5WW7m-IX1XKIXNz?usp=sharing) and save to `$HOME/.local/share/deep_phonemizer`
+Download Deep Phonemizer models from [STTS Google Drive](https://drive.google.com/drive/folders/1XAgg_fu7Ay4eEad0n5WW7m-IX1XKIXNz?usp=sharing) and save to `$HOME/.local/share/deep_phonemizer`
 
 **5. Check config**
 
-Verify paths and other config settings in `config_sample.json`
+Verify paths and other config settings in `config_sample.json`. Please not that voices in the config file that are not enabled refer to models currently not publicly available (see also Additional models above).
 
-_Notes on specific voices_
 
-In order to use the Swedish test voices `hb_last.ckpt` and `svensk_multi.ckpt` (disabled by default), you need to save those checkpoint files in your `model_paths` list (as defined in the config file).
+**6. Cmdline client**
 
-**6. Start server**
+`python matcha_cli.py -h`
+
+Check example commands in the top part of matcha_cli.py
+
+
+**7. Server**
+
+___7.1 Start server___
 
 ```
 uvicorn matcha_server:app --env-file config_sample.env
 ```
 
 
-**7. Access server**
+___7.2 Access server___
 
 Use your browser to go to http://127.0.0.1:8000/docs
 
-___7.1 Audio and other output___
+
+___7.3 Audio and other output___
 
 Output files will be in the `output_path` folder defined in the config file, default: `./audio_files`:
 
@@ -85,12 +92,6 @@ There are currently two ways to listen to the generated audio:
 
 Please note that the server's default setting is to clear the `output_path` on startup. This can be configured in the config file (see `config_sample.json`).
 
-
-**8. Cmdline client**
-
-`python matcha_cli.py -h`
-
-Check example commands in the top part of matcha_cli.py
 
 <!--
 --------

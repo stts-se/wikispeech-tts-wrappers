@@ -126,6 +126,7 @@ class Voice:
                 })
             phn = " ".join(phn_list)
             cleaned_text = self.cleaned_text_to_sequence(phn)
+            # print(f"???? [+] - Cleaned text input: {phn}")
         elif input_type == "mixed":
             phn_list = []
             for w in s.split(" "):
@@ -146,10 +147,12 @@ class Voice:
                     })
             phn = " ".join(phn_list)
             cleaned_text = self.cleaned_text_to_sequence(phn)
+            # print(f"???? [+] - Cleaned text input: {phn}")
         else:
             for w in s.split(" "):
                 words.append({"phonemes": w})
             cleaned_text = self.cleaned_text_to_sequence(input)
+            # print(f"???? [+] - Cleaned text input: {input}")
 
         x = torch.tensor(
             intersperse(cleaned_text, 0),
@@ -158,7 +161,7 @@ class Voice:
         )[None]
         x_lengths = torch.tensor([x.shape[-1]], dtype=torch.long, device=self.device)
         x_phones = self.sequence_to_text(x.squeeze(0).tolist())
-        #print(f"[{i}] - Phonetised text: {x_phones[1::2]}")
+        # print(f"???? [+] - Phonetised text: {x_phones[1::2]}")
         return {"words": words, "x_orig": input, "x": x, "x_lengths": x_lengths, "x_phones": x_phones}
 
     def synthesize_all(self, inputs, input_type, output_folder, params):
@@ -214,10 +217,13 @@ class Voice:
                 phonemes.append(token["phonemes"])
         aligned = alignment.align(text_processed, output, self.id2symbol)
         logger.debug(f"ALIGNED {aligned}")
+
         if len(tokens) == len(aligned):
             for idx, w in enumerate(tokens):
                 tokens[idx] = tokens[idx] | aligned[idx]
-                    
+        else:
+            logger.error(f"Different number of tokens vs aligned tokens -- output json file will not include aligmnent")
+                
         result = {
             "input": input,
             "input_type": input_type,
@@ -244,12 +250,15 @@ class Voice:
         location = save_to_folder(output_name, output, output_folder)
         logger.debug(f"Waveform saved: {location}")
 
-        # label file
-        lab_file = os.path.join(output_folder, f"{output_name}.lab")
-        with open(lab_file, "w") as f:
-            for token in result['tokens']:
-                f.write(f"{token['start_time']}\t{token['end_time']}\t{token['phonemes']}\n")
-
+        if len(tokens) == len(aligned):
+            # label file
+            lab_file = os.path.join(output_folder, f"{output_name}.lab")
+            with open(lab_file, "w") as f:
+                for token in result['tokens']:
+                    f.write(f"{token['start_time']}\t{token['end_time']}\t{token['phonemes']}\n")
+        else:
+            logger.error(f"Different number of tokens vs aligned tokens -- label file will not be created")
+                    
         return result
 
 

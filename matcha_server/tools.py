@@ -14,7 +14,7 @@ def find_file(name, paths):
             return f
     return None
 
-def create_path(p,create=False):
+def create_path(p,create=True):
     p = os.path.expandvars(p)
     if create:
         folder = Path(p)
