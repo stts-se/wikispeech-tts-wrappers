@@ -1,5 +1,7 @@
 # wikispeech-tts-wrappers
-Various wrappers for the Wikispeech project
+
+This repository contains various wrappers and modules for the Wikispeech project. For documentation, see individual README files.
+
 
 ---
 
