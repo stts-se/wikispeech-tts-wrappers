@@ -51,12 +51,7 @@ def load_config(config_file):
         result.output_path = tools.create_path(data['output_path'], create=True)
         result.force_cpu = data.get('force_cpu', False)
         result.voices = {}
-        
-        #result.do_clear_audio = True
-        #if 'clear_audio_on_startup' in data:
-        #    result.do_clear_audio = ['clear_audio_on_startup']
-        #if result.do_clear_audio:
-        #    tools.clear_audio(result.output_path)
+
         if data.get('clear_audio_on_startup', False):
             tools.clear_audio(result.output_path)
 

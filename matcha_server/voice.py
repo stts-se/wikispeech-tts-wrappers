@@ -163,7 +163,6 @@ class Voice:
         )[None]
         x_lengths = torch.tensor([x.shape[-1]], dtype=torch.long, device=self.device)
         x_phones = self.sequence_to_text(x.squeeze(0).tolist())
-        # print(f"???? [+] - Phonetised text: {x_phones[1::2]}")
         return {"words": words, "x_orig": input, "x": x, "x_lengths": x_lengths, "x_phones": x_phones}
 
     def synthesize_all(self, inputs, input_type, output_folder, params):
