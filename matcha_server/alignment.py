@@ -12,6 +12,17 @@ sample_rate = 22050         # Depends on your setup
 word_boundary = ' '
 pause = ','
 
+def combine(tokens, aligned):
+    if len(tokens) == len(aligned):
+        res = []
+        for idx, w in enumerate(tokens):
+            res.append(tokens[idx] | aligned[idx])
+        return res
+    else:
+        logger.error(f"Different number of tokens vs aligned tokens -- output json file will not include aligmnent")
+        return tokens
+
+
 def align(input_processed, output, id2symbol):
     #"attn": torch.Tensor, shape: (batch_size, max_text_length, max_mel_length),
     #Alignment map between text and mel spectrogram

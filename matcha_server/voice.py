@@ -218,11 +218,7 @@ class Voice:
         aligned = alignment.align(text_processed, output, self.id2symbol)
         logger.debug(f"ALIGNED {aligned}")
 
-        if len(tokens) == len(aligned):
-            for idx, w in enumerate(tokens):
-                tokens[idx] = tokens[idx] | aligned[idx]
-        else:
-            logger.error(f"Different number of tokens vs aligned tokens -- output json file will not include aligmnent")
+        tokens = alignment.combine(tokens, aligned)
                 
         result = {
             "input": input,

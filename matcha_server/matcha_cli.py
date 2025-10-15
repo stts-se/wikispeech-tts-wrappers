@@ -12,21 +12,22 @@ logger = logging.getLogger('matcha')
 logging.getLogger('matcha').setLevel(logging.DEBUG)
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
-# EXAMPLE COMMANDS WITH PUBLICLY AVAILABLE MODELS
+### EXAMPLE COMMANDS WITH PUBLICLY AVAILABLE MODELS
 
 # python matcha_cli.py --config_file config_sample.json --voice en_us_vctk --phonemizer espeak "and this is espeak with a config file" --speaker 3
 
 # python matcha_cli.py --config_file config_sample.json --voice en_us_ljspeech "l j speech is a public domain voice" --speaking-rate 1.5
 
-# EXAMPLE COMMANDS WITH STTS INTERNAL MODELS
+
+### EXAMPLE COMMANDS WITH STTS INTERNAL MODELS
 
 # python matcha_cli.py -m ~/.local/share/matcha_tts/martin_singlechar_ipa.ckpt -v ~/.local/share/matcha_tts/hifigan_univ_v1 --phonemizer ~/.local/share/deep_phonemizer/dp_single_char_swe_langs.pt -l swe "jag är nikolajs martinröst" --symbols cli_symbols/symbols_martin_singlechar.txt
 
 # python matcha_cli.py -m ~/.local/share/matcha_tts/svensk_multi.ckpt -v ~/.local/share/matcha_tts/hifigan_univ_v1 --phonemizer ~/.local/share/deep_phonemizer/joakims_best_model_no_optim.pt -l sv --speaker 1 "jag är joakims röst" --symbols cli_symbols/symbols_joakims.txt
 
-# python matcha_cli.py --config_file config_sample.json --voice sv_se_nst_STTS-test --phonemizer sv_se_braxen_full_sv "här använder vi en configfil"
+# python matcha_cli.py --config_file config_stts.json --voice sv_se_nst_STTS-test --phonemizer sv_se_braxen_full_sv "här använder vi en configfil"
 
-# python matcha_cli.py --config_file config_sample.json --voice sv_se_nst_STTS-test --phonemizer sv_se_braxen_full_sv "här använder vi en json [[k°ɔnfɪgf\`Il]]"
+# python matcha_cli.py --config_file config_stts.json --voice sv_se_nst_STTS-test --phonemizer sv_se_braxen_full_sv "här använder vi en json [[k°ɔnfɪgf\`Il]]"
 
 
 import argparse
