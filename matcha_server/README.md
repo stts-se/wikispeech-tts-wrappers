@@ -92,7 +92,7 @@ There are currently two ways to listen to the generated audio:
 
 Please note that the server's default setting is to clear the `output_path` on startup. This can be configured in the config file (see `config_sample.json`).
 
-Usage example for output_type=wav
+Usage example for output_type=wav: 
 http://localhost:8000/synthesize/?voice=sv_se_nst_STTS-test&input_type=mixed&input=s%C3%A5%20h%C3%A4r%20skickar%20man%20in%20[[bl%C2%B0and`ad]]%20input%20och%20f%C3%A5r%20en%20ljudfil%20direkt&speaking_rate=1&return_type=wav
 
 
