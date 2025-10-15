@@ -66,7 +66,7 @@ async def synthesize_sv_se_nst(input_type: str = 'phonemes',
                             speaker_id = speaker_id)
 
 @app.get("/synthesize/sv_se_nst_STTS-test")
-async def synthesize_sv_se_nst(input_type: str = 'mixed',
+async def synthesize_sv_se_nst_stts(input_type: str = 'mixed',
                                input: str = "så här skickar man in [[bl°and`ad]] input",
                                speaking_rate: float = 1.0):
     return await synthesize(voice = 'sv_se_nst_STTS-test',
@@ -154,13 +154,13 @@ async def synthesize(voice: str = 'sv_se_hb',
     # return type
     if return_type == 'json':
         for i, obj in enumerate(res):
-            #obj['audio'] = f"/static/{os.path.basename(obj['audio'])}"             
             res[i] = obj
             return res
     elif return_type == 'wav':
         if len(res) == 1:
             f = res[0]['audio']
-            return FileResponse(f, filename=os.path.basename(f), media_type="audio/wav")
+            full_path = os.path.join(global_cfg.output_path, f)
+            return FileResponse(full_path, filename=os.path.basename(f), media_type="audio/wav")
         else:
             msg = f"Cannot use return type {return_type} for multiple output objects. Try json instead."
             logger.error(msg)
