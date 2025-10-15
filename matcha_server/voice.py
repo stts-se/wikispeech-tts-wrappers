@@ -16,6 +16,8 @@ from pathlib import Path
 import json
 
 phoneme_input_re = re.compile("\\[\\[(.*)\\]\\]")
+separate_comma_re = re.compile(" *, *")
+wordsplit=re.compile(" +")
 
 from dataclasses import dataclass, asdict
 @dataclass
@@ -112,11 +114,12 @@ class Voice:
 
         s = input
         s = s.replace(".","")
+        s = separate_comma_re.sub(" , ",s)
 
         words = []
         if input_type == "text":
             phn_list = []
-            for w in s.split(" "):
+            for w in wordsplit.split(s):
                 result = self.selected_phonemizer().phonemize(w)
                 phn_list.append(result)
                 words.append({
@@ -125,11 +128,11 @@ class Voice:
                     "phonemes": result
                 })
             phn = " ".join(phn_list)
+            phn = separate_comma_re.sub(" , ", phn)
             cleaned_text = self.cleaned_text_to_sequence(phn)
-            # print(f"???? [+] - Cleaned text input: {phn}")
         elif input_type == "mixed":
             phn_list = []
-            for w in s.split(" "):
+            for w in wordsplit.split(s):
                 m = phoneme_input_re.match(w)
                 if m:
                     phn_list.append(m.group(1))
@@ -147,12 +150,11 @@ class Voice:
                     })
             phn = " ".join(phn_list)
             cleaned_text = self.cleaned_text_to_sequence(phn)
-            # print(f"???? [+] - Cleaned text input: {phn}")
-        else:
-            for w in s.split(" "):
+        else: # phoneme input
+            s = separate_comma_re.sub(" , ", s)
+            for w in wordsplit.split(s):
                 words.append({"phonemes": w})
             cleaned_text = self.cleaned_text_to_sequence(input)
-            # print(f"???? [+] - Cleaned text input: {input}")
 
         x = torch.tensor(
             intersperse(cleaned_text, 0),
@@ -238,6 +240,12 @@ class Voice:
         with open(json_output, 'w', encoding='utf-8') as f:
             json.dump(result, f, ensure_ascii=False, indent=4)
             logger.debug(f"JSON output saved: {json_output}")
+
+        ## alignment output for debugging
+        # alignment_output = Path(os.path.join(output_folder,f"{output_name}_alignment_debug")).with_suffix('.json')
+        # with open(alignment_output, 'w', encoding='utf-8') as f:
+        #     json.dump(aligned, f, ensure_ascii=False, indent=4)
+        #     logger.debug(f"Alignment output saved: {alignment_output}")
 
         # wav file
         with torch.no_grad():

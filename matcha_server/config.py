@@ -22,6 +22,10 @@ def load_from_args(args):
         with open(args.symbols, 'r') as file:
             symbols = file.read()
         
+    if args.clear_audio:
+        folder = os.path.dirname(args.output_file)
+        tools.clear_audio(folder)
+
     if args.phonemizer == "espeak":
         phonemizer = Phonemizer("espeak", "espeak", args.phonemizer_lang)
     else:
@@ -49,10 +53,12 @@ def load_config(config_file):
         result.force_cpu = data.get('force_cpu', False)
         result.voices = {}
         
-        result.do_clear_audio = True
-        if 'clear_audio_on_startup' in data:
-            result.do_clear_audio = ['clear_audio_on_startup']
-        if result.do_clear_audio:
+        #result.do_clear_audio = True
+        #if 'clear_audio_on_startup' in data:
+        #    result.do_clear_audio = ['clear_audio_on_startup']
+        #if result.do_clear_audio:
+        #    tools.clear_audio(result.output_path)
+        if data.get('clear_audio_on_startup', False):
             tools.clear_audio(result.output_path)
 
         ## read voices in config file

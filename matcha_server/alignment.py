@@ -2,7 +2,7 @@ import torch
 
 # Logging
 import logging
-logger = logging.getLogger('uvicorn')
+logger = logging.getLogger('matcha')
 logger.setLevel(logging.DEBUG)
 
 # Constants
@@ -12,6 +12,7 @@ sample_rate = 22050         # Depends on your setup
 word_boundary = ' '
 pause = ','
 
+# combine input tokens with aligned tokens
 def combine(tokens, aligned):
     if len(tokens) == len(aligned):
         res = []
@@ -58,7 +59,7 @@ def align(input_processed, output, id2symbol):
             if acc_word['start_time'] is None:
                 acc_word['start_time'] = start_time
 
-            if phoneme == pause:
+            if phoneme == pause and len(acc_word['phonemes']) > 0:
                 res.append(acc_word)
                 acc_word = {
                     'phonemes': phoneme,

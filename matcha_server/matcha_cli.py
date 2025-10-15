@@ -54,6 +54,7 @@ parser.add_argument('--denoiser-strength', default=0.00025, type=float)
 parser.add_argument('--device', type=str, default="cpu")
 parser.add_argument('--speaker', type=int, default=None) # default is fetched from voice config
 parser.add_argument('--speaking-rate', type=float, default=0.85, help="higher value=>slower, lower=>faster, 1.0=neutral, default=0.85") # default is fetched from voice config
+parser.add_argument('--clear-audio',action='store_true', help="Clear audio on startup")
 
 parser.add_argument('--phonemizer')
 

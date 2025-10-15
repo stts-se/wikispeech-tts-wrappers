@@ -6,7 +6,7 @@ from argparse import Namespace
 
 # Logging
 import logging
-logger = logging.getLogger('uvicorn')
+logger = logging.getLogger('matcha')
 logger.setLevel(logging.DEBUG)
 
 # Imports from this repo
