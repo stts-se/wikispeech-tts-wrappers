@@ -1,5 +1,7 @@
 # Server for Piper TTS
 
+___Please note that this server is using and old version of Piper, and is only kept here for reference. Will be deprecated___
+
 Piper URL: [https://github.com/OHF-Voice/piper1-gpl](https://github.com/OHF-Voice/piper1-gpl)
 
 Supported version 1.2.0
