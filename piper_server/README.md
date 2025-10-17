@@ -66,21 +66,21 @@ Download additional Piper models from [STTS Google Drive](https://drive.google.c
 Verify paths and other config settings in `config_sample.env`
 
 
-**5. Start server**
+**5. Server**
+
+___5.1 Start server___
 
 ```
 uvicorn piper_server:app --env-file config_sample.env
 ```
 
 
-**6. Access server**
+___5.2 Access server___
 
 Use your browser to go to http://127.0.0.1:8000/docs
 
 
--->
-
-**7. Audio and other output**
+___5.3 Audio and other output___
 
 Output files will be in the `output_path` folder defined in the config file, default: `./audio_files`:
 
@@ -93,3 +93,6 @@ There are currently two ways to listen to the generated audio:
 2. Use your browser to copy the `audio` path from the server response, and paste it in the browser's address field as `http://127.0.0.1:8000/static/AUDIOILE.wav` or `http://127.0.0.1:8000/static/latest.wav`
 
 Please note that the server's default setting is to clear the `output_path` on startup. This can be configured in the config file (see `config_sample.json`).
+
+-->
+
