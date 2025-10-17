@@ -1,3 +1,5 @@
+## NEEDS TO RUN ON A PIPER DEV BUILD, NOT THE PRE-INSTALLED 1.3.0 VERSION
+
 import sys
 
 import wave
@@ -41,7 +43,15 @@ current_word = {
 }
 words = []
 total_samples = 0
-for chunk in voice.synthesize(args.input,syn_config=syn_config,include_alignments=True):
+
+chunks = []
+try:
+    chunks = voice.synthesize(args.input,syn_config=syn_config,include_alignments=True)
+except TypeError as e:
+    print(f"[{cmd}] FATAL ERROR: TypeError {e} - likely caused by running on piper release 1.3.0 instead of a dev build (because of alignment dependency)", file=sys.stderr)    
+    sys.exit(1)
+
+for chunk in chunks:
     for ali in chunk.phoneme_alignments:
         total_samples += ali.num_samples
         print(f"{ali.phoneme}\t{int(ali.num_samples)}\t{total_samples}")
