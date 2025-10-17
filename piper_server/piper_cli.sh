@@ -15,6 +15,7 @@ elif [ $# -eq 2 ]; then
     output=$3
     python3 -m piper -m $model -- $input
 else
-    echo "Usage: $cmd <onnx model> <input text or phonemes> <output file (optional)>" 1>&2
+    echo "Usage: $cmd <model name> <input text or phonemes> <output file*>" 1>&2
+    echo " - if no output file is set, audio will be played immediately using ffplay (dependency)" 1>&2
     exit 1
 fi

@@ -57,7 +57,9 @@ Download additional Piper models from [STTS Google Drive](https://drive.google.c
 
 **4. Cmdline client**
 
-`bash piper_cli.sh -h`
+`bash piper_cli.sh <model name> <input text or phonemes> <output file*>`
+
+* if no output file is set, audio will be played immediately using ffplay (dependency).
 
 
 <!--
