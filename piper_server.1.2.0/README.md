@@ -2,7 +2,7 @@
 
 Piper URL: [https://github.com/OHF-Voice/piper1-gpl](https://github.com/OHF-Voice/piper1-gpl)
 
-Supported version 1.3.0
+Supported version 1.2.0
 
 
 ## Installation
@@ -15,18 +15,12 @@ Supported version 1.3.0
 ```
 uv venv
 source .venv/bin/activate
-uv pip install piper-tts==1.3.0
+uv pip install piper-tts==1.2.0
 uv pip install "fastapi[standard]"
 uv pip install uvicorn
 ```
 
 **3. Download models**
-
-Replace `$HOME/.local/share/piper_tts` if you want to save your models elsewhere.
-
-<!-- In that case, you also have to update `paths` in your config file (see below). -->
-
-___3.1 Piper models___
 
 ```
 mkdir -p $HOME/.local/share/piper_tts
@@ -43,22 +37,7 @@ wget https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/sv/sv_SE/lisa/me
 wget https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/sv/sv_SE/lisa/medium/sv_SE-lisa-medium.onnx.json
 cd -
 ```
-___3.2 Additional models___
 
-For now, these models are only available for users approved by STTS. Some of these will be made publicly available once we sort out some licensing issues.
-
-Download additional Piper models from [STTS Google Drive](https://drive.google.com/drive/folders/1quDWeW1Vemky1YFdLv17m8Chtpg7ZPSO?usp=sharing) and save to `$HOME/.local/share/piper_tts`
-
-<!-- Download Deep Phonemizer models from [STTS Google Drive](https://drive.google.com/drive/folders/1XAgg_fu7Ay4eEad0n5WW7m-IX1XKIXNz?usp=sharing) and save to `$HOME/.local/share/deep_phonemizer` -->
-
-
-
-**4. Cmdline client**
-
-`bash piper_cli.sh -h`
-
-
-<!--
 **4. Check config**
 
 Verify paths and other config settings in `config_sample.env`
@@ -76,7 +55,6 @@ uvicorn piper_server:app --env-file config_sample.env
 Use your browser to go to http://127.0.0.1:8000/docs
 
 
--->
 
 **7. Audio and other output**
 
