@@ -4,9 +4,9 @@ ___WORK IN PROGRESS___
 
 STTS' Piper fork: [https://github.com/stts-se/piper1-gpl](https://github.com/stts-se/piper1-gpl)
 
-Main Piper URL: [https://github.com/OHF-Voice/piper1-gpl](https://github.com/OHF-Voice/piper1-gpl)
+Main Piper repo: [https://github.com/OHF-Voice/piper1-gpl](https://github.com/OHF-Voice/piper1-gpl)
 
-Supported version 1.3.0
+Supported Piper version 1.3.0
 
 
 ## Installation
