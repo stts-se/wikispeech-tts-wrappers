@@ -61,7 +61,7 @@ Download additional Piper models from [STTS Google Drive](https://drive.google.c
 
 `bash piper_cli.sh <model name> <input text or phonemes> <output file*>`
 
-* if no output file is set, audio will be played immediately using ffplay (dependency).
+_\* if no output file is set, audio will be played immediately using ffplay (dependency)_
 
 
 <!--
