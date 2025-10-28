@@ -1,4 +1,4 @@
-## NEEDS TO RUN ON A PIPER DEV BUILD, NOT THE PRE-INSTALLED 1.3.0 VERSION
+## FOR ALIGNED OUTPUT, YOU NEED TO RUN THIS ON A PIPER DEV BUILD, NOT THE PRE-INSTALLED 1.3.0 VERSION
 
 import sys
 from pathlib import Path
@@ -48,7 +48,7 @@ with wave.open(args.output_file, "wb") as wav_file:
     try:
         chunks = voice.synthesize(args.input, syn_config=syn_config, include_alignments=True)
     except TypeError as e:
-            print(f"[{cmd}] Got TypeError from voice.synthesize: {e}. Likely caused by running on piper release 1.3.0 instead of a dev build (because of alignment dependency). Alignment output will be disabled.", file=sys.stderr)    
+            print(f"[{cmd}] Got TypeError from voice.synthesize: {e}. Likely caused by running on piper release 1.3.0 rather than a dev build (because of alignment dependency). Alignment output will be disabled.", file=sys.stderr)    
             chunks = voice.synthesize(args.input, syn_config=syn_config)
             piper_alignments_enabled = False
             #sys.exit(1)
@@ -71,7 +71,7 @@ with wave.open(args.output_file, "wb") as wav_file:
                 alignments.extend(audio_chunk.phoneme_alignments)
 
 if piper_alignments_enabled and len(alignments) == 0:
-    print(f"[{cmd}] WARNING: No alignments in output from synthesize_wav. This is probably because the model is not alignment-enabled. See https://github.com/OHF-Voice/piper1-gpl/blob/main/docs/ALIGNMENTS.md for information on how to enable alignments", file=sys.stderr)
+    print(f"[{cmd}] WARNING: No alignments in output from synthesize_wav. This is probably because the model is not alignment-enabled. See https://github.com/OHF-Voice/piper1-gpl/blob/main/docs/ALIGNMENTS.md for information on how to enable alignments.", file=sys.stderr)
     sys.exit(0)
 
 if not piper_alignments_enabled:
