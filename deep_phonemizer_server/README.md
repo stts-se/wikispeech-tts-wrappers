@@ -40,20 +40,20 @@ Verify paths and other config settings in `config_sample.env`
 
 **6. Start server** 
 
-`uvicorn dp_server:app --env-file config_sample.env [--reload]`
+`uvicorn dp_server:app --env-file config_sample.env --port 8008 [--reload]`
 
 
 
 **7. Try it out** 
 
-http://localhost:8000/docs
+http://localhost:8008/docs
 
 
 **8. API access** 
 
-http://localhost:8000/phonemize/MODELNAME/TEXT
+http://localhost:8008/phonemize/MODELNAME/TEXT
 
 Example (requires `httpie`):
 ```
-http "http://localhost:8000/phonemize/sv_se_nst/god morgon" --response-charset=utf8
+http "http://localhost:8008/phonemize/sv_se_nst/god morgon" --response-charset=utf8
 ```
