@@ -67,13 +67,13 @@ Check example commands in the top part of matcha_cli.py
 ___7.1 Start server___
 
 ```
-uvicorn matcha_server:app --env-file config_sample.env
+uvicorn matcha_server:app --env-file config_sample.env --port 8009
 ```
 
 
 ___7.2 Access server___
 
-Use your browser to go to http://127.0.0.1:8000/docs
+Use your browser to go to http://127.0.0.1:8009/docs
 
 
 ___7.3 Audio and other output___
@@ -88,12 +88,12 @@ Output files will be in the `output_path` folder defined in the config file, def
 There are currently two ways to listen to the generated audio:
 
 1. Play the file `latest.wav` in your `output_path`
-2. Use your browser to copy the `audio` path from the server response, and paste it in the browser's address field as `http://127.0.0.1:8000/static/AUDIOILE.wav` or `http://127.0.0.1:8000/static/latest.wav`
+2. Use your browser to copy the `audio` path from the server response, and paste it in the browser's address field as `http://127.0.0.1:8009/static/AUDIOILE.wav` or `http://127.0.0.1:8009/static/latest.wav`
 
 Please note that the server's default setting is to clear the `output_path` on startup. This can be configured in the config file (see `config_sample.json`).
 
 Usage example for output_type=wav: 
-http://localhost:8000/synthesize/?voice=sv_se_nst_STTS-test&input_type=mixed&input=s%C3%A5%20h%C3%A4r%20skickar%20man%20in%20[[bl%C2%B0and`ad]]%20input%20och%20f%C3%A5r%20en%20ljudfil%20direkt&speaking_rate=1&return_type=wav
+http://localhost:8009/synthesize/?voice=sv_se_nst_STTS-test&input_type=mixed&input=s%C3%A5%20h%C3%A4r%20skickar%20man%20in%20[[bl%C2%B0and`ad]]%20input%20och%20f%C3%A5r%20en%20ljudfil%20direkt&speaking_rate=1&return_type=wav
 
 
 <!--

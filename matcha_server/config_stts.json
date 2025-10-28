@@ -9,29 +9,6 @@
     "output_path": "audio_files",
     "voices": [
 	{
-	    "name": "sv_se_hb",
-	    "enabled": true,
-	    "vocoder": "hifigan_univ_v1",
-	    "model": "hb_last.ckpt",
-	    "phonemizers": [
-		{
-		    "name": "espeak",
-		    "type": "espeak",
-		    "lang": "sv"
-		}
-	    ],
-	    "symbols": {
-		"pad": "_",
-		"punctuation": ";:,.!?¡¿—…\"«»“” ",
-		"letters": "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
-		"letters_ipa": "ɑɐɒæɓʙβɔɕçɗɖðʤəɘɚɛɜɝɞɟʄɡɠɢʛɦɧħɥʜɨɪʝɭɬɫɮʟɱɯɰŋɳɲɴøɵɸθœɶʘɹɺɾɻʀʁɽʂʃʈʧʉʊʋⱱʌɣɤʍχʎʏʑʐʒʔʡʕʢǀǁǂǃˈˌːˑʼʴʰʱʲʷˠˤ˞↓↑→↗↘'̩'ᵻ"
-	    },
-            "denoiser_strength": 0.00025,
-            "steps": 10,
-            "temperature": 0.667,
-            "batch_size": 32
-	},
-	{
 	    "name": "sv_se_nst",
 	    "enabled": true,
 	    "vocoder": "hifigan_univ_v1",
