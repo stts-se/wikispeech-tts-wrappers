@@ -19,7 +19,7 @@ uv pip install -r requirements.txt
 **3. Workaround for PyTorch**
 
 ```
-sed -i 's/checkpoint = torch.load(checkpoint_path, map_location=device)/checkpoint = torch.load(checkpoint_path, map_location=device, weights_only=False)/' .venv/lib/python3.10/site-packages/dp/model/model.py
+sed -i 's/checkpoint = torch.load(checkpoint_path, map_location=device)/checkpoint = torch.load(checkpoint_path, map_location=device, weights_only=False)/' .venv/lib/python3.??/site-packages/dp/model/model.py
 ```
 
 
