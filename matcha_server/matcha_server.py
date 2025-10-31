@@ -16,6 +16,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel # data models for post requests
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -45,31 +46,22 @@ app = FastAPI(lifespan=lifespan,swagger_ui_parameters={"tryItOutEnabled": True})
 
 # TODO: API-call to show valid symbols
 
-@app.get("/synthesize/sv_se_hb")
-async def synthesize_sv_se_hb(input_type: str = 'phonemes',
-                              input: str = "viː tˈɛstar tˈɑːlsyntˌeːs",
-                              speaking_rate: float = 1.0):
-    return await synthesize(voice = 'sv_se_hb',
-                            input_type = input_type,
-                            input = input,
-                            speaking_rate = speaking_rate)
-
-@app.get("/synthesize/sv_se_nst")
+@app.get("/synthesize/sv_se_nst_TMH_test")
 async def synthesize_sv_se_nst(input_type: str = 'phonemes',
                                input: str = "jˈɑ:g t°ʏkər v°ɛldɪt m°ʏkət ˈɔm ɪtɐlɪˈe:nsk mˈɑ:t .",
                                speaking_rate: float = 1.0,
                                speaker_id: int = 1):
-    return await synthesize(voice = 'sv_se_nst',
+    return await synthesize_as_get(voice = 'sv_se_nst_TMH_test',
                             input_type = input_type,
                             input = input,
                             speaking_rate = speaking_rate,
                             speaker_id = speaker_id)
 
-@app.get("/synthesize/sv_se_nst_STTS-test")
+@app.get("/synthesize/sv_se_nst_STTS_test")
 async def synthesize_sv_se_nst_stts(input_type: str = 'mixed',
                                input: str = "så här skickar man in [[bl°and`ad]] input",
                                speaking_rate: float = 1.0):
-    return await synthesize(voice = 'sv_se_nst_STTS-test',
+    return await synthesize_as_get(voice = 'sv_se_nst_STTS_test',
                             input_type = input_type,
                             input = input)
 
@@ -78,7 +70,7 @@ async def synthesize_en_us_vctk(input_type: str = 'phonemes',
                                 input: str = "ðɛɹ mˈʌst biː ɐn ˈeɪndʒəl",
                                 speaking_rate: float = 1.0,
                                 speaker_id: int = 4):
-    return await synthesize(voice = 'en_us_vctk',
+    return await synthesize_as_get(voice = 'en_us_vctk',
                             input_type = input_type,
                             input = input,
                             speaking_rate = speaking_rate,
@@ -88,12 +80,11 @@ async def synthesize_en_us_vctk(input_type: str = 'phonemes',
 async def synthesize_en_us_ljspeech(input_type: str = 'text',
                                     input: str = "are you an angel",
                                     speaking_rate: float = 1.0):
-    return await synthesize(voice = 'en_us_ljspeech',
+    return await synthesize_as_get(voice = 'en_us_ljspeech',
                             input_type = input_type,
                             input = input,
                             speaking_rate = speaking_rate)
-
-          
+       
 @app.get("/voices/")
 async def voices():
     global global_cfg
@@ -114,21 +105,81 @@ async def symbols_set(voice: str):
     msg = f"No such voice: {voice}"
     raise HTTPException(status_code=404, detail=msg)
     
-                     
-#@app.get("/synthesize/{voice}")
+
+class SynthRequest(BaseModel):
+    voice: str = "sv_se_nst_STTS_test"
+    input_type: str = "tokens"
+    input: list = [
+        [
+            { "orth": "jag" },
+            { "orth": "testar" },
+            { "orth": "matcha" },
+            { "orth": "med", "phonemes": "mˈEd" },
+            { "orth": "post", "phonemes": "pˈəʊst" },
+            { "orth": "request", "phonemes": "rɪkwˈest" },
+        ],
+    ]
+    speaking_rate: float | None = 1.0
+    speaker_id: int = -1
+    return_type: str = 'json'
+
+@app.post("/synthesize/")
+async def synthesize_as_post(request: SynthRequest):
+    if request.voice not in global_cfg.voices:
+        msg = f"No such voice: {request.voice}"
+        logger.error(msg)
+        raise HTTPException(status_code=404, detail=msg)
+
+    logger.debug(f"synthesize input: {request}")
+
+    # remap default values from json
+    if request.speaking_rate == 0:
+        request.speaking_rate = 1.0
+    if request.speaker_id == -1:
+        request.speaker_id = None
+    params = Namespace(
+        speaking_rate = request.speaking_rate,
+        speaker_id = request.speaker_id,
+    )
+    res = global_cfg.voices[request.voice].synthesize_all(request.input, request.input_type, global_cfg.output_path, params)
+        
+
+    # return type
+    if request.return_type == 'json':
+        for i, obj in enumerate(res):
+            res[i] = obj
+            return res
+    elif request.return_type == 'wav':
+        if len(res) == 1:
+            f = res[0]['audio']
+            full_path = os.path.join(global_cfg.output_path, f)
+            return FileResponse(full_path, filename=os.path.basename(f), media_type="audio/wav")
+        else:
+            msg = f"Cannot use return type {request.return_type} for multiple output objects. Try json instead."
+            logger.error(msg)
+            raise HTTPException(status_code=400, detail=msg)
+    else:
+        msg = f"Invalid return type: '{request.return_type}'. Use one of the following: {return_types}"
+        logger.error(msg)
+        raise HTTPException(status_code=400, detail=msg)
+
+
+
 @app.get("/synthesize/")
-async def synthesize(voice: str = 'sv_se_hb',
-                     input_type: str = 'phonemes',
-                     #input: str="Vi testar talsyntes. Det är kul.",
-                     input: str = "viː tˈɛstar tˈɑːlsyntˌeːs",
-                     speaking_rate: float = 1.0,
-                     speaker_id: int = None,
-                     return_type: str = 'json'):
+async def synthesize_as_get(voice: str = 'sv_se_nst_STTS_test',
+                            input_type: str = 'text',
+                            input: str="Vi testar talsyntes och det är kul.",
+                            #input: str = "viː tˈɛstar tˈɑːlsyntˌeːs",
+                            speaking_rate: float = 1.0,
+                            speaker_id: int = None,
+                            return_type: str = 'json'):
     if voice not in global_cfg.voices:
         msg = f"No such voice: {voice}"
         logger.error(msg)
         raise HTTPException(status_code=404, detail=msg)
-        
+
+    logger.debug(f"synthesize input: {input}")
+    
     import re
     input = input.strip()
     input = re.sub("  +"," ",input)
