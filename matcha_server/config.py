@@ -27,8 +27,10 @@ def load_from_args(args):
 
     if args.phonemizer == "espeak":
         phonemizer = Phonemizer("espeak", "espeak", args.phonemizer_lang)
-    else:
+    elif args.phonemizer == "deep_phonemizer":
         phonemizer = Phonemizer("deep_phonemizer", "deep_phonemizer", args.phonemizer_lang, args.phonemizer)
+    else:
+        raise Exception(f"Unknown phonemizer type {args.phonemizer}")
     return voice.Voice(name="cmdline_voice",
                        model=args.model,
                        vocoder=args.vocoder,
@@ -68,8 +70,11 @@ def load_config(config_file):
             symbols = [voice_config['symbols']['pad']] + list(voice_config['symbols']['punctuation']) + list(voice_config['symbols']['letters']) + list(voice_config['symbols']['letters_ipa'])
             
             phonemizers = []
-            for phizer in voice_config['phonemizers']:
+            defaultPhnIndex = 0
+            for i, phizer in enumerate(voice_config['phonemizers']):
                 if phizer.get('enabled', True):
+                    if phizer.get('default', False):
+                        defaultPhnIndex = i
                     if phizer['type'] == "deep_phonemizer":
                         model_path = tools.find_file(phizer['model'], result.model_paths)
                         if model_path is None:
@@ -94,7 +99,7 @@ def load_config(config_file):
                             denoiser_strength=voice_config.get('denoiser_strength',0.00025),
                             symbols=symbols,
                             phonemizers=phonemizers,
-                            selected_phonemizer_index=0) ## default phonemizer
+                            selected_phonemizer_index=defaultPhnIndex)
             result.voices[name] = v
     logger.debug(f"Loaded config file {config_file}")
     return result
@@ -127,6 +132,8 @@ class Phonemizer:
                     language_switch="remove-flags",
                     logger=logger,
                 )
+            else:
+                raise Exception(f"Unknown phonemizer type {typ} for {selfname}")
         except RuntimeError as e:
             msg = f"Couldn't load phonetizer for voice {name}: {e}. Voice will not be loaded."
             logger.error(msg)
@@ -141,9 +148,15 @@ class Phonemizer:
         }
         return obj
 
-    def phonemize(self, input):
+    def phonemize(self, input, lang=None):
         if self.tpe == "deep_phonemizer":
-            return self.pher(input, lang=self.lang)
+            if lang is None:
+                lang = self.lang
+            else:
+                if lang not in self.pher.predictor.text_tokenizer.languages:
+                    logger.info(f"Language {lang} is not supported by phonemizer. Using {self.lang} instead")
+                    lang = self.lang
+            return self.pher(input, lang)
         else:
             return self.pher.phonemize([input], strip=True, njobs=1)[0]
 

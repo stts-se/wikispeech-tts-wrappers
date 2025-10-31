@@ -165,6 +165,65 @@ class Voice:
         x_phones = self.sequence_to_text(x.squeeze(0).tolist())
         return {"words": words, "x_orig": input, "x": x, "x_lengths": x_lengths, "x_phones": x_phones}
 
+    def input2tokens(self, input, input_type):
+        if input_type == "tokens":
+            return input
+
+        tokens = []
+        s = input
+        s = separate_comma_re.sub("\\1 , \\2",s)
+        if input_type == "phonemes":
+            for w in wordsplit.split(s):
+                tokens.append({"phonemes": w})
+        elif input_type == "mixed":
+            for w in wordsplit.split(s):
+                m = phoneme_input_re.match(w)
+                if m:
+                    tokens.append({"phonemes": m.group(1)})
+                else:
+                    tokens.append({"orth": w})
+        else: # text input
+            for w in wordsplit.split(s):
+                tokens.append({"orth": w})
+        return tokens
+
+
+    def process_tokens(self, tokens: str):
+        words = []
+        phn_list = []
+
+        for t in tokens:
+            w = {}
+            if "orth" in t:
+                w["orth"] = t["orth"]
+            if "lang" in t:
+                w["lang"] = t["lang"]
+            if "g2p_method" in t:
+                w["g2p_method"] = t["g2p_method"]
+            if "phonemes" in t:
+                phn_list.append(t["phonemes"])
+                w["input"] =  t["phonemes"]
+                w["phonemes"] =  t["phonemes"]
+            else:
+                lang = w.get("lang", None)
+                result = self.selected_phonemizer().phonemize(t["orth"], lang)
+                phn_list.append(result)
+                w["input"] = t["orth"]
+                w["phonemes"] = result
+                w["g2p_method"] = self.selected_phonemizer().tpe
+            words.append(w)
+        phn = " ".join(phn_list)
+        cleaned_text = self.cleaned_text_to_sequence(phn)
+
+        x = torch.tensor(
+            intersperse(cleaned_text, 0),
+            dtype=torch.long,
+            device=self.device,
+        )[None]
+        x_lengths = torch.tensor([x.shape[-1]], dtype=torch.long, device=self.device)
+        x_phones = self.sequence_to_text(x.squeeze(0).tolist())
+        return {"words": words, "x_orig": input, "x": x, "x_lengths": x_lengths, "x_phones": x_phones}
+
     def synthesize_all(self, inputs, input_type, output_folder, params):
         import uuid
         uid = uuid.uuid4()
@@ -172,7 +231,6 @@ class Voice:
         i = 0
         spk_id = tools.get_or_else(vars(params).get("speaker"), self.speaker)
         for input in inputs:
-            input = input.strip()
             i = i+1
             base_name = f"utt_{uid}_{i:03d}_spk_{spk_id:03d}" if spk_id is not None else f"utt_{uid}_{i:03d}"
             output_file = os.path.join(output_folder, base_name)
@@ -180,8 +238,10 @@ class Voice:
         if len(res) > 0:
             copy_to_latest(res[len(res)-1],output_folder)
         return res
-    
+
     def synthesize(self, input, input_type, output_file, params):
+        input_tokens = self.input2tokens(input, input_type)
+        
         output_name = os.path.basename(output_file)
         output_name = Path(output_name).with_suffix('')
         output_folder = os.path.dirname(output_file)
@@ -194,13 +254,15 @@ class Voice:
             self.loaded = True
 
         ### SYNTHESIZE
-        text_processed = self.process_text(input, input_type)
+        tokens_processed = self.process_tokens(input_tokens)
+        #print("tokens_processed", tokens_processed)
+
         spk_id = tools.get_or_else(vars(params).get("speaker"), self.speaker, None)
 
         spk = torch.tensor([spk_id],device=self.device) if spk_id is not None else None
         output = self.matcha_model.synthesise(
-            text_processed["x"],
-            text_processed["x_lengths"],
+            tokens_processed["x"],
+            tokens_processed["x_lengths"],
             n_timesteps=self.steps,
             temperature=self.temperature,
             spks=spk,
@@ -210,13 +272,13 @@ class Voice:
         ## PROCESS ALIGNMENT
         import alignment
         id2symbol={i: s for i, s in enumerate(self.symbols)} 
-        tokens = text_processed['words']
+        tokens = tokens_processed['words']
 
         phonemes = []
         for token in tokens:
             if "phonemes" in token:
                 phonemes.append(token["phonemes"])
-        aligned = alignment.align(text_processed, output, self.id2symbol)
+        aligned = alignment.align(tokens_processed, output, self.id2symbol)
         logger.debug(f"ALIGNED {aligned}")
 
         tokens = alignment.combine(tokens, aligned)
@@ -258,7 +320,7 @@ class Voice:
             lab_file = os.path.join(output_folder, f"{output_name}.lab")
             with open(lab_file, "w") as f:
                 for token in result['tokens']:
-                    f.write(f"{token['start_time']}\t{token['end_time']}\t{token['phonemes']}\n")
+                    f.write(f"{token['start_time']/1000.0}\t{token['end_time']/1000.0}\t{token['phonemes']}\n")
         else:
             logger.error(f"Different number of tokens vs aligned tokens -- label file will not be created")
                     

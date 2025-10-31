@@ -9,7 +9,7 @@
     "output_path": "audio_files",
     "voices": [
 	{
-	    "name": "sv_se_nst",
+	    "name": "sv_se_nst_TMH_test",
 	    "enabled": true,
 	    "vocoder": "hifigan_univ_v1",
 	    "_comment": "svensk_multi är joakims modell",
@@ -36,7 +36,7 @@
             "batch_size": 32
 	},
 	{
-	    "name": "sv_se_nst_STTS-test",
+	    "name": "sv_se_nst_STTS_test",
 	    "enabled": true,
 	    "vocoder": "hifigan_univ_v1",
 	    "_comment": "martin_singlechar_ipa är STTS testmodell",
@@ -52,7 +52,8 @@
 		    "name": "sv_se_braxen_full_langs",
 		    "type": "deep_phonemizer",
 		    "lang": "swe",
-		    "model": "dp_single_char_swe_langs.pt"
+		    "model": "dp_single_char_swe_langs.pt",
+		    "default": true
 		},
 		{
 		    "enabled": false,

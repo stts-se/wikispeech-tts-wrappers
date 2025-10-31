@@ -9,7 +9,7 @@
     "output_path": "audio_files",
     "voices": [
 	{
-	    "name": "sv_se_nst",
+	    "name": "sv_se_nst_TMH_test",
 	    "enabled": false,
 	    "vocoder": "hifigan_univ_v1",
 	    "_comment": "svensk_multi är joakims modell",
@@ -36,7 +36,7 @@
             "batch_size": 32
 	},
 	{
-	    "name": "sv_se_nst_STTS-test",
+	    "name": "sv_se_nst_STTS_test",
 	    "enabled": false,
 	    "vocoder": "hifigan_univ_v1",
 	    "_comment": "martin_singlechar_ipa är STTS testmodell",
