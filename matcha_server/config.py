@@ -25,12 +25,13 @@ def load_from_args(args):
         folder = os.path.dirname(args.output_file)
         tools.clear_audio(folder)
 
-    if args.phonemizer == "espeak":
-        phonemizer = Phonemizer("espeak", "espeak", args.phonemizer_lang)
-    elif args.phonemizer == "deep_phonemizer":
-        phonemizer = Phonemizer("deep_phonemizer", "deep_phonemizer", args.phonemizer_lang, args.phonemizer)
-    else:
-        raise Exception(f"Unknown phonemizer type {args.phonemizer}")
+    phonemizers = []
+    if args.phonemizer_type == "espeak":
+        phonemizers = [Phonemizer("espeak", "espeak", args.phonemizer_lang)]
+    elif args.phonemizer_type == "deep_phonemizer":
+        phonemizers = [Phonemizer("deep_phonemizer", "deep_phonemizer", args.phonemizer_lang, args.phonemizer)]
+    elif args.phonemizer_type is not None:
+        raise Exception(f"Unknown phonemizer type {args.phonemizer_type}")
     return voice.Voice(name="cmdline_voice",
                        model=args.model,
                        vocoder=args.vocoder,
@@ -41,7 +42,7 @@ def load_from_args(args):
                        device=args.device,
                        denoiser_strength=args.denoiser_strength,
                        symbols=symbols,
-                       phonemizers=[phonemizer],
+                       phonemizers=[],
                        selected_phonemizer_index=0)
     
 
