@@ -27,9 +27,9 @@ def load_from_args(args):
 
     phonemizers = []
     if args.phonemizer_type == "espeak":
-        phonemizers = [Phonemizer("espeak", "espeak", args.phonemizer_lang)]
+        phonemizers.append(Phonemizer("espeak", "espeak", args.phonemizer_lang))
     elif args.phonemizer_type == "deep_phonemizer":
-        phonemizers = [Phonemizer("deep_phonemizer", "deep_phonemizer", args.phonemizer_lang, args.phonemizer)]
+        phonemizers.append(Phonemizer("deep_phonemizer", "deep_phonemizer", args.phonemizer_lang, args.phonemizer))
     elif args.phonemizer_type is not None:
         raise Exception(f"Unknown phonemizer type {args.phonemizer_type}")
     return voice.Voice(name="cmdline_voice",
@@ -42,7 +42,7 @@ def load_from_args(args):
                        device=args.device,
                        denoiser_strength=args.denoiser_strength,
                        symbols=symbols,
-                       phonemizers=[],
+                       phonemizers=phonemizers,
                        selected_phonemizer_index=0)
     
 

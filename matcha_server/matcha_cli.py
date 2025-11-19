@@ -88,6 +88,9 @@ if not args.config_file:
     if args.phonemizer and not args.phonemizer_type:
         parser.error(" --phonemizer_type is required for input_type mixed/text when used without config file")
         os.exit(1)
+    if not args.symbols:
+        parser.error(" --symbols is required for use without config file")
+        os.exit(1)
 
 if args.input_type not in input_types:
     parser.error(f"Invalid input type: '{input_type}'. Use one of the following: {input_types}")

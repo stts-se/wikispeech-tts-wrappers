@@ -107,10 +107,10 @@ class Voice:
         return result
 
     def selected_phonemizer(self):
-        if len(self.phonemizers) > 0:
-            returnself.phonemizers[self.selected_phonemizer_index]
-        else:
-            return None
+        #if len(self.phonemizers) > 0:
+        return self.phonemizers[self.selected_phonemizer_index]
+        #else:
+         #   return None
     
     def process_text(self, input: str, input_type: str):
         #print(f"[{i}] - Input text: {input}")
@@ -210,14 +210,11 @@ class Voice:
             else:
                 lang = w.get("lang", None)
                 phner = self.selected_phonemizer()
-                if phner is None:
-                    raise Exception("No phonemizer defined")
-        
                 result = phner.phonemize(t["orth"], lang)
                 phn_list.append(result)
                 w["input"] = t["orth"]
                 w["phonemes"] = result
-                w["g2p_method"] = self.selected_phonemizer().tpe
+                w["g2p_method"] = phner.tpe
             words.append(w)
         phn = " ".join(phn_list)
         cleaned_text = self.cleaned_text_to_sequence(phn)
