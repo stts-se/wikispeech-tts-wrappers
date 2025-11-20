@@ -55,6 +55,9 @@ class Voice:
         return f"{dict}"
 
     def as_json(self):
+        phner = None
+        if self.selected_phonemizer() is not None:
+            phner = self.selected_phonemizer().name
         obj = {
             "name": self.name,
             "model": self.model,
@@ -69,7 +72,7 @@ class Voice:
             "symbols": "".join(self.symbols),
 
             "phonemizers": list(map(lambda p: p.as_json(), self.phonemizers)),
-            "selected_phonemizer": self.selected_phonemizer().name
+            "selected_phonemizer": phner
         }
         return obj
 
@@ -107,10 +110,10 @@ class Voice:
         return result
 
     def selected_phonemizer(self):
-        #if len(self.phonemizers) > 0:
-        return self.phonemizers[self.selected_phonemizer_index]
-        #else:
-         #   return None
+        if len(self.phonemizers) > 0:
+            return self.phonemizers[self.selected_phonemizer_index]
+        else:
+            return None
     
     def process_text(self, input: str, input_type: str):
         #print(f"[{i}] - Input text: {input}")

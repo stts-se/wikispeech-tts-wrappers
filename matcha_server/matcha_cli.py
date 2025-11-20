@@ -19,9 +19,9 @@ import config
 
 ### EXAMPLE COMMANDS WITH STTS INTERNAL MODELS
 
-# python matcha_cli.py -m ~/.local/share/matcha_tts/martin_singlechar_ipa.ckpt -v ~/.local/share/matcha_tts/hifigan_univ_v1 --phonemizer_type deep_phonemizer --phonemizer ~/.local/share/deep_phonemizer/dp_single_char_swe_langs.pt -l swe "jag är nikolajs martinröst" --symbols cli_symbols/symbols_martin_singlechar.txt
+# python matcha_cli.py -m ~/.local/share/matcha_tts/martin_singlechar_ipa.ckpt -v ~/.local/share/matcha_tts/hifigan_univ_v1 --phonemizer-type deep_phonemizer --phonemizer ~/.local/share/deep_phonemizer/dp_single_char_swe_langs.pt -l swe "jag är nikolajs martinröst" --symbols cli_symbols/symbols_martin_singlechar.txt
 
-# python matcha_cli.py -m ~/.local/share/matcha_tts/svensk_multi.ckpt -v ~/.local/share/matcha_tts/hifigan_univ_v1 --phonemizer_type deep_phonemizer --phonemizer ~/.local/share/deep_phonemizer/joakims_best_model_no_optim.pt -l sv --speaker 1 "jag är joakims röst" --symbols cli_symbols/symbols_joakims.txt
+# python matcha_cli.py -m ~/.local/share/matcha_tts/svensk_multi.ckpt -v ~/.local/share/matcha_tts/hifigan_univ_v1 --phonemizer-type deep_phonemizer --phonemizer ~/.local/share/deep_phonemizer/joakims_best_model_no_optim.pt -l sv --speaker 1 "jag är joakims röst" --symbols cli_symbols/symbols_joakims.txt
 
 # python matcha_cli.py --config_file config_stts.json --voice sv_se_nst_STTS-test --phonemizer sv_se_braxen_full_sv "här använder vi en configfil"
 
@@ -51,10 +51,10 @@ parser.add_argument('--temperature', default=0.667, type=float)
 parser.add_argument('--denoiser-strength', default=0.00025, type=float)
 parser.add_argument('--device', type=str, default="cpu")
 parser.add_argument('--speaker', type=int, default=None) # default is fetched from voice config
-parser.add_argument('--speaking-rate', type=float, default=0.85, help="higher value=>slower, lower=>faster, 1.0=neutral, default=0.85") # default is fetched from voice config
+parser.add_argument('--speaking-rate', type=float, default=1.0, help="higher value=>slower, lower=>faster, default=1.0") # default is fetched from voice config
 parser.add_argument('--clear-audio',action='store_true', help="Clear audio on startup")
 
-parser.add_argument('--phonemizer_type')
+parser.add_argument('--phonemizer-type')
 parser.add_argument('--phonemizer')
 
 input_types = ['text','phonemes','mixed']
@@ -86,7 +86,7 @@ if not args.config_file:
         parser.error(" --phonemizer is required for input_type mixed/text when used without config file")
         os.exit(1)
     if args.phonemizer and not args.phonemizer_type:
-        parser.error(" --phonemizer_type is required for input_type mixed/text when used without config file")
+        parser.error(" --phonemizer-type is required for input_type mixed/text when used without config file")
         os.exit(1)
     if not args.symbols:
         parser.error(" --symbols is required for use without config file")
