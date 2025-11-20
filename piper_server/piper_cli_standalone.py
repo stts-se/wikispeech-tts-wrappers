@@ -1,4 +1,10 @@
-## FOR ALIGNED OUTPUT, YOU NEED TO RUN THIS ON A PIPER DEV BUILD, NOT THE PRE-INSTALLED 1.3.0 VERSION
+## FOR ALIGNED OUTPUT, YOU NEED TO RUN THIS ON A PIPER DEV BUILD, NOT THE RELEASED 1.3.0 VERSION
+# https://github.com/OHF-Voice/piper1-gpl/blob/main/docs/BUILDING.md
+# https://github.com/OHF-Voice/piper1-gpl/blob/main/docs/ALIGNMENTS.md
+# cd <piper1-gpl>
+# source .venv/bin/activate
+# python <wikispeech-tts-wrappers>/piper_server/piper_cli_standalone.py <onnx model> <input text/phonemes> <output_file>
+
 
 import sys
 from pathlib import Path
