@@ -32,6 +32,7 @@ class PhnMapper:
 
     # returns tuple: converted trans + error
     # if there is an error, the converted trans will be None
+    # TODO: for empty string phoneme separator, choose longest sequence for ambiguous phoneme onsets
     def convert_trans(self, trans):
         t0 = trans
         if self.phoneme_separator == "":
