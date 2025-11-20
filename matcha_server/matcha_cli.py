@@ -19,13 +19,13 @@ import config
 
 ### EXAMPLE COMMANDS WITH STTS INTERNAL MODELS
 
-# python matcha_cli.py -m ~/.local/share/matcha_tts/martin_singlechar_ipa.ckpt -v ~/.local/share/matcha_tts/hifigan_univ_v1 --phonemizer-type deep_phonemizer --phonemizer ~/.local/share/deep_phonemizer/dp_single_char_swe_langs.pt -l swe "jag är en manlig röst" --symbols cli_symbols/symbols_martin_singlechar.txt
+# python matcha_cli.py -m ~/.local/share/matcha_tts/martin_singlechar_ipa.ckpt -v ~/.local/share/matcha_tts/hifigan_univ_v1 --phonemizer-type deep_phonemizer --phonemizer ~/.local/share/deep_phonemizer/dp_single_char_swe_langs.pt -l swe "jag är en manlig röst" --symbols cli_symbols/symbols_martin_singlechar.txt --speaking-rate 0.85
 
 # python matcha_cli.py -m ~/.local/share/matcha_tts/marianne_singlechar_ipa_20251119.ckpt -v ~/.local/share/matcha_tts/hifigan_univ_v1 --phonemizer-type deep_phonemizer --phonemizer ~/.local/share/deep_phonemizer/dp_single_char_swe_langs.pt -l swe "jag är en kvinnlig röst" --symbols cli_symbols/symbols_martin_singlechar.txt
 
-# python matcha_cli.py --config_file config_stts.json --voice sv_se_nst_male1 --phonemizer sv_se_braxen_full_sv "här använder vi en configfil"
+# python matcha_cli.py --config_file config_stts.json --voice sv_se_nst_male1 --phonemizer sv_se_braxen_full_sv "jag är en manlig röst med [[k°ɔnfɪgf\`Il]]"
 
-# python matcha_cli.py --config_file config_stts.json --voice sv_se_nst_female1 --phonemizer sv_se_braxen_full_sv "här använder vi en json [[k°ɔnfɪgf\`Il]]"
+# python matcha_cli.py --config_file config_stts.json --voice sv_se_nst_female1 --phonemizer sv_se_braxen_full_sv "jag är en kvinnlig röst med [[k°ɔnfɪgf\`Il]]"
 
 
 import argparse
