@@ -46,7 +46,7 @@ ___4.2 Additional models___
 
 For now, these models are only available for users approved by STTS. Some of these will be made publicly available once we sort out some licensing issues.
 
-Download additional Matcha + Deep Phonemizer models from [STTS Google Drive](https://drive.google.com/drive/folders/1J1iNZDSzGGrq1iJwIAtlDtvMjfad13QP?usp=sharing) and save to `$HOME/.local/share/matcha_tts` / `$HOME/.local/share/deep_phonemizer`
+Download additional Matcha + Deep Phonemizer models from [STTS Google Drive](https://drive.google.com/drive/folders/1J1iNZDSzGGrq1iJwIAtlDtvMjfad13QP?usp=sharing) and save to `$HOME/.local/share/matcha_tts` + `$HOME/.local/share/deep_phonemizer`
 
 **5. Check config**
 
