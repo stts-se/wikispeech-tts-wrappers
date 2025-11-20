@@ -8,6 +8,13 @@ import tools, voice
 # Logging
 logger = tools.get_logger()
 
+defaults = {
+    "steps": 10,
+    "speaking_rate": 1.0,
+    "denoiser_strength": 0.00025,
+    "temperature": 0.667
+}
+
 class MatchaConfig:
     voices: dict
     model_paths: list

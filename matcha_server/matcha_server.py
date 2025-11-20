@@ -11,8 +11,6 @@ logger = tools.get_logger("matcha_server")
 
 import config
 
-# TODO: default values for args/params
-
 
 # Other imports
 from contextlib import asynccontextmanager
@@ -54,6 +52,7 @@ async def synthesize_sv_se_nst_male1(input_type: str = 'mixed',
                                      input: str = "så här skickar man in [[bl°and`ad]] input till en manlig röst",
                                      speaking_rate: float = None):
     return await synthesize_as_get(voice = 'sv_se_nst_male1',
+                                   speaking_rate = speaking_rate,
                                    input_type = input_type,
                                    input = input)
 
@@ -62,6 +61,7 @@ async def synthesize_sv_se_nst_female1(input_type: str = 'mixed',
                                        input: str = "så här skickar man in [[bl°and`ad]] input till en kvinnlig röst",
                                        speaking_rate: float = None):
     return await synthesize_as_get(voice = 'sv_se_nst_female1',
+                                   speaking_rate = speaking_rate,
                                    input_type = input_type,
                                    input = input)
 
@@ -72,8 +72,8 @@ async def synthesize_en_us_vctk(input_type: str = 'phonemes',
                                 speaker_id: int = 4):
     return await synthesize_as_get(voice = 'en_us_vctk',
                             input_type = input_type,
-                            input = input,
                             speaking_rate = speaking_rate,
+                            input = input,
                             speaker_id = speaker_id)
 
 @app.get("/synthesize/en_us_ljspeech")
@@ -82,8 +82,8 @@ async def synthesize_en_us_ljspeech(input_type: str = 'text',
                                     speaking_rate: float = None):
     return await synthesize_as_get(voice = 'en_us_ljspeech',
                             input_type = input_type,
-                            input = input,
-                            speaking_rate = speaking_rate)
+                            speaking_rate = speaking_rate,
+                            input = input)
        
 @app.get("/voices/")
 async def voices():
@@ -119,7 +119,7 @@ class SynthRequest(BaseModel):
             { "orth": "request", "phonemes": "rɪkwˈest" },
         ],
     ]
-    speaking_rate: float | None = 1.0
+    speaking_rate: float = -1
     speaker_id: int = -1
     return_type: str = 'json'
 
@@ -133,9 +133,9 @@ async def synthesize_as_post(request: SynthRequest):
     logger.debug(f"synthesize input: {request}")
 
     # remap default values from json
-    if request.speaking_rate == 0:
-        request.speaking_rate = 1.0
-    if request.speaker_id == -1:
+    if request.speaking_rate <= 0:
+        request.speaking_rate = None
+    if request.speaker_id <0:
         request.speaker_id = None
     params = Namespace(
         speaking_rate = request.speaking_rate,
@@ -170,7 +170,7 @@ async def synthesize_as_get(voice: str = 'sv_se_nst_STTS_test',
                             input_type: str = 'text',
                             input: str="Vi testar talsyntes och det är kul.",
                             #input: str = "viː tˈɛstar tˈɑːlsyntˌeːs",
-                            speaking_rate: float = 1.0,
+                            speaking_rate: float = None,
                             speaker_id: int = None,
                             return_type: str = 'json'):
     if voice not in global_cfg.voices:

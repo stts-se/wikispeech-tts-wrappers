@@ -19,16 +19,13 @@ import config
 
 ### EXAMPLE COMMANDS WITH STTS INTERNAL MODELS
 
-# python matcha_cli.py -m ~/.local/share/matcha_tts/martin_singlechar_ipa.ckpt -v ~/.local/share/matcha_tts/hifigan_univ_v1 --phonemizer-type deep_phonemizer --phonemizer ~/.local/share/deep_phonemizer/dp_single_char_swe_langs.pt -l swe "jag är nikolajs martinröst" --symbols cli_symbols/symbols_martin_singlechar.txt
+# python matcha_cli.py -m ~/.local/share/matcha_tts/martin_singlechar_ipa.ckpt -v ~/.local/share/matcha_tts/hifigan_univ_v1 --phonemizer-type deep_phonemizer --phonemizer ~/.local/share/deep_phonemizer/dp_single_char_swe_langs.pt -l swe "jag är en manlig röst" --symbols cli_symbols/symbols_martin_singlechar.txt
 
-# python matcha_cli.py -m ~/.local/share/matcha_tts/svensk_multi.ckpt -v ~/.local/share/matcha_tts/hifigan_univ_v1 --phonemizer-type deep_phonemizer --phonemizer ~/.local/share/deep_phonemizer/joakims_best_model_no_optim.pt -l sv --speaker 1 "jag är joakims röst" --symbols cli_symbols/symbols_joakims.txt
+# python matcha_cli.py -m ~/.local/share/matcha_tts/marianne_singlechar_ipa_20251119.ckpt -v ~/.local/share/matcha_tts/hifigan_univ_v1 --phonemizer-type deep_phonemizer --phonemizer ~/.local/share/deep_phonemizer/dp_single_char_swe_langs.pt -l swe "jag är en kvinnlig röst" --symbols cli_symbols/symbols_martin_singlechar.txt
 
 # python matcha_cli.py --config_file config_stts.json --voice sv_se_nst_male1 --phonemizer sv_se_braxen_full_sv "här använder vi en configfil"
 
 # python matcha_cli.py --config_file config_stts.json --voice sv_se_nst_female1 --phonemizer sv_se_braxen_full_sv "här använder vi en json [[k°ɔnfɪgf\`Il]]"
-
-
-# TODO: default values for args/params
 
 
 import argparse
@@ -49,12 +46,12 @@ parser.add_argument('-v', '--vocoder', help="Path to vocoder (usually no extensi
 parser.add_argument('-l', '--phonemizer-lang')
 parser.add_argument('--symbols', default=None, type=str, help="File or string")
 
-parser.add_argument('--steps', default=10, type=int)
-parser.add_argument('--temperature', default=0.667, type=float)
-parser.add_argument('--denoiser-strength', default=0.00025, type=float)
+parser.add_argument('--steps', default=config.defaults["steps"], help=f"default: {config.defaults['steps']}", type=int)
+parser.add_argument('--temperature', default=0.667, help=f"default: {config.defaults['temperature']}", type=float)
+parser.add_argument('--denoiser-strength', help=f"default: {config.defaults['denoiser_strength']}", type=float)
 parser.add_argument('--device', type=str, default="cpu")
 parser.add_argument('--speaker', type=int, default=None) # default is fetched from voice config
-parser.add_argument('--speaking-rate', type=float, default=None, help="higher value=>slower, lower=>faster, default=1.0") # default is fetched from voice config
+parser.add_argument('--speaking-rate', type=float, default=None, help=f"higher value=>slower, lower=>faster, default: {config.defaults['speaking_rate']}") # default is fetched from voice config
 parser.add_argument('--clear-audio',action='store_true', help="Clear audio on startup")
 
 parser.add_argument('--phonemizer-type')
@@ -108,27 +105,33 @@ if args.config_file:
         raise Exception(f"Couldn't find a voice named '{args.voice}' in config file {args.config_file}")    
 else:
     voice = config.load_from_args(args)
+
+### Set voice properties if included in args
+if args.speaking_rate is not None:
+    voice.speaking_rate=args.speaking_rate
+elif not args.config_file:
+    voice.speaking_rate=config.defaults["speaking_rate"]
+if args.steps is not None:
+    voice.steps=args.steps
+elif not args.config_file:
+    voice.steps=config.defaults["steps"]
+if args.temperature is not None:
+    voice.temperature=args.temperature
+elif not args.config_file:
+    voice.temperature=config.defaults["temperature"]
+if args.denoiser_strength is not None:
+    voice.denoiser_strength=args.denoiser_strength
+elif not args.config_file:
+    voice.denoiser_strength=config.defaults["denoiser_strength"]
+
+if args.speaker:
+    voice.speaker=args.speaker
+if args.device:
+    voice.device=args.device
+
 voice.validate()
 logger.debug(f"Loaded voice: {voice.name}: {voice}")
 
-### Set voice properties if included in args
-if args.speaking_rate:
-    if not (args.config_file and args.speaking_rate == 1.0):
-        voice.speaking_rate=args.speaking_rate
-if args.speaker:
-    voice.speaker=args.speaker
-if args.steps:
-    if not (args.config_file and args.steps == 10):
-        voice.steps=args.steps
-if args.temperature:
-    if not (args.config_file and args.temperature == 0.667):
-        voice.temperature=args.temperature
-if args.device:
-    voice.device=args.device
-if args.denoiser_strength:
-    if not (args.config_file and args.denoiser_strength == 0.00025):
-        voice.denoiser_strength=args.denoiser_strength
-                               
 ### Select phonemizer
 if args.phonemizer == None:
     voice.selected_phonemizer_index = 0

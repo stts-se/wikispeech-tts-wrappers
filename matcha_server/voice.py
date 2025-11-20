@@ -267,13 +267,14 @@ class Voice:
         spk_id = tools.get_or_else(vars(params).get("speaker"), self.speaker, None)
 
         spk = torch.tensor([spk_id],device=self.device) if spk_id is not None else None
+        speaking_rate = tools.get_or_else(vars(params).get("speaking_rate"), self.speaking_rate)
         output = self.matcha_model.synthesise(
             tokens_processed["x"],
             tokens_processed["x_lengths"],
             n_timesteps=self.steps,
             temperature=self.temperature,
             spks=spk,
-            length_scale=tools.get_or_else(vars(params).get("speaking_rate"), self.speaking_rate),
+            length_scale=speaking_rate,
         )
 
         ## PROCESS ALIGNMENT
@@ -293,7 +294,7 @@ class Voice:
         result = {
             "input": input,
             "input_type": input_type,
-            "speaking_rate": params.speaking_rate,
+            "speaking_rate": speaking_rate,
             "speaker_id": spk_id,         
         }
         if len(phonemes) > 0:
