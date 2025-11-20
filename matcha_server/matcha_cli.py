@@ -23,9 +23,12 @@ import config
 
 # python matcha_cli.py -m ~/.local/share/matcha_tts/svensk_multi.ckpt -v ~/.local/share/matcha_tts/hifigan_univ_v1 --phonemizer-type deep_phonemizer --phonemizer ~/.local/share/deep_phonemizer/joakims_best_model_no_optim.pt -l sv --speaker 1 "jag är joakims röst" --symbols cli_symbols/symbols_joakims.txt
 
-# python matcha_cli.py --config_file config_stts.json --voice sv_se_nst_STTS-test --phonemizer sv_se_braxen_full_sv "här använder vi en configfil"
+# python matcha_cli.py --config_file config_stts.json --voice sv_se_nst_male1 --phonemizer sv_se_braxen_full_sv "här använder vi en configfil"
 
-# python matcha_cli.py --config_file config_stts.json --voice sv_se_nst_STTS-test --phonemizer sv_se_braxen_full_sv "här använder vi en json [[k°ɔnfɪgf\`Il]]"
+# python matcha_cli.py --config_file config_stts.json --voice sv_se_nst_female1 --phonemizer sv_se_braxen_full_sv "här använder vi en json [[k°ɔnfɪgf\`Il]]"
+
+
+# TODO: default values for args/params
 
 
 import argparse
@@ -51,7 +54,7 @@ parser.add_argument('--temperature', default=0.667, type=float)
 parser.add_argument('--denoiser-strength', default=0.00025, type=float)
 parser.add_argument('--device', type=str, default="cpu")
 parser.add_argument('--speaker', type=int, default=None) # default is fetched from voice config
-parser.add_argument('--speaking-rate', type=float, default=1.0, help="higher value=>slower, lower=>faster, default=1.0") # default is fetched from voice config
+parser.add_argument('--speaking-rate', type=float, default=None, help="higher value=>slower, lower=>faster, default=1.0") # default is fetched from voice config
 parser.add_argument('--clear-audio',action='store_true', help="Clear audio on startup")
 
 parser.add_argument('--phonemizer-type')
@@ -110,17 +113,21 @@ logger.debug(f"Loaded voice: {voice.name}: {voice}")
 
 ### Set voice properties if included in args
 if args.speaking_rate:
-    voice.speaking_rate=args.speaking_rate
+    if not (args.config_file and args.speaking_rate == 1.0):
+        voice.speaking_rate=args.speaking_rate
 if args.speaker:
     voice.speaker=args.speaker
 if args.steps:
-    voice.steps=args.steps
+    if not (args.config_file and args.steps == 10):
+        voice.steps=args.steps
 if args.temperature:
-    voice.temperature=args.temperature
+    if not (args.config_file and args.temperature == 0.667):
+        voice.temperature=args.temperature
 if args.device:
     voice.device=args.device
 if args.denoiser_strength:
-    voice.denoiser_strength=args.denoiser_strength
+    if not (args.config_file and args.denoiser_strength == 0.00025):
+        voice.denoiser_strength=args.denoiser_strength
                                
 ### Select phonemizer
 if args.phonemizer == None:

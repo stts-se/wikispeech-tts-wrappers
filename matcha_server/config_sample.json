@@ -9,7 +9,7 @@
     "output_path": "audio_files",
     "voices": [
 	{
-	    "name": "sv_se_nst_martin",
+	    "name": "sv_se_nst_male1",
 	    "enabled": false,
 	    "vocoder": "hifigan_univ_v1",
 	    "model": "martin_singlechar_ipa.ckpt",
@@ -33,13 +33,14 @@
 		"letters" : "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
 		"letters_ipa": "#`°ˈ̝̯aAãæÆⱭbɕdðɖeEəɛƐfghɧIɪjklɭmnɳŋoOøØŒɶɔɵprRɾsʂʃtʈuUʉɄʊƱvwYʏʒθ"
 	    },
+	    "speaking_rate": 0.85,
             "denoiser_strength": 0.00025,
             "steps": 10,
             "temperature": 0.667,
             "batch_size": 32
 	},
 	{
-	    "name": "sv_se_nst_marianne",
+	    "name": "sv_se_nst_female1",
 	    "enabled": false,
 	    "vocoder": "hifigan_univ_v1",
 	    "model": "marianne_singlechar_ipa_20251119.ckpt",

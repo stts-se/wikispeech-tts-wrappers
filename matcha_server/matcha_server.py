@@ -11,6 +11,9 @@ logger = tools.get_logger("matcha_server")
 
 import config
 
+# TODO: default values for args/params
+
+
 # Other imports
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
@@ -46,29 +49,26 @@ app = FastAPI(lifespan=lifespan,swagger_ui_parameters={"tryItOutEnabled": True})
 
 # TODO: API-call to show valid symbols
 
-@app.get("/synthesize/sv_se_nst_TMH_test")
-async def synthesize_sv_se_nst(input_type: str = 'phonemes',
-                               input: str = "jˈɑ:g t°ʏkər v°ɛldɪt m°ʏkət ˈɔm ɪtɐlɪˈe:nsk mˈɑ:t .",
-                               speaking_rate: float = 1.0,
-                               speaker_id: int = 1):
-    return await synthesize_as_get(voice = 'sv_se_nst_TMH_test',
-                            input_type = input_type,
-                            input = input,
-                            speaking_rate = speaking_rate,
-                            speaker_id = speaker_id)
+@app.get("/synthesize/sv_se_nst_male1")
+async def synthesize_sv_se_nst_male1(input_type: str = 'mixed',
+                                     input: str = "så här skickar man in [[bl°and`ad]] input till en manlig röst",
+                                     speaking_rate: float = None):
+    return await synthesize_as_get(voice = 'sv_se_nst_male1',
+                                   input_type = input_type,
+                                   input = input)
 
-@app.get("/synthesize/sv_se_nst_STTS_test")
-async def synthesize_sv_se_nst_stts(input_type: str = 'mixed',
-                               input: str = "så här skickar man in [[bl°and`ad]] input",
-                               speaking_rate: float = 1.0):
-    return await synthesize_as_get(voice = 'sv_se_nst_STTS_test',
-                            input_type = input_type,
-                            input = input)
+@app.get("/synthesize/sv_se_nst_female1")
+async def synthesize_sv_se_nst_female1(input_type: str = 'mixed',
+                                       input: str = "så här skickar man in [[bl°and`ad]] input till en kvinnlig röst",
+                                       speaking_rate: float = None):
+    return await synthesize_as_get(voice = 'sv_se_nst_female1',
+                                   input_type = input_type,
+                                   input = input)
 
 @app.get("/synthesize/en_us_vctk")
 async def synthesize_en_us_vctk(input_type: str = 'phonemes',
                                 input: str = "ðɛɹ mˈʌst biː ɐn ˈeɪndʒəl",
-                                speaking_rate: float = 1.0,
+                                speaking_rate: float = None,
                                 speaker_id: int = 4):
     return await synthesize_as_get(voice = 'en_us_vctk',
                             input_type = input_type,
@@ -79,7 +79,7 @@ async def synthesize_en_us_vctk(input_type: str = 'phonemes',
 @app.get("/synthesize/en_us_ljspeech")
 async def synthesize_en_us_ljspeech(input_type: str = 'text',
                                     input: str = "are you an angel",
-                                    speaking_rate: float = 1.0):
+                                    speaking_rate: float = None):
     return await synthesize_as_get(voice = 'en_us_ljspeech',
                             input_type = input_type,
                             input = input,
@@ -107,7 +107,7 @@ async def symbols_set(voice: str):
     
 
 class SynthRequest(BaseModel):
-    voice: str = "sv_se_nst_STTS_test"
+    voice: str = "sv_se_nst_female1"
     input_type: str = "tokens"
     input: list = [
         [
