@@ -129,6 +129,10 @@ if args.speaker:
 if args.device:
     voice.device=args.device
 
+if not voice.enabled:
+    logger.error(f"Voice not enabled: {voice.name}")
+    sys.exit(1)
+
 voice.validate()
 logger.debug(f"Loaded voice: {voice.name}: {voice}")
 

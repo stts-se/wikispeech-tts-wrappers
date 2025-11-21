@@ -71,12 +71,27 @@ def load_config(config_file):
             if name in result.voices:
                 raise Exception(f"Config file contains duplicate voices named {name}")
 
-            if not voice_config.get('enabled', True):
-                logger.debug(f"Skipping voice {name} (not enabled)")
-                continue
-
             symbols = [voice_config['symbols']['pad']] + list(voice_config['symbols']['punctuation']) + list(voice_config['symbols']['letters']) + list(voice_config['symbols']['letters_ipa'])
             
+            if not voice_config.get('enabled', True):
+                logger.debug(f"Skipping voice {name} (not enabled)")
+                v = voice.Voice(name=voice_config['name'],
+                                enabled=False,
+                                config=voice_config,
+                                model=None, # tools.find_file(voice_config['model'], result.model_paths),
+                                vocoder=None, # tools.find_file(voice_config['vocoder'], result.model_paths),
+                                speaking_rate=voice_config.get('speaking_rate',1.0),
+                                speaker=voice_config.get('spk',None),
+                                steps=voice_config.get('steps',10),
+                                temperature=voice_config.get('temperature',0.667),
+                                device=voice_config.get('device','cpu'),
+                                denoiser_strength=voice_config.get('denoiser_strength',0.00025),
+                                symbols=symbols,
+                                phonemizers=[],
+                                selected_phonemizer_index=0)
+                result.voices[name] = v
+                continue
+
             phonemizers = []
             defaultPhnIndex = 0
             for i, phizer in enumerate(voice_config['phonemizers']):
@@ -97,6 +112,8 @@ def load_config(config_file):
                 raise Exception(f"Couldn't find phonemizer for voice '{voice_config['name']}' in config file {config_file}")
 
             v = voice.Voice(name=voice_config['name'],
+                            enabled=True,
+                            config=voice_config,
                             model=tools.find_file(voice_config['model'], result.model_paths),
                             vocoder=tools.find_file(voice_config['vocoder'], result.model_paths),
                             speaking_rate=voice_config.get('speaking_rate',1.0),

@@ -130,6 +130,13 @@ async def synthesize_as_post(request: SynthRequest):
         logger.error(msg)
         raise HTTPException(status_code=404, detail=msg)
 
+    voice = global_cfg.voices[request.voice]
+    if not voice.enabled:
+        msg = f"Voice not enabled: {request.voice}"
+        logger.error(msg)
+        raise HTTPException(status_code=404, detail=msg)
+        
+    
     logger.debug(f"synthesize input: {request}")
 
     # remap default values from json
@@ -141,7 +148,7 @@ async def synthesize_as_post(request: SynthRequest):
         speaking_rate = request.speaking_rate,
         speaker_id = request.speaker_id,
     )
-    res = global_cfg.voices[request.voice].synthesize_all(request.input, request.input_type, global_cfg.output_path, params)
+    res = voice.synthesize_all(request.input, request.input_type, global_cfg.output_path, params)
         
 
     # return type
@@ -175,6 +182,11 @@ async def synthesize_as_get(voice: str = 'sv_se_nst_STTS_test',
                             return_type: str = 'json'):
     if voice not in global_cfg.voices:
         msg = f"No such voice: {voice}"
+        logger.error(msg)
+        raise HTTPException(status_code=404, detail=msg)
+
+    if not global_cfg.voices[voice].enabled:
+        msg = f"Voice not enabled: {voice}"
         logger.error(msg)
         raise HTTPException(status_code=404, detail=msg)
 

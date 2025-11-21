@@ -23,6 +23,9 @@ from dataclasses import dataclass, asdict
 @dataclass
 class Voice:
     name: str
+    enabled: bool
+    config: object
+
     model: str
     vocoder: str
 
@@ -37,6 +40,7 @@ class Voice:
     
     phonemizers: list
     selected_phonemizer_index: int
+
 
     def __post_init__(self):
         self.SPACE_ID = self.symbols.index(" ")
