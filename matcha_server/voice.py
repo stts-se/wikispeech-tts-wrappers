@@ -101,8 +101,15 @@ class Voice:
         Returns:
           List of integers corresponding to the symbols in the text
         """
-        sequence = [self.symbol2id[symbol] for symbol in cleaned_text]
-        return sequence
+        result = []
+        for symbol in cleaned_text:
+            if symbol in self.symbol2id:
+                id = self.symbol2id[symbol]
+                result.append(id)
+            else:
+                # TODO: error handling
+                logger.debug(f"Symbol '{symbol}' in input string '{cleaned_text}' was not found in symbol2id map")
+        return result
 
 
     def sequence_to_text(self, sequence):

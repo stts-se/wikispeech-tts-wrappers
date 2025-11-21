@@ -10,7 +10,7 @@ def get_logger(name="matcha"):
     logging.getLogger('matplotlib').setLevel(logging.WARNING)
     logger = logging.getLogger(name)
     logging.getLogger(name).setLevel(logging.DEBUG)
-    logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s:%(filename)s - %(levelname)s - %(message)s')
     return logger
     
 # if the same model/file is found in multiple paths, the first one will be used
