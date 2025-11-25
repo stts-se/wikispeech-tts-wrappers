@@ -43,6 +43,7 @@ syn_config = SynthesisConfig(
     noise_scale=1.0,  # audio variation
     noise_w_scale=1.0,  # speaking variation
     normalize_audio=False, # use raw audio from voice
+    #speaker_id=0, # TODO: look up id from speaker name
 )
 set_wav_format = True
 
