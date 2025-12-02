@@ -80,20 +80,19 @@ Download additional Piper models from [STTS Google Drive](https://drive.google.c
 
 
 
-**4. Cmdline client**
-
-`python <path-to-piper-server>/piper_cli.py <onnx model> <input> <output file>`
-
-
-
 **4. Check config**
 
 Verify paths and other config settings in `config_sample.env`
 
 
-**5. Server**
+**5. Cmdline client**
 
-___5.1 Start server___
+`python <path-to-piper-server>/piper_cli.py <onnx model> <input> <output file>`
+
+
+**6. Server**
+
+___6.1 Start server___
 
 
 <!--
@@ -107,12 +106,12 @@ uvicorn --app-dir <path-to-piper-server> piper_server:app --env-file <path-to-pi
 ```
 
 
-___5.2 Access server___
+___6.2 Access server___
 
 Use your browser to go to http://127.0.0.1:8010/docs
 
 
-___5.3 Audio and other output___
+___6.3 Audio and other output___
 
 Output files will be in the `PIPER_OUTPUT_DIR` folder defined in the config file, default: `./audio_files`:
 
