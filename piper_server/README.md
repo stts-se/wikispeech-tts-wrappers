@@ -102,7 +102,7 @@ Use your browser to go to http://127.0.0.1:8010/docs
 
 ___5.3 Audio and other output___
 
-Output files will be in the `output_path` folder defined in the config file, default: `./audio_files`:
+Output files will be in the `PIPER_OUTPUT_DIR` folder defined in the config file, default: `./audio_files`:
 
 * wav – audio output
 * json – same as server response
