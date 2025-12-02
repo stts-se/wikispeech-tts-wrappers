@@ -73,7 +73,7 @@ For now, these models are only available for users approved by STTS. Some of the
 Download additional Piper + Deep Phonemizer models from [STTS Google Drive](https://drive.google.com/drive/folders/1J1iNZDSzGGrq1iJwIAtlDtvMjfad13QP?usp=sharing) and save to `$HOME/.local/share/piper_tts` + `$HOME/.local/share/deep_phonemizer`
 -->
 
-___3.2 Patching alignment___
+___3.2 Alignment patching___
 
 ```
 python3 -m piper.patch_voice_with_alignment /path/to/model.onnx
