@@ -125,8 +125,8 @@ There are currently three ways to listen to the generated audio:
 
 1. Play the file `latest.wav` in your `output_path`
 2. Use your browser to copy the `audio` path from the server response, and paste it in the browser's address field as `http://127.0.0.1:8010/static/AUDIOILE.wav` or `http://127.0.0.1:8010/static/latest.wav`
-3. With a get request: `http://127.0.0.1:8010/synthesize/?voice=voice_name&input=input%20text%20to%20synthesize&input_type=mixed&return_type=wav`
-Example: `http://127.0.0.1:8010/synthesize/?voice=en_US-bryce-medium&input=hello%20my%20name%20is%20bryce%20with%20a%20get%20request&input_type=mixed&return_type=wav`
+3. With a get request: `http://127.0.0.1:8010/synthesize/?voice=voice_name&input=input%20text%20to%20synthesize&input_type=mixed&return_type=wav`    
+Example: [http://127.0.0.1:8010/synthesize/?voice=en_US-bryce-medium&input=hello%20my%20name%20is%20bryce%20with%20a%20get%20request&input_type=mixed&return_type=wav](http://127.0.0.1:8010/synthesize/?voice=en_US-bryce-medium&input=hello%20my%20name%20is%20bryce%20with%20a%20get%20request&input_type=mixed&return_type=wav)
 
 
 Please note that the server's default setting is to clear the `output_path` on startup. This can be configured in the config file (see `config_sample.env`).
