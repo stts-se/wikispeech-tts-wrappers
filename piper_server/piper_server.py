@@ -96,75 +96,39 @@ async def synthesize_sv_se_nst(input_type: str = 'phonemes',
                                input: str = "jɑːɡ ɛːr ɛn ɡˈamal trˈœt ɡˈɵbə",
                                length_scale: Optional[float] = None,
                                noise_scale: Optional[float] = None,
-                               noise_w_scale: Optional[float] = None,
-                               sentence_silence: float = 0.0):
+                               noise_w_scale: Optional[float] = None):
     return await synthesize_as_get(voice = 'sv_SE-nst-medium',
                                    input_type = input_type,
                                    input = input,
                                    length_scale = length_scale,
                                    noise_scale = noise_scale,
-                                   noise_w_scale = noise_w_scale,
-                                   sentence_silence = sentence_silence)
-
-@app.get("/synthesize/sv_se_lisa")
-async def synthesize_sv_se_lisa(input_type: str = 'phonemes',
-                               input: str = "jɑːɡ ɛːr ɛn pˈɪɡ madˈam",
-                               length_scale: Optional[float] = None,
-                               noise_scale: Optional[float] = None,
-                               noise_w_scale: Optional[float] = None,
-                               sentence_silence: float = 0.0):
-    return await synthesize_as_get(voice = 'sv_SE-lisa-medium',
-                                   input_type = input_type,
-                                   input = input,
-                                   length_scale = length_scale,
-                                   noise_scale = noise_scale,
-                                   noise_w_scale = noise_w_scale,
-                                   sentence_silence = sentence_silence)
+                                   noise_w_scale = noise_w_scale)
 
 @app.get("/synthesize/en_us_bryce")
 async def synthesize_en_us_bryce(input_type: str = 'mixed',
                                input: str = "hello, my name is bryce",
                                length_scale: Optional[float] = None,
                                noise_scale: Optional[float] = None,
-                               noise_w_scale: Optional[float] = None,
-                               sentence_silence: float = 0.0):
+                               noise_w_scale: Optional[float] = None):
     return await synthesize_as_get(voice = 'en_US-bryce-medium',
                                    input_type = input_type,
                                    input = input,
                                    length_scale = length_scale,
                                    noise_scale = noise_scale,
-                                   noise_w_scale = noise_w_scale,
-                                   sentence_silence = sentence_silence)
-
-@app.get("/synthesize/en_us_norman")
-async def synthesize_en_us_norman(input_type: str = 'mixed',
-                               input: str = "hello, my name is norman",
-                               length_scale: Optional[float] = None,
-                               noise_scale: Optional[float] = None,
-                               noise_w_scale: Optional[float] = None,
-                               sentence_silence: float = 0.0):
-    return await synthesize_as_get(voice = 'en_US-norman-medium',
-                                   input_type = input_type,
-                                   input = input,
-                                   length_scale = length_scale,
-                                   noise_scale = noise_scale,
-                                   noise_w_scale = noise_w_scale,
-                                   sentence_silence = sentence_silence)
+                                   noise_w_scale = noise_w_scale)
 
 @app.get("/synthesize/ar_jo_kareem")
 async def synthesize_ar_jo_kareem(input_type: str = 'phonemes',
-                               input: str = "wikibˈiːdia alʕarabˈiːa",
-                               length_scale: Optional[float] = None,
-                               noise_scale: Optional[float] = None,
-                               noise_w_scale: Optional[float] = None,
-                                  sentence_silence: float = 0.0):
+                                  input: str = "wikibˈiːdia alʕarabˈiːa",
+                                  length_scale: Optional[float] = None,
+                                  noise_scale: Optional[float] = None,
+                                  noise_w_scale: Optional[float] = None):
     return await synthesize_as_get(voice = 'ar_JO-kareem-medium',
                                    input_type = input_type,
                                    input = input,
                                    length_scale = length_scale,
                                    noise_scale = noise_scale,
-                                   noise_w_scale = noise_w_scale,
-                                   sentence_silence = sentence_silence)
+                                   noise_w_scale = noise_w_scale)
 
 class SynthRequest(BaseModel):
     voice: str = "en_US-bryce-medium"

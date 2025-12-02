@@ -27,8 +27,7 @@ uv venv
 source .venv/bin/activate
 uv pip install -e .[dev]
 python3 setup.py build_ext --inplace
-uv pip install "fastapi[standard]"
-uv pip install uvicorn
+uv pip install uvicorn "fastapi[standard]"
 ```
 
 
@@ -45,13 +44,11 @@ uv pip install uvicorn
 -->
 
 
-**3. Download models**
+**3. Models**
+
+__3.1 Download Piper models___
 
 Replace `$HOME/.local/share/piper_tts` if you want to save your models elsewhere.
-
-<!-- In that case, you also have to update `paths` in your config file (see below). -->
-
-___3.1 Piper models___
 
 ```
 mkdir -p $HOME/.local/share/piper_tts
@@ -68,13 +65,22 @@ wget https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/sv/sv_SE/lisa/me
 wget https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/sv/sv_SE/lisa/medium/sv_SE-lisa-medium.onnx.json
 cd -
 ```
+
+<!--
 ___3.2 Additional models___
 
 For now, these models are only available for users approved by STTS. Some of these will be made publicly available once we sort out some licensing issues.
 
-Download additional Piper models from [STTS Google Drive](https://drive.google.com/drive/folders/1quDWeW1Vemky1YFdLv17m8Chtpg7ZPSO?usp=sharing) and save to `$HOME/.local/share/piper_tts`
+Download additional Piper + Deep Phonemizer models from [STTS Google Drive](https://drive.google.com/drive/folders/1J1iNZDSzGGrq1iJwIAtlDtvMjfad13QP?usp=sharing) and save to `$HOME/.local/share/piper_tts` + `$HOME/.local/share/deep_phonemizer`
+-->
 
-<!-- Download Deep Phonemizer models from [STTS Google Drive](https://drive.google.com/drive/folders/1XAgg_fu7Ay4eEad0n5WW7m-IX1XKIXNz?usp=sharing) and save to `$HOME/.local/share/deep_phonemizer` -->
+___3.2 Activate alignment ___
+
+```
+python3 -m piper.patch_voice_with_alignment /path/to/model.onnx
+```
+
+Docs: https://github.com/OHF-Voice/piper1-gpl/blob/main/docs/ALIGNMENTS.md    
 
 
 
