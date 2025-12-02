@@ -82,7 +82,7 @@ Download additional Piper models from [STTS Google Drive](https://drive.google.c
 
 **4. Cmdline client**
 
-`python <path-to-piper-cli>/piper_cli.py <model name> <input text or phonemes> <output file>`
+`python <path-to-piper-server>/piper_cli.py <onnx model> <input> <output file>`
 
 
 

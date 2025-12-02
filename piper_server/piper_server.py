@@ -1,17 +1,5 @@
-# NB! For aligned output, you need to run this on a piper dev build, not the released 1.3.0 version
-
-# Docs:
-# https://github.com/OHF-Voice/piper1-gpl/blob/main/docs/BUILDING.md
-# https://github.com/OHF-Voice/piper1-gpl/blob/main/docs/ALIGNMENTS.md
-
-# git clone https://github.com/stts-se/piper1-gpl.git
-# cd piper1-gpl
-# uv venv
-# source .venv/bin/activate
-# uv pip install "fastapi[standard]"
-# uv pip install uvicorn
-# uvicorn --app-dir <path-to-piper-server> piper_server:app --env-file <path-to-piper-server>/config_sample.env -port=8010
-
+## FOR ALIGNED OUTPUT, YOU NEED TO RUN THIS ON A PIPER DEV BUILD FOR 1.3.1 OR HIGHER, NOT THE RELEASED 1.3.0 VERSION
+## SEE README FOR INSTALLATION INSTRUCTIONS
 
 from fastapi import FastAPI
 

@@ -1,10 +1,5 @@
-## FOR ALIGNED OUTPUT, YOU NEED TO RUN THIS ON A PIPER DEV BUILD, NOT THE RELEASED 1.3.0 VERSION
-# https://github.com/OHF-Voice/piper1-gpl/blob/main/docs/BUILDING.md
-# https://github.com/OHF-Voice/piper1-gpl/blob/main/docs/ALIGNMENTS.md
-# cd <piper1-gpl>
-# source .venv/bin/activate
-# python <wikispeech-tts-wrappers>/piper_server/piper_cli.py <onnx model> <input text/phonemes> <output_file>
-
+## FOR ALIGNED OUTPUT, YOU NEED TO RUN THIS ON A PIPER DEV BUILD FOR 1.3.1 OR HIGHER, NOT THE RELEASED 1.3.0 VERSION
+## SEE README FOR INSTALLATION INSTRUCTIONS
 
 import tools
 
@@ -50,4 +45,5 @@ syn_config = SynthesisConfig(
 output_dir=os.path.dirname(args.output_file)
 basename=Path(os.path.basename(args.output_file)).with_suffix("")
 input_type="mixed"
-tools.synthesize(voice, args.input, input_type, output_dir, basename, syn_config)
+outfilebase = Path(output_dir / basename)
+tools.synthesize(voice, args.input, input_type, outfilebase, syn_config)
