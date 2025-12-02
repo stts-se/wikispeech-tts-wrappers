@@ -16,6 +16,27 @@ Supported Piper version 1.3.0
 **2. Set up `venv` and install piper-tts**
 
 
+NB! For aligned output, you need to run this on a piper dev build for 1.3.1 or higher, since the released 1.3.0 version isn't alignment enabled
+
+Docs:    
+https://github.com/OHF-Voice/piper1-gpl/blob/main/docs/BUILDING.md    
+https://github.com/OHF-Voice/piper1-gpl/blob/main/docs/ALIGNMENTS.md    
+
+```
+git clone https://github.com/OHF-Voice/piper1-gpl.git
+cd piper1-gpl
+uv venv
+source .venv/bin/activate
+uv pip install -e .[dev]
+python3 setup.py build_ext --inplace
+uv pip install "fastapi[standard]"
+uv pip install uvicorn
+```
+
+
+<!--
+# piper 1.3.0
+
 ```
 uv venv
 source .venv/bin/activate
@@ -23,6 +44,8 @@ uv pip install piper-tts==1.3.0
 uv pip install "fastapi[standard]"
 uv pip install uvicorn
 ```
+-->
+
 
 **3. Download models**
 
@@ -74,23 +97,14 @@ Verify paths and other config settings in `config_sample.env`
 
 ___5.1 Start server___
 
+
+<!--
 ```
 uvicorn piper_server:app --env-file config_sample.env --port 8010
 ```
-
-NB! For aligned output, you need to run this on a piper dev build for 1.3.1 or higher, since the released 1.3.0 version isn't alignment enabled
-
-Docs:    
-https://github.com/OHF-Voice/piper1-gpl/blob/main/docs/BUILDING.md    
-https://github.com/OHF-Voice/piper1-gpl/blob/main/docs/ALIGNMENTS.md    
+-->
 
 ```
-git clone https://github.com/stts-se/piper1-gpl.git
-cd piper1-gpl
-uv venv
-source .venv/bin/activate
-uv pip install "fastapi[standard]"
-uv pip install uvicorn
 uvicorn --app-dir <path-to-piper-server> piper_server:app --env-file <path-to-piper-server>/config_sample.env -port=8010
 ```
 
@@ -111,6 +125,10 @@ There are currently two ways to listen to the generated audio:
 
 1. Play the file `latest.wav` in your `output_path`
 2. Use your browser to copy the `audio` path from the server response, and paste it in the browser's address field as `http://127.0.0.1:8010/static/AUDIOILE.wav` or `http://127.0.0.1:8010/static/latest.wav`
+3. With a direct get request: http://127.0.0.1:8010/synthesize/?voice=voice_name&input=input text to synthesize&input_type=mixed&return_type=wav
+
+http://127.0.0.1:8010/synthesize/?voice=en_US-bryce-medium&input=hello my name is bryce with a get request&input_type=mixed&return_type=wav
+
 
 Please note that the server's default setting is to clear the `output_path` on startup. This can be configured in the config file (see `config_sample.json`).
 
