@@ -14,7 +14,7 @@ Supported Piper version 1.3.1
 **2. Set up `venv` and install piper-tts**
 
 
-NB! For aligned output, you need to run this on a piper dev build for 1.3.1 or higher, since the released 1.3.0 version isn't alignment enabled
+NB! For aligned output, you need to run this on a piper dev build for 1.3.1 or higher, since the released 1.3.0 version doesn't have alignment enabled.
 
 Docs:    
 https://github.com/OHF-Voice/piper1-gpl/blob/main/docs/BUILDING.md    
