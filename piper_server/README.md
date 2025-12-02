@@ -103,7 +103,7 @@ uvicorn piper_server:app --env-file config_sample.env --port 8010
 -->
 
 ```
-uvicorn --app-dir <path-to-piper-server> piper_server:app --env-file <path-to-piper-server>/config_sample.env -port=8010
+uvicorn --app-dir <path-to-piper-server> piper_server:app --env-file <path-to-piper-server>/config_sample.env --port=8010
 ```
 
 
