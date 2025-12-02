@@ -19,14 +19,36 @@ def get_logger(name="piper"):
     return logger
 logger=get_logger()
 
-# TODO input as tokens
-def synthesize(voice, input, input_type, output_dir, basename, syn_config):
+def get_or_else(value1, value2, default=None):
+    if value1 is not None:
+        return value1
+    elif value2 is not None:
+        return value2
+    else:
+        return default
+
+def synthesize_all(voice, inputs, input_type, output_dir, syn_config):
+    import uuid
+    uid = uuid.uuid4()
+    res = []
+    i = 0
+    spk_id = get_or_else(vars(syn_config).get("speaker"), syn_config.speaker_id)
+    for input in inputs:
+        i = i+1
+        base_name = f"utt_{uid}_{i:03d}_spk_{spk_id:03d}" if spk_id is not None else f"utt_{uid}_{i:03d}"
+        output_file = os.path.join(output_dir, base_name)
+        res.append(synthesize(voice,input, input_type, output_file, syn_config))
+    if len(res) > 0:
+        copy_to_latest(res[len(res)-1],output_dir)
+    return res
+
+def synthesize(voice, input, input_type, output_file, syn_config):
     set_wav_format = True
 
     logger.debug(f"syn_config: {syn_config}")
     
-    wav_file=str(Path(Path(output_dir) / basename).with_suffix('.wav'))
-    lab_file=str(Path(Path(output_dir) / basename).with_suffix('.lab'))
+    wav_file=str(Path(output_file).with_suffix('.wav'))
+    lab_file=str(Path(output_file).with_suffix('.lab'))
 
     alignments = []
     piper_alignments_enabled = True
@@ -35,16 +57,18 @@ def synthesize(voice, input, input_type, output_dir, basename, syn_config):
     adapted_input = input
     if input_type == "phonemes":
         adapted_input = f"[[ {input} ]]"
+    elif input_type == "mixed":
+        adapted_input = input
     elif input_type == "tokens":
         adapted_inputs = []
-        for chunk in input:
-            for t in chunk: # TODO: keep nested structure in output?
-                if "phonemes" in t:
-                    adapted_inputs.append(f"[[ {t['phonemes']} ]]")
-                else:
-                    adapted_inputs.append(t['orth'])
+        for t in input: 
+            if "phonemes" in t:
+                adapted_inputs.append(f"[[ {t['phonemes']} ]]")
+            else:
+                adapted_inputs.append(t['orth'])
         adapted_input = " ".join(adapted_inputs)
 
+    logger.debug(f"Input: {adapted_input}")
     logger.debug(f"Adapted input: {adapted_input}")
         
     with wave.open(wav_file, "wb") as wf:
@@ -109,7 +133,7 @@ def synthesize(voice, input, input_type, output_dir, basename, syn_config):
             f.write(f"{t['start_time']}\t{t['end_time']}\t{t['phonemes']}\n")
 
 
-    copy_to_latest(result, output_dir)    
+    #copy_to_latest(result, output_dir)    
     return result
 
     

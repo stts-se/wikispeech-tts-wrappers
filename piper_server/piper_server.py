@@ -1,11 +1,16 @@
-## FOR ALIGNED OUTPUT, YOU NEED TO RUN THIS ON A PIPER DEV BUILD, NOT THE RELEASED 1.3.0 VERSION
+# NB! For aligned output, you need to run this on a piper dev build, not the released 1.3.0 version
+
+# Docs:
 # https://github.com/OHF-Voice/piper1-gpl/blob/main/docs/BUILDING.md
 # https://github.com/OHF-Voice/piper1-gpl/blob/main/docs/ALIGNMENTS.md
-# cd <piper1-gpl>
+
+# git clone https://github.com/stts-se/piper1-gpl.git
+# cd piper1-gpl
+# uv venv
 # source .venv/bin/activate
 # uv pip install "fastapi[standard]"
 # uv pip install uvicorn
-# uvicorn --app-dir <path-to-piper_server> piper_server:app --env-file <path-to>/config_sample.env -port=8010
+# uvicorn --app-dir <path-to-piper-server> piper_server:app --env-file <path-to-piper-server>/config_sample.env -port=8010
 
 
 from fastapi import FastAPI
@@ -178,6 +183,10 @@ class SynthRequest(BaseModel):
     input_type: str = "tokens"
     input: list = [
         [
+            { "orth": "first" },
+            { "orth": "sentence" },            
+        ],
+        [
             { "orth": "hello" },
             { "orth": "my" },
             { "orth": "name"},
@@ -202,10 +211,6 @@ async def synthesize_as_post(request: SynthRequest):
         raise HTTPException(status_code=404, detail=msg)              
     
     logger.debug(f"synthesize input: {request}")
-    import uuid
-    uid = uuid.uuid4()
-    i = 0
-    basename = f"utt_{uid}_{i+1:03d}"
     syn_config = SynthesisConfig(
         volume=1.0,
         normalize_audio=False, # use raw audio from voice
@@ -218,8 +223,10 @@ async def synthesize_as_post(request: SynthRequest):
     if request.noise_w_scale >= 0:
         syn_config.noise_w_scale=request.noise_w_scale,  # speaking variation
 
-    res = tools.synthesize(synths[request.voice], request.input, request.input_type, settings.output_dir, basename, syn_config)
-        
+    res = tools.synthesize_all(synths[request.voice], request.input, request.input_type, settings.output_dir, syn_config)
+
+    print("???", res)
+    
     # return type
     if request.return_type == 'json':
         for i, obj in enumerate(res):
@@ -228,7 +235,7 @@ async def synthesize_as_post(request: SynthRequest):
     elif request.return_type == 'wav':
         if len(res) == 1:
             f = res[0]['audio']
-            full_path = os.path.join(global_cfg.output_path, f)
+            full_path = os.path.join(settings.output_dir, f)
             return FileResponse(full_path, filename=os.path.basename(f), media_type="audio/wav")
         else:
             msg = f"Cannot use return type {request.return_type} for multiple output objects. Try json instead."
@@ -267,22 +274,17 @@ async def synthesize_as_get(voice: str = "en_US-bryce-medium",
         logger.error(msg)
         raise HTTPException(status_code=400, detail=msg)
     res = []
-    import uuid
-    uid = uuid.uuid4()
     try:
-        for i, input in enumerate(inputs):
-            basename = f"utt_{uid}_{i+1:03d}"
-            syn_config = SynthesisConfig(
-                volume=1.0,
-                length_scale=length_scale,  # 2.0 = twice as slow
-                noise_scale=noise_scale,  # audio variation
-                noise_w_scale=noise_w_scale,  # speaking variation
-                normalize_audio=False, # use raw audio from voice
-                #sentence_silence=sentence_silence,
-                #speaker_id=0, # TODO: look up id from speaker name
-            )
-            entry = tools.synthesize(synths[voice], input, input_type, settings.output_dir, basename, syn_config)
-            res.append(entry)
+        syn_config = SynthesisConfig(
+            volume=1.0,
+            length_scale=length_scale,  # 2.0 = twice as slow
+            noise_scale=noise_scale,  # audio variation
+            noise_w_scale=noise_w_scale,  # speaking variation
+            normalize_audio=False, # use raw audio from voice
+            #sentence_silence=sentence_silence,
+            #speaker_id=0, # TODO: look up id from speaker name
+        )
+        res = tools.synthesize_all(synths[voice], inputs, input_type, settings.output_dir, syn_config)
                 
     except RuntimeError as e:
         raise HTTPException(status_code=500, detail="Internal server error, see server log for details")
