@@ -91,7 +91,7 @@ def synthesize(voice, input, input_type, output_file, syn_config):
             first_chunk = False
 
             wf.writeframes(audio_chunk.audio_int16_bytes)
-            logger.info(f"Saved audio to {wav_file}")
+            logger.info(f"Audio saved to {wav_file}")
 
             if piper_alignments_enabled and audio_chunk.phoneme_alignments:
                 alignments.extend(audio_chunk.phoneme_alignments)
@@ -125,12 +125,13 @@ def synthesize(voice, input, input_type, output_file, syn_config):
     json_output = Path(wav_file).with_suffix('.json')
     with open(json_output, 'w', encoding='utf-8') as f:
         json.dump(result, f, ensure_ascii=False, indent=4)
-        logger.debug(f"JSON output saved: {wav_file}")
+        logger.info(f"JSON saved to {json_output}")
 
     # lab file
     with open(lab_file, "w") as f:
         for t in tokens:
             f.write(f"{t['start_time']}\t{t['end_time']}\t{t['phonemes']}\n")
+    logger.info(f"Label style output saved to {lab_file}")
 
 
     #copy_to_latest(result, output_dir)    
