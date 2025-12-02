@@ -64,7 +64,7 @@ Download additional Piper models from [STTS Google Drive](https://drive.google.c
 _\* if no output file is set, audio will be played immediately using ffplay (dependency)_
 
 
-<!--
+
 **4. Check config**
 
 Verify paths and other config settings in `config_sample.env`
@@ -113,6 +113,4 @@ There are currently two ways to listen to the generated audio:
 2. Use your browser to copy the `audio` path from the server response, and paste it in the browser's address field as `http://127.0.0.1:8010/static/AUDIOILE.wav` or `http://127.0.0.1:8010/static/latest.wav`
 
 Please note that the server's default setting is to clear the `output_path` on startup. This can be configured in the config file (see `config_sample.json`).
-
--->
 
