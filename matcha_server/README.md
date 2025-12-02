@@ -30,8 +30,6 @@ sed -i 's|\(plot_spectrogram_to_numpy.*\) f"{filename}.png")|\1 folder / f"{file
 
 Replace `$HOME/.local/share/matcha_tts` if you want to save your models elsewhere. In that case, you also have to update `model_paths` in your config file (see below).
 
-___4.1 Matcha models___
-
 ```
 mkdir -p $HOME/.local/share/matcha_tts
 cd $HOME/.local/share/matcha_tts
@@ -42,11 +40,14 @@ curl -L https://github.com/shivammehta25/Matcha-TTS-checkpoints/releases/downloa
 cd -
 ```
 
+<!--
 ___4.2 Additional models___
 
 For now, these models are only available for users approved by STTS. Some of these will be made publicly available once we sort out some licensing issues.
 
 Download additional Matcha + Deep Phonemizer models from [STTS Google Drive](https://drive.google.com/drive/folders/1J1iNZDSzGGrq1iJwIAtlDtvMjfad13QP?usp=sharing) and save to `$HOME/.local/share/matcha_tts` + `$HOME/.local/share/deep_phonemizer`
+-->
+
 
 **5. Check config**
 
