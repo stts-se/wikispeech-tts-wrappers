@@ -78,11 +78,11 @@ ___5.1 Start server___
 uvicorn piper_server:app --env-file config_sample.env --port 8010
 ```
 
-NB! For aligned output, you need to run this on a piper dev build, not the released 1.3.0 version
+NB! For aligned output, you need to run this on a piper dev build for 1.3.1 or higher, since the released 1.3.0 version isn't alignment enabled
 
-Docs:
-https://github.com/OHF-Voice/piper1-gpl/blob/main/docs/BUILDING.md
-https://github.com/OHF-Voice/piper1-gpl/blob/main/docs/ALIGNMENTS.md
+Docs:    
+https://github.com/OHF-Voice/piper1-gpl/blob/main/docs/BUILDING.md    
+https://github.com/OHF-Voice/piper1-gpl/blob/main/docs/ALIGNMENTS.md    
 
 ```
 git clone https://github.com/stts-se/piper1-gpl.git
