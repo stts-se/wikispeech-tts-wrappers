@@ -125,5 +125,5 @@ There are currently three ways to listen to the generated audio:
 http://127.0.0.1:8010/synthesize/?voice=en_US-bryce-medium&input=hello my name is bryce with a get request&input_type=mixed&return_type=wav
 
 
-Please note that the server's default setting is to clear the `output_path` on startup. This can be configured in the config file (see `config_sample.json`).
+Please note that the server's default setting is to clear the `output_path` on startup. This can be configured in the config file (see `config_sample.env`).
 
