@@ -116,11 +116,11 @@ Output files will be in the `PIPER_OUTPUT_DIR` folder defined in the config file
 * wav – audio output
 * json – same as server response
 
-There are currently two ways to listen to the generated audio:
+There are currently three ways to listen to the generated audio:
 
 1. Play the file `latest.wav` in your `output_path`
 2. Use your browser to copy the `audio` path from the server response, and paste it in the browser's address field as `http://127.0.0.1:8010/static/AUDIOILE.wav` or `http://127.0.0.1:8010/static/latest.wav`
-3. With a direct get request: http://127.0.0.1:8010/synthesize/?voice=voice_name&input=input text to synthesize&input_type=mixed&return_type=wav
+3. From a browser: http://127.0.0.1:8010/synthesize/?voice=voice_name&input=input text to synthesize&input_type=mixed&return_type=wav
 
 http://127.0.0.1:8010/synthesize/?voice=en_US-bryce-medium&input=hello my name is bryce with a get request&input_type=mixed&return_type=wav
 
