@@ -1,5 +1,5 @@
 {
-    "_comment": "You can add multiple folders to model_paths. Environment variables are expanded, and relative paths are allowed. If the samme model is found in multiple folders, the first one will be used.",
+    "_comment": "You can add multiple folders to model_paths. Environment variables are expanded, and relative paths are allowed. If the same model is found in multiple folders, the first one will be used.",
     "clear_audio_on_startup": true,
     "force_cpu": false,
     "model_paths": [

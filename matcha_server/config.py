@@ -40,6 +40,8 @@ def load_from_args(args):
     elif args.phonemizer_type is not None:
         raise Exception(f"Unknown phonemizer type {args.phonemizer_type}")
     return voice.Voice(name="cmdline_voice",
+                       enabled=True,
+                       config=None,
                        model=args.model,
                        vocoder=args.vocoder,
                        speaking_rate=args.speaking_rate,
