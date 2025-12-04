@@ -1,5 +1,5 @@
 {
-    "_comment": "You can add multiple folders to model_paths. Environment variables are expanded, and relative paths are allowed. If the samme model is found in multiple folders, the first one will be used.",
+    "_comment": "You can add multiple folders to model_paths. Environment variables are expanded, and relative paths are allowed. If the same model is found in multiple folders, the first one will be used.",
     "clear_audio_on_startup": true,
     "force_cpu": false,
     "model_paths": [
@@ -64,6 +64,37 @@
 		"letters" : "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
 		"letters_ipa": "#`°ˈ̝̯aAãæÆⱭbɕdðɖeEəɛƐfghɧIɪjklɭmnɳŋoOøØŒɶɔɵprRɾsʂʃtʈuUʉɄʊƱvwYʏʒθ"
 	    },
+            "denoiser_strength": 0.00025,
+            "steps": 10,
+            "temperature": 0.667,
+            "batch_size": 32
+	},
+	{
+	    "name": "sv_se_nst_vc1",
+	    "enabled": true,
+	    "vocoder": "hifigan_univ_v1",
+	    "model": "dufvenius_16k.ckpt",
+	    "phonemizers": [
+		{
+		    "name": "sv_se_braxen_full_sv",
+		    "type": "deep_phonemizer",
+		    "lang": "sv",
+		    "model": "dp_single_char_swe_sv.pt"
+		},
+		{
+		    "name": "sv_se_braxen_full_langs",
+		    "type": "deep_phonemizer",
+		    "lang": "swe",
+		    "model": "dp_single_char_swe_langs.pt"
+		}
+	    ],
+	    "symbols": {
+		"pad": "_",
+		"punctuation" : ";:,.!?¡¿—…\"«»“” ",
+		"letters" : "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
+		"letters_ipa": "#`°ˈ̝̯aAãæÆⱭbɕdðɖeEəɛƐfghɧIɪjklɭmnɳŋoOøØŒɶɔɵprRɾsʂʃtʈuUʉɄʊƱvwYʏʒθ"
+	    },
+	    "speaking_rate": 0.85,
             "denoiser_strength": 0.00025,
             "steps": 10,
             "temperature": 0.667,

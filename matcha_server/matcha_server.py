@@ -173,7 +173,7 @@ async def synthesize_as_post(request: SynthRequest):
 
 
 @app.get("/synthesize/")
-async def synthesize_as_get(voice: str = 'sv_se_nst_STTS_test',
+async def synthesize_as_get(voice: str = 'sv_se_nst_vc1',
                             input_type: str = 'text',
                             input: str="Vi testar talsyntes och det är kul.",
                             #input: str = "viː tˈɛstar tˈɑːlsyntˌeːs",

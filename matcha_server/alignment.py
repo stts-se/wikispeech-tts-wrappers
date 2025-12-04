@@ -19,6 +19,8 @@ def combine(tokens, aligned):
         return res
     else:
         logger.error(f"Different number of tokens vs aligned tokens -- output json file will not include aligmnent")
+        logger.error(f"Tokens {tokens}")
+        logger.error(f"Aligned tokens {aligned}")            
         return tokens
 
 
