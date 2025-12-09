@@ -37,7 +37,6 @@ async def lifespan(app: FastAPI):
     for v in global_cfg.voices:
         global_cfg.voices[v].validate(fail_on_error=False)
 
-    global paths
     app.mount("/static", StaticFiles(directory=global_cfg.output_path), name="static")
     # ->  http://127.0.0.1:8000/static/FILENAME.wav    
 
@@ -148,6 +147,8 @@ async def synthesize_as_post(request: SynthRequest):
         speaking_rate = request.speaking_rate,
         speaker_id = request.speaker_id,
     )
+    if not voice.loaded:
+        voice.load(global_cfg.model_paths)
     res = voice.synthesize_all(request.input, request.input_type, global_cfg.output_path, params)
         
 
@@ -208,7 +209,10 @@ async def synthesize_as_get(voice: str = 'sv_se_nst_vc1',
         logger.error(msg)
         raise HTTPException(status_code=400, detail=msg)
     try:
-        res = global_cfg.voices[voice].synthesize_all(inputs, input_type, global_cfg.output_path, params)
+        v = global_cfg.voices[voice]
+        if not v.loaded:
+            v.load(global_cfg.model_paths)
+        res = v.synthesize_all(inputs, input_type, global_cfg.output_path, params)
     except RuntimeError as e:
         logger.error(f"Matcha error: {e}")
         raise HTTPException(status_code=500, detail="Internal server error, see server log for details")

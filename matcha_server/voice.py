@@ -10,14 +10,9 @@ from matcha.cli import to_waveform, save_to_folder, load_matcha, load_vocoder
 import torch
 logger.debug("    ... Matcha imports completed")
 
-
 import sys, os, re
 from pathlib import Path
 import json
-
-phoneme_input_re = re.compile("\\[\\[(.*)\\]\\]")
-separate_comma_re = re.compile("(^|[^\\[]) *, *($|[^\\]])")
-wordsplit=re.compile(" +")
 
 from dataclasses import dataclass, asdict
 @dataclass
@@ -79,6 +74,44 @@ class Voice:
             "selected_phonemizer": phner
         }
         return obj
+
+    def load(self, model_paths):
+        if not self.enabled:
+            logger.error("Cannot load voice {self.name} (voice not enabled)")
+            return
+        phonemizers = []
+        defaultPhnIndex = 0
+        for i, phizer in enumerate(self.config['phonemizers']):
+            if phizer.get('enabled', True):
+                if phizer.get('default', False):
+                    defaultPhnIndex = i
+                if phizer['type'] == "deep_phonemizer":
+                    model_path = tools.find_file(phizer['model'], model_paths)
+                    if model_path is None:
+                        raise Exception(f"Couldn't find model {phizer['model']} for {phizer['name']}. Looked in {model_paths}")
+                    phonemizers.append(Phonemizer(phizer['name'], phizer['type'], phizer['lang'], model_path))
+                elif phizer['type'] == "espeak":
+                    phonemizers.append(Phonemizer(phizer['name'], phizer['type'], phizer['lang']))
+                else:
+                    raise Exception(f"Unknown phonemizer type {type} for {phizer['name']}")
+
+        if len(phonemizers) == 0:
+            raise Exception(f"Couldn't find phonemizer for voice '{self.config['name']}' in config file {config_file}")
+
+        #self.symbols=symbols,
+        self.phonemizers=phonemizers
+        self.selected_phonemizer_index=defaultPhnIndex
+
+        self.model=tools.find_file(self.config['model'], model_paths)
+        self.vocoder=tools.find_file(self.config['vocoder'], model_paths)
+        checkpoint_path = Path(self.model)
+        vocoder_name = os.path.basename(self.vocoder)
+        self.matcha_model = load_matcha(self.model, checkpoint_path, self.device)
+        self.matcha_vocoder, self.matcha_denoiser = load_vocoder(vocoder_name, self.vocoder, self.device)
+
+        self.loaded=True
+        logger.debug(f"Loaded voice {self.name}")
+        
 
     def validate(self, fail_on_error = True):
         if self.speaking_rate < -1.0 or self.speaking_rate > 5.0:
@@ -182,29 +215,6 @@ class Voice:
         x_phones = self.sequence_to_text(x.squeeze(0).tolist())
         return {"words": words, "x_orig": input, "x": x, "x_lengths": x_lengths, "x_phones": x_phones}
 
-    def input2tokens(self, input, input_type):
-        if input_type == "tokens":
-            return input
-
-        tokens = []
-        s = input
-        s = separate_comma_re.sub("\\1 , \\2",s)
-        if input_type == "phonemes":
-            for w in wordsplit.split(s):
-                tokens.append({"phonemes": w})
-        elif input_type == "mixed":
-            for w in wordsplit.split(s):
-                m = phoneme_input_re.match(w)
-                if m:
-                    tokens.append({"phonemes": m.group(1)})
-                else:
-                    tokens.append({"orth": w})
-        else: # text input
-            for w in wordsplit.split(s):
-                tokens.append({"orth": w})
-        return tokens
-
-
     def process_tokens(self, tokens: str):
         words = []
         phn_list = []
@@ -254,23 +264,16 @@ class Voice:
             output_file = os.path.join(output_folder, base_name)
             res.append(self.synthesize(input, input_type, output_file, params))
         if len(res) > 0:
-            copy_to_latest(res[len(res)-1],output_folder)
+            tools.copy_to_latest(res[len(res)-1],output_folder)
         return res
 
     def synthesize(self, input, input_type, output_file, params):
-        input_tokens = self.input2tokens(input, input_type)
+        input_tokens = tools.input2tokens(input, input_type)
         
         output_name = os.path.basename(output_file)
         output_name = Path(output_name).with_suffix('')
         output_folder = os.path.dirname(output_file)
             
-        if not self.loaded:
-            checkpoint_path = Path(self.model)
-            vocoder_name = os.path.basename(self.vocoder)
-            self.matcha_model = load_matcha(self.model, checkpoint_path, self.device)
-            self.matcha_vocoder, self.matcha_denoiser = load_vocoder(vocoder_name, self.vocoder, self.device)
-            self.loaded = True
-
         ### SYNTHESIZE
         tokens_processed = self.process_tokens(input_tokens)
         #print("tokens_processed", tokens_processed)
@@ -346,25 +349,61 @@ class Voice:
         return result
 
 
-def copy_to_latest(result,output_folder):
-    basename = Path(result["audio"]).with_suffix("")
 
-    wav_file = os.path.join(output_folder, basename.with_suffix('.wav'))
-    png_file = os.path.join(output_folder, basename.with_suffix('.png'))
-    lab_file = os.path.join(output_folder, basename.with_suffix('.lab'))
+class Phonemizer:
+    name: str
+    tpe: str
+    lang: str
+    pher: object
+    def __init__(self, name, tpe, lang, path=None):
+        self.name = name
+        self.tpe = tpe
+        self.lang = lang
+        self.path = path
+        try:
+            if tpe == "deep_phonemizer":
+                from dp.phonemizer import Phonemizer
+                if path is None:
+                    raise Exception(f"Deep phonemizer {name} cannot be loaded without a model path. Found None")
+                if not os.path.isfile(self.path):
+                    raise Exception(f"Model path for deep phonemizer {name} does not exist: {path}")
+                self.pher = Phonemizer.from_checkpoint(path)
+            elif tpe == "espeak":
+                import phonemizer
+                self.pher = phonemizer.backend.EspeakBackend(
+                    language=lang,
+                    preserve_punctuation=True,
+                    with_stress=True,
+                    language_switch="remove-flags",
+                    logger=logger,
+                )
+            else:
+                raise Exception(f"Unknown phonemizer type {typ} for {selfname}")
+        except RuntimeError as e:
+            msg = f"Couldn't load phonetizer for voice {name}: {e}. Voice will not be loaded."
+            logger.error(msg)
 
-    latest_json = result.copy()
-    latest_json['audio'] = "latest.wav"
-    with open(os.path.join(output_folder, "latest.json"), 'w') as f:
-        json.dump(latest_json, f, ensure_ascii=False, indent=4)
-        
-    output_files = {
-        wav_file: os.path.join(output_folder, "latest.wav"),
-        png_file: os.path.join(output_folder, "latest.png"),
-        lab_file: os.path.join(output_folder, "latest.lab")
-    }
-    import shutil
-    for source, dest in output_files.items():
-        if os.path.isfile(source):            
-            shutil.copy(source, dest)
-        
+
+    def as_json(self):
+        obj = {
+            "name": self.name,
+            "type": self.tpe,
+            "lang": self.lang,
+            "path": self.path,
+        }
+        return obj
+
+    def phonemize(self, input, lang=None):
+        if self.tpe == "deep_phonemizer":
+            if lang is None:
+                lang = self.lang
+            else:
+                if lang not in self.pher.predictor.text_tokenizer.languages:
+                    logger.info(f"Language {lang} is not supported by phonemizer. Using {self.lang} instead")
+                    lang = self.lang
+            return self.pher(input, lang)
+        else:
+            return self.pher.phonemize([input], strip=True, njobs=1)[0]
+
+    def __str__(self):
+        return f"(name={self.name},lang={self.lang},model={self.path})"

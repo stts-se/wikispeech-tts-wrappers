@@ -75,49 +75,11 @@ def load_config(config_file):
 
             symbols = [voice_config['symbols']['pad']] + list(voice_config['symbols']['punctuation']) + list(voice_config['symbols']['letters']) + list(voice_config['symbols']['letters_ipa'])
             
-            if not voice_config.get('enabled', True):
-                logger.debug(f"Skipping voice {name} (not enabled)")
-                v = voice.Voice(name=voice_config['name'],
-                                enabled=False,
-                                config=voice_config,
-                                model=None, # tools.find_file(voice_config['model'], result.model_paths),
-                                vocoder=None, # tools.find_file(voice_config['vocoder'], result.model_paths),
-                                speaking_rate=voice_config.get('speaking_rate',1.0),
-                                speaker=voice_config.get('spk',None),
-                                steps=voice_config.get('steps',10),
-                                temperature=voice_config.get('temperature',0.667),
-                                device=voice_config.get('device','cpu'),
-                                denoiser_strength=voice_config.get('denoiser_strength',0.00025),
-                                symbols=symbols,
-                                phonemizers=[],
-                                selected_phonemizer_index=0)
-                result.voices[name] = v
-                continue
-
-            phonemizers = []
-            defaultPhnIndex = 0
-            for i, phizer in enumerate(voice_config['phonemizers']):
-                if phizer.get('enabled', True):
-                    if phizer.get('default', False):
-                        defaultPhnIndex = i
-                    if phizer['type'] == "deep_phonemizer":
-                        model_path = tools.find_file(phizer['model'], result.model_paths)
-                        if model_path is None:
-                            raise Exception(f"Couldn't find model {name} for {phizer['name']}. Looked in {result.model_paths}")
-                        phonemizers.append(Phonemizer(phizer['name'], phizer['type'], phizer['lang'], model_path))
-                    elif phizer['type'] == "espeak":
-                        phonemizers.append(Phonemizer(phizer['name'], phizer['type'], phizer['lang']))
-                    else:
-                        raise Exception(f"Unknown phonemizer type {type} for {phizer['name']}")
-                    
-            if len(phonemizers) == 0:
-                raise Exception(f"Couldn't find phonemizer for voice '{voice_config['name']}' in config file {config_file}")
-
             v = voice.Voice(name=voice_config['name'],
-                            enabled=True,
+                            enabled=False,
                             config=voice_config,
-                            model=tools.find_file(voice_config['model'], result.model_paths),
-                            vocoder=tools.find_file(voice_config['vocoder'], result.model_paths),
+                            model=None, # tools.find_file(voice_config['model'], result.model_paths),
+                            vocoder=None, # tools.find_file(voice_config['vocoder'], result.model_paths),
                             speaking_rate=voice_config.get('speaking_rate',1.0),
                             speaker=voice_config.get('spk',None),
                             steps=voice_config.get('steps',10),
@@ -125,67 +87,16 @@ def load_config(config_file):
                             device=voice_config.get('device','cpu'),
                             denoiser_strength=voice_config.get('denoiser_strength',0.00025),
                             symbols=symbols,
-                            phonemizers=phonemizers,
-                            selected_phonemizer_index=defaultPhnIndex)
+                            phonemizers=[],
+                            selected_phonemizer_index=0)
             result.voices[name] = v
-    logger.debug(f"Loaded config file {config_file}")
+            if not voice_config.get('enabled', True):
+                logger.debug(f"Skipping voice {name} (not enabled)")
+                continue
+            v.enabled = True
+            if not voice_config.get('load_on_startup', True):
+                logger.debug(f"Not loading voice {name} on startup")
+                continue
+            v.load(result.model_paths)
+
     return result
-
-
-class Phonemizer:
-    name: str
-    tpe: str
-    lang: str
-    pher: object
-    def __init__(self, name, tpe, lang, path=None):
-        self.name = name
-        self.tpe = tpe
-        self.lang = lang
-        self.path = path
-        try:
-            if tpe == "deep_phonemizer":
-                from dp.phonemizer import Phonemizer
-                if path is None:
-                    raise Exception(f"Deep phonemizer {name} cannot be loaded without a model path. Found None")
-                if not os.path.isfile(self.path):
-                    raise Exception(f"Model path for deep phonemizer {name} does not exist: {path}")
-                self.pher = Phonemizer.from_checkpoint(path)
-            elif tpe == "espeak":
-                import phonemizer
-                self.pher = phonemizer.backend.EspeakBackend(
-                    language=lang,
-                    preserve_punctuation=True,
-                    with_stress=True,
-                    language_switch="remove-flags",
-                    logger=logger,
-                )
-            else:
-                raise Exception(f"Unknown phonemizer type {typ} for {selfname}")
-        except RuntimeError as e:
-            msg = f"Couldn't load phonetizer for voice {name}: {e}. Voice will not be loaded."
-            logger.error(msg)
-
-
-    def as_json(self):
-        obj = {
-            "name": self.name,
-            "type": self.tpe,
-            "lang": self.lang,
-            "path": self.path,
-        }
-        return obj
-
-    def phonemize(self, input, lang=None):
-        if self.tpe == "deep_phonemizer":
-            if lang is None:
-                lang = self.lang
-            else:
-                if lang not in self.pher.predictor.text_tokenizer.languages:
-                    logger.info(f"Language {lang} is not supported by phonemizer. Using {self.lang} instead")
-                    lang = self.lang
-            return self.pher(input, lang)
-        else:
-            return self.pher.phonemize([input], strip=True, njobs=1)[0]
-
-    def __str__(self):
-        return f"(name={self.name},lang={self.lang},model={self.path})"

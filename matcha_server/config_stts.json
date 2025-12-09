@@ -11,6 +11,7 @@
 	{
 	    "name": "sv_se_nst_male1",
 	    "enabled": true,
+	    "load_on_startup": false,
 	    "vocoder": "hifigan_univ_v1",
 	    "model": "martin_singlechar_ipa.ckpt",
 	    "phonemizers": [
@@ -42,6 +43,7 @@
 	{
 	    "name": "sv_se_nst_female1",
 	    "enabled": true,
+	    "load_on_startup": false,
 	    "vocoder": "hifigan_univ_v1",
 	    "model": "marianne_singlechar_ipa_20251119.ckpt",
 	    "phonemizers": [
@@ -70,10 +72,11 @@
             "batch_size": 32
 	},
 	{
-	    "name": "sv_se_nst_vc1",
+	    "name": "sv_se_nst_vc_female1",
 	    "enabled": true,
+	    "load_on_startup": false,
 	    "vocoder": "hifigan_univ_v1",
-	    "model": "dufvenius_16k.ckpt",
+	    "model": "martin_vc_dove_20251204.ckpt",
 	    "phonemizers": [
 		{
 		    "name": "sv_se_braxen_full_sv",
@@ -129,6 +132,7 @@
 	{
 	    "name": "en_us_ljspeech",
 	    "enabled": true,
+	    "load_on_startup": false,
 	    "vocoder": "hifigan_T2_v1",
 	    "model": "matcha_ljspeech.ckpt",
 	    "phonemizers": [

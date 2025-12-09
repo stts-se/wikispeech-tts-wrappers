@@ -1,4 +1,4 @@
-import os
+import os, re, json
 from pathlib import Path
 
 logger = None
@@ -12,7 +12,7 @@ def get_logger(name="matcha"):
     logging.getLogger(name).setLevel(logging.DEBUG)
     logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s:%(filename)s - %(levelname)s - %(message)s')
     return logger
-    
+
 # if the same model/file is found in multiple paths, the first one will be used
 def find_file(name, paths):
     for p in paths:
@@ -50,3 +50,51 @@ def get_or_else(value1, value2, default=None):
         return value2
     else:
         return default
+
+def copy_to_latest(result,output_folder):
+    basename = Path(result["audio"]).with_suffix("")
+
+    wav_file = os.path.join(output_folder, basename.with_suffix('.wav'))
+    png_file = os.path.join(output_folder, basename.with_suffix('.png'))
+    lab_file = os.path.join(output_folder, basename.with_suffix('.lab'))
+
+    latest_json = result.copy()
+    latest_json['audio'] = "latest.wav"
+    with open(os.path.join(output_folder, "latest.json"), 'w') as f:
+        json.dump(latest_json, f, ensure_ascii=False, indent=4)
+        
+    output_files = {
+        wav_file: os.path.join(output_folder, "latest.wav"),
+        png_file: os.path.join(output_folder, "latest.png"),
+        lab_file: os.path.join(output_folder, "latest.lab")
+    }
+    import shutil
+    for source, dest in output_files.items():
+        if os.path.isfile(source):            
+            shutil.copy(source, dest)
+        
+phoneme_input_re = re.compile("\\[\\[(.*)\\]\\]")
+separate_comma_re = re.compile("(^|[^\\[]) *, *($|[^\\]])")
+wordsplit=re.compile(" +")
+def input2tokens(input, input_type):
+    if input_type == "tokens":
+        return input
+
+    tokens = []
+    s = input
+    s = separate_comma_re.sub("\\1 , \\2",s)
+    if input_type == "phonemes":
+        for w in wordsplit.split(s):
+            tokens.append({"phonemes": w})
+    elif input_type == "mixed":
+        for w in wordsplit.split(s):
+            m = phoneme_input_re.match(w)
+            if m:
+                tokens.append({"phonemes": m.group(1)})
+            else:
+                tokens.append({"orth": w})
+    else: # text input
+        for w in wordsplit.split(s):
+            tokens.append({"orth": w})
+    return tokens
+
