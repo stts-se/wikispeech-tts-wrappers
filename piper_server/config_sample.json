@@ -11,8 +11,8 @@
 	{
 	    "name": "sv_se_nst_male1",
 	    "enabled": true,
-	    "model": "martin_phonemes_20251017_epoch_alignments",
 	    "load_on_startup": false,
+	    "model": "martin_phonemes_20251017_epoch_alignments",
 	    "phonemizers": [
 		{
 		    "name": "sv_se_braxen_full_sv",
@@ -33,6 +33,7 @@
 	{
 	    "name": "sv_se_nst_female1",
 	    "enabled": true,
+	    "load_on_startup": false,
 	    "model": "marianne_singlechar_ipa_20251119",
 	    "phonemizers": [
 		{
@@ -53,6 +54,7 @@
 	},
 	{
 	    "enabled": true,
+	    "load_on_startup": false,
 	    "model": "en_US-bryce-medium",
 	    "phonemizers": [
 		{
@@ -63,7 +65,8 @@
 	    ]
 	},
 	{
-	    "enabled": true,
+	    "enabled": false,
+	    "load_on_startup": false,
 	    "model": "ar_JO-kareem-medium",
 	    "phonemizers": [
 		{

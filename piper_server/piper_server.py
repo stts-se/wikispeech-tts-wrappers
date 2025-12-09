@@ -51,12 +51,12 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan,swagger_ui_parameters={"tryItOutEnabled": True})
 
-@app.get("/synthesize/sv_se_nst")
-async def synthesize_sv_se_nst(input_type: str = 'phonemes',
-                               input: str = "jɑːɡ ɛːr ɛn ɡˈamal trˈœt ɡˈɵbə",
-                               length_scale: Optional[float] = None,
-                               noise_scale: Optional[float] = None,
-                               noise_w_scale: Optional[float] = None):
+@app.get("/synthesize/sv_se_nst_male1")
+async def synthesize_sv_se_nst_male1(input_type: str = 'phonemes',
+                                     input: str = "jɑːɡ ɛːr ɛn ɡˈamal trˈœt ɡˈɵbə",
+                                     length_scale: Optional[float] = None,
+                                     noise_scale: Optional[float] = None,
+                                     noise_w_scale: Optional[float] = None):
     return await synthesize_as_get(voice = 'sv_se_nst_male1',
                                    input_type = input_type,
                                    input = input,
@@ -135,9 +135,10 @@ async def synthesize_as_post(request: SynthRequest):
         syn_config.noise_scale=request.noise_scale,  # audio variation
     if request.noise_w_scale >= 0:
         syn_config.noise_w_scale=request.noise_w_scale,  # speaking variation
-
-    res = global_cfg.voices[request.voice].synthesize_all(request.input, request.input_type, global_cfg.output_path, syn_config)
-    #res = tools.synthesize_all(synths[request.voice], request.input, request.input_type, global_cfg.output_dir, syn_config)
+    v = global_cfg.voices[request.voice]
+    if not v.loaded:
+        v.load(global_cfg.model_paths)
+    res = v.synthesize_all(request.input, request.input_type, global_cfg.output_path, syn_config)
 
     # return type
     if request.return_type == 'json':
@@ -196,8 +197,10 @@ async def synthesize_as_get(voice: str = "en_US-bryce-medium",
             #sentence_silence=sentence_silence,
             #speaker_id=0, # TODO: look up id from speaker name
         )
-        res = global_cfg.voices[voice].synthesize_all(inputs, input_type, global_cfg.output_path, syn_config)
-        #res = tools.synthesize_all(synths[voice], inputs, input_type, global_cfg.output_dir, syn_config)
+        v = global_cfg.voices[voice]
+        if not v.loaded:
+            v.load(global_cfg.model_paths)
+        res = v.synthesize_all(inputs, input_type, global_cfg.output_path, syn_config)
                 
     except RuntimeError as e:
         raise HTTPException(status_code=500, detail="Internal server error, see server log for details")

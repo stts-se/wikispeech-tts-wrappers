@@ -21,6 +21,7 @@ class Voice:
     name: str
     enabled: bool
     config: object
+
     model: str
     piper_voice: PiperVoice
     
@@ -32,7 +33,6 @@ class Voice:
     phonemizers: list
     selected_phonemizer_index: int
 
-
     def __post_init__(self):
         self.loaded = False
     
@@ -40,40 +40,6 @@ class Voice:
         dict = asdict(self)
         return f"{dict}"
 
-    def load(self, model_paths):
-        phonemizers = []
-        defaultPhnIndex = 0
-        for i, phizer in enumerate(self.config['phonemizers']):
-            if phizer.get('enabled', True):
-                if phizer.get('default', False):
-                    defaultPhnIndex = i
-                if phizer['type'] == "deep_phonemizer":
-                    model_path = tools.find_file(phizer['model'], model_paths)
-                    if model_path is None:
-                        raise Exception(f"Couldn't find model {name} for {phizer['name']}. Looked in {model_paths}")
-                    phonemizers.append(Phonemizer(phizer['name'], phizer['type'], phizer['lang'], model_path))
-                elif phizer['type'] == "espeak":
-                    phonemizers.append(Phonemizer(phizer['name'], phizer['type'], phizer['lang']))
-                else:
-                    raise Exception(f"Unknown phonemizer type {type} for {phizer['name']}")
-
-        if len(phonemizers) == 0:
-            raise Exception(f"Couldn't find phonemizer for voice '{self.config['name']}' in config file {config_file}")
-
-        onnx_fn = str(Path(self.config['model']).with_suffix(".onnx"))
-        model_path = tools.find_file( onnx_fn, model_paths)
-        cuda = False
-        config = None # Explicit path to config file, but we should always have the config file stored with the onnx model
-        piper_voice = PiperVoice.load(model_path, config, cuda)
-
-        self.piper_voice = piper_voice
-        self.phonemizers=phonemizers
-        self.selected_phonemizer_index=defaultPhnIndex
-        onnx_fn = str(Path(config['model']).with_suffix(".onnx"))
-        self.model_path = tools.find_file(onnx_fn, result.model_paths)
-        self.loaded = True
-
-    
     def as_json(self):
         phner = None
         if self.selected_phonemizer() is not None:
@@ -92,6 +58,43 @@ class Voice:
         }
         return obj
 
+    def load(self, model_paths):
+        if not self.enabled:
+            logger.error("Cannot load voice {self.name} (voice not enabled)")
+            return
+        phonemizers = []
+        defaultPhnIndex = 0
+        for i, phizer in enumerate(self.config['phonemizers']):
+            if phizer.get('enabled', True):
+                if phizer.get('default', False):
+                    defaultPhnIndex = i
+                if phizer['type'] == "deep_phonemizer":
+                    model_path = tools.find_file(phizer['model'], model_paths)
+                    if model_path is None:
+                        raise Exception(f"Couldn't find model {phizer['model']} for {phizer['name']}. Looked in {model_paths}")
+                    phonemizers.append(Phonemizer(phizer['name'], phizer['type'], phizer['lang'], model_path))
+                elif phizer['type'] == "espeak":
+                    phonemizers.append(Phonemizer(phizer['name'], phizer['type'], phizer['lang']))
+                else:
+                    raise Exception(f"Unknown phonemizer type {type} for {phizer['name']}")
+
+        if len(phonemizers) == 0:
+            raise Exception(f"Couldn't find phonemizer for voice '{self.config['name']}' in config file {config_file}")
+
+        onnx_fn = str(Path(self.config['model']).with_suffix(".onnx"))
+        model_path = tools.find_file( onnx_fn, model_paths)
+        cuda = False
+        config = None # Explicit path to config file, but we should always have the config file stored with the onnx model
+        piper_voice = PiperVoice.load(model_path, config, cuda)
+
+        self.piper_voice = piper_voice
+        self.phonemizers=phonemizers
+        self.selected_phonemizer_index=defaultPhnIndex
+        onnx_fn = str(Path(self.config['model']).with_suffix(".onnx"))
+        self.model_path = tools.find_file(onnx_fn, model_paths)
+        self.loaded = True
+        logger.debug(f"Loaded voice {self.name}")
+    
     def validate(self, fail_on_error = True):
         if self.length_scale < -1.0 or self.length_scale > 5.0:
             msg = f"Invalid length scale: {self.length_scale} (expected -1.0 < speaking_rate < 5.0)"
@@ -147,9 +150,8 @@ class Voice:
 
     def synthesize(self, input, input_type, output_file, syn_config):
         if not self.loaded:
-            # TODO: load init-heavy stuff
-            self.loaded = True
-
+            return None
+            
         input_tokens = tools.input2tokens(input, input_type)
         
         set_wav_format = True
@@ -205,9 +207,9 @@ class Voice:
 
         if piper_alignments_enabled:
             tokens = tools.align(alignments, sample_rate)
-            if len(tokens) == len(input_tokens):
+            if len(tokens) == len(tokens_processed):
                 for i, t in enumerate(tokens):
-                    tokens[i] = tokens[i] | input_tokens[i]
+                    tokens[i] = tokens[i] | tokens_processed[i]
             result["tokens"] = tokens
         result["audio"] = os.path.basename(wav_file)
 
@@ -234,3 +236,64 @@ class Voice:
 
         return result
 
+
+
+class Phonemizer:
+    name: str
+    tpe: str
+    lang: str
+    pher: object
+    def __init__(self, name, tpe, lang, path=None):
+        self.name = name
+        self.tpe = tpe
+        self.lang = lang
+        self.path = path
+        try:
+            if tpe == "deep_phonemizer":
+                from dp.phonemizer import Phonemizer
+                if path is None:
+                    raise Exception(f"Deep phonemizer {name} cannot be loaded without a model path. Found None")
+                if not os.path.isfile(self.path):
+                    raise Exception(f"Model path for deep phonemizer {name} does not exist: {path}")
+                self.pher = Phonemizer.from_checkpoint(path)
+                logger.debug(f"Loaded dp phonemizer {self.pher}")
+            elif tpe == "espeak":
+                import phonemizer
+                self.pher = phonemizer.backend.EspeakBackend(
+                    language=lang,
+                    preserve_punctuation=True,
+                    with_stress=True,
+                    language_switch="remove-flags",
+                    logger=logger,
+                )
+                logger.debug(f"Loaded espeak phonemizer {self.pher}")
+            else:
+                raise Exception(f"Unknown phonemizer type {typ} for {selfname}")
+        except RuntimeError as e:
+            msg = f"Couldn't load phonetizer for voice {name}: {e}. Voice will not be loaded."
+            logger.error(msg)
+
+
+    def as_json(self):
+        obj = {
+            "name": self.name,
+            "type": self.tpe,
+            "lang": self.lang,
+            "path": self.path,
+        }
+        return obj
+
+    def phonemize(self, input, lang=None):
+        if self.tpe == "deep_phonemizer":
+            if lang is None:
+                lang = self.lang
+            else:
+                if lang not in self.pher.predictor.text_tokenizer.languages:
+                    logger.info(f"Language {lang} is not supported by phonemizer. Using {self.lang} instead")
+                    lang = self.lang
+            return self.pher(input, lang)
+        else:
+            return self.pher.phonemize([input], strip=True, njobs=1)[0]
+
+    def __str__(self):
+        return f"(name={self.name},lang={self.lang},model={self.path})"
