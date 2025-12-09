@@ -1,0 +1,77 @@
+{
+    "_comment": "You can add multiple folders to model_paths. Environment variables are expanded, and relative paths are allowed. If the same model is found in multiple folders, the first one will be used.",
+    "clear_audio_on_startup": true,
+    "force_cpu": false,
+    "model_paths": [
+	"$HOME/.local/share/piper_tts",
+	"$HOME/.local/share/deep_phonemizer"
+    ],
+    "output_path": "audio_files",
+    "voices": [
+	{
+	    "name": "sv_se_nst_male1",
+	    "enabled": true,
+	    "model": "martin_phonemes_20251017_epoch_alignments",
+	    "load_on_startup": false,
+	    "phonemizers": [
+		{
+		    "name": "sv_se_braxen_full_sv",
+		    "type": "deep_phonemizer",
+		    "lang": "sv",
+		    "model": "dp_single_char_swe_sv.pt",
+		    "maptable": "TODO"
+		},
+		{
+		    "name": "sv_se_braxen_full_langs",
+		    "type": "deep_phonemizer",
+		    "lang": "swe",
+		    "model": "dp_single_char_swe_langs.pt",
+		    "maptable": "TODO"
+		}
+	    ]
+	},
+	{
+	    "name": "sv_se_nst_female1",
+	    "enabled": true,
+	    "model": "marianne_singlechar_ipa_20251119",
+	    "phonemizers": [
+		{
+		    "name": "sv_se_braxen_full_sv",
+		    "type": "deep_phonemizer",
+		    "lang": "sv",
+		    "model": "dp_single_char_swe_sv.pt",
+		    "maptable": "TODO"
+		},
+		{
+		    "name": "sv_se_braxen_full_langs",
+		    "type": "deep_phonemizer",
+		    "lang": "swe",
+		    "model": "dp_single_char_swe_langs.pt",
+		    "maptable": "TODO"
+		}
+	    ]
+	},
+	{
+	    "enabled": true,
+	    "model": "en_US-bryce-medium",
+	    "phonemizers": [
+		{
+		    "name": "espeak",
+		    "type": "espeak",
+		    "lang": "en-us"
+		}
+	    ]
+	},
+	{
+	    "enabled": true,
+	    "model": "ar_JO-kareem-medium",
+	    "phonemizers": [
+		{
+		    "name": "espeak",
+		    "type": "espeak",
+		    "lang": "ar"
+		}
+	    ]
+	}
+    ]
+}

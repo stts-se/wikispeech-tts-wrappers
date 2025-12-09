@@ -25,8 +25,8 @@ cd piper1-gpl
 uv venv
 source .venv/bin/activate
 uv pip install -e .[dev]
+uv pip install uvicorn "fastapi[standard]" phonemizer
 python3 setup.py build_ext --inplace
-uv pip install uvicorn "fastapi[standard]"
 ```
 
 
@@ -70,7 +70,7 @@ ___3.2 Additional models___
 
 For now, these models are only available for users approved by STTS. Some of these will be made publicly available once we sort out some licensing issues.
 
-Download additional Piper + Deep Phonemizer models from [STTS Google Drive](https://drive.google.com/drive/folders/1J1iNZDSzGGrq1iJwIAtlDtvMjfad13QP?usp=sharing) and save to `$HOME/.local/share/piper_tts` + `$HOME/.local/share/deep_phonemizer`
+Download additional Piper + Deep Phonemizer models from :
 -->
 
 ___3.2 Alignment patching___
@@ -100,12 +100,12 @@ ___6.1 Start server___
 
 <!--
 ```
-uvicorn piper_server:app --env-file config_sample.env --port 8010
+uvicorn piper_server:app --env-file config_sample.json --port 8010
 ```
 -->
 
 ```
-uvicorn --app-dir <path-to-piper-server> piper_server:app --env-file <path-to-piper-server>/config_sample.env --port=8010
+uvicorn --app-dir <path-to-piper-server> piper_server:app --env-file <path-to-piper-server>/config_sample.json --port=8010
 ```
 
 

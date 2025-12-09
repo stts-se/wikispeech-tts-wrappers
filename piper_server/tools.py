@@ -1,10 +1,7 @@
 import sys, os
 from pathlib import Path
 
-import json
-
-import wave
-from piper import PiperVoice, SynthesisConfig
+import json, re
 
 logger = None
 def get_logger(name="piper"):
@@ -27,117 +24,6 @@ def get_or_else(value1, value2, default=None):
     else:
         return default
 
-def synthesize_all(voice, inputs, input_type, output_dir, syn_config):
-    import uuid
-    uid = uuid.uuid4()
-    res = []
-    i = 0
-    spk_id = get_or_else(vars(syn_config).get("speaker"), syn_config.speaker_id)
-    for input in inputs:
-        i = i+1
-        base_name = f"utt_{uid}_{i:03d}_spk_{spk_id:03d}" if spk_id is not None else f"utt_{uid}_{i:03d}"
-        output_file = os.path.join(output_dir, base_name)
-        res.append(synthesize(voice,input, input_type, output_file, syn_config))
-    if len(res) > 0:
-        copy_to_latest(res[len(res)-1],output_dir)
-    return res
-
-def synthesize(voice, input, input_type, output_file, syn_config):
-    set_wav_format = True
-
-    logger.debug(f"syn_config: {syn_config}")
-    
-    wav_file=str(Path(output_file).with_suffix('.wav'))
-    lab_file=str(Path(output_file).with_suffix('.lab'))
-
-    alignments = []
-    piper_alignments_enabled = True
-    sample_rate = None
-
-    adapted_input = input
-    if input_type == "phonemes":
-        adapted_input = f"[[ {input} ]]"
-    elif input_type == "mixed":
-        adapted_input = input
-    elif input_type == "tokens":
-        adapted_inputs = []
-        for t in input: 
-            if "phonemes" in t:
-                adapted_inputs.append(f"[[ {t['phonemes']} ]]")
-            else:
-                adapted_inputs.append(t['orth'])
-        adapted_input = " ".join(adapted_inputs)
-
-    logger.debug(f"Input: {adapted_input}")
-    logger.debug(f"Adapted input: {adapted_input}")
-        
-    with wave.open(wav_file, "wb") as wf:
-        chunks = []
-        try:
-            chunks = voice.synthesize(adapted_input, syn_config=syn_config, include_alignments=piper_alignments_enabled)
-        except TypeError as e:
-                logger.warning(f"Got TypeError from voice.synthesize: {e}. Likely caused by running on piper release 1.3.0 rather than a dev build (because of alignment dependency). Alignment output will be disabled.")    
-                chunks = voice.synthesize(adapted_input, syn_config=syn_config)
-                piper_alignments_enabled = False
-
-        first_chunk = True
-        for audio_chunk in chunks:
-            sample_rate = audio_chunk.sample_rate
-            if first_chunk and set_wav_format:
-                # Set audio format on first chunk
-                wf.setframerate(audio_chunk.sample_rate)
-                wf.setsampwidth(audio_chunk.sample_width)
-                wf.setnchannels(audio_chunk.sample_channels)
-            first_chunk = False
-
-            wf.writeframes(audio_chunk.audio_int16_bytes)
-            logger.info(f"Audio saved to {wav_file}")
-
-            if piper_alignments_enabled and audio_chunk.phoneme_alignments:
-                alignments.extend(audio_chunk.phoneme_alignments)
-
-    if piper_alignments_enabled and len(alignments) == 0:
-        logger.warning(f" No alignments in output from synthesize_wav. This is probably because the model is not alignment-enabled. See https://github.com/OHF-Voice/piper1-gpl/blob/main/docs/ALIGNMENTS.md for information on how to enable alignments.")
-        #return
-                
-    result = {
-        "input": input,
-        "adapted_input": adapted_input,
-        "input_type": input_type,
-        "tts_config": syn_config
-    }
-
-    if piper_alignments_enabled:
-        tokens = align(alignments, sample_rate)
-        result["tokens"] = tokens
-    result["audio"] = wav_file
-
-    # json file
-    json_obj = result
-    json_obj["tts_config"] = {
-        "volume": syn_config.volume,
-        "length_scale": syn_config.length_scale,
-        "noise_scale": syn_config.noise_scale,
-        "noise_w_scale": syn_config.noise_w_scale,
-        "normalize_audio": syn_config.normalize_audio,
-        "speaker_id": syn_config.speaker_id,
-    }
-    json_output = Path(wav_file).with_suffix('.json')
-    with open(json_output, 'w', encoding='utf-8') as f:
-        json.dump(result, f, ensure_ascii=False, indent=4)
-        logger.info(f"JSON saved to {json_output}")
-
-    # lab file
-    with open(lab_file, "w") as f:
-        for t in tokens:
-            f.write(f"{t['start_time']}\t{t['end_time']}\t{t['phonemes']}\n")
-    logger.info(f"Label style output saved to {lab_file}")
-
-
-    #copy_to_latest(result, output_dir)    
-    return result
-
-    
 def align(alignments, sample_rate):
     at_sample = 0
     current_token = {
@@ -182,6 +68,36 @@ def align(alignments, sample_rate):
 
     return tokens
 
+# if the same model/file is found in multiple paths, the first one will be used
+def find_file(name, paths):
+    for p in paths:
+        f = os.path.join(p, name)
+        if os.path.isfile(f):
+            return f
+    return None
+
+def create_path(p,create=True):
+    p = os.path.expandvars(p)
+    if create:
+        folder = Path(p)
+        folder.mkdir(exist_ok=True, parents=True)
+        #logger.debug(f"Created directory: {p}")
+    if not os.path.isdir(p):
+        raise IOError(f"Couldn't create output folder: {p}")
+    return p
+
+
+def clear_audio(audio_path):
+    get_logger().info(f"Clearing audio set to true")
+    n=0
+    for fn in os.listdir(audio_path):
+        file_path = os.path.join(audio_path, fn)
+        if os.path.isfile(file_path):
+            os.remove(file_path)
+            n+=1
+            #print(fn, "is removed")
+    get_logger().debug(f"Deleted {n} files from folder {audio_path}")
+   
 def copy_to_latest(result, output_folder):
     basename = Path(result["audio"]).with_suffix("")
 
@@ -202,3 +118,39 @@ def copy_to_latest(result, output_folder):
         if os.path.isfile(source): 
             shutil.copy(source, dest)
         
+
+phoneme_input_re = re.compile("\\[\\[(.*)\\]\\]")
+separate_comma_re = re.compile("(^|[^\\[]) *, *($|[^\\]])")
+wordsplit=re.compile(" +")
+def input2tokens(input, input_type):
+    if input_type == "tokens":
+        return input
+
+    tokens = []
+    s = input
+    s = separate_comma_re.sub("\\1 , \\2",s)
+    if input_type == "phonemes":
+        for w in wordsplit.split(s):
+            tokens.append({"phonemes": w})
+    elif input_type == "mixed":
+        for w in wordsplit.split(s):
+            m = phoneme_input_re.match(w)
+            if m:
+                tokens.append({"phonemes": m.group(1)})
+            else:
+                tokens.append({"orth": w})
+    else: # text input
+        for w in wordsplit.split(s):
+            tokens.append({"orth": w})
+    return tokens
+
+
+def tokens2piper(tokens):
+    res = []
+    for t in tokens:
+        if t in tokens:
+            if "phonemes" in t:
+                res.append(f"[[ {t['phonemes']} ]]")
+            else:
+                res.append(t['orth'])
+    return " ".join(res).replace(" ]] [[ ", " ")

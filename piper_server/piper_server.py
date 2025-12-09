@@ -1,5 +1,5 @@
 ## FOR ALIGNED OUTPUT, YOU NEED TO RUN THIS ON A PIPER DEV BUILD FOR 1.3.1 OR HIGHER, NOT THE RELEASED 1.3.0 VERSION
-## SEE README FOR INSTALLATION INSTRUCTIONS
+## SEE README FOR INSTRUCTIONS
 
 from fastapi import FastAPI
 
@@ -9,7 +9,7 @@ from pathlib import Path
 from piper import PiperVoice, SynthesisConfig
 
 # Local import
-import tools
+import tools, config
 
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
@@ -29,62 +29,22 @@ class Settings:
     model_dir: str
     output_dir: str
 
-input_types = ['mixed','phonemes','tokens']
+input_types = ['mixed','phonemes','tokens','text']
 return_types = ['json','wav']
     
-settings = Settings()
-synths = {}
-def load_config():
-    global settings
-    # Reads from .env file passed to uvicorn
-    settings.model_dir = create_path(os.getenv("PIPER_MODEL_DIR"))
-    settings.output_dir = create_path(os.getenv("PIPER_OUTPUT_DIR"), create=True)
-    clear_audio_on_startup = os.getenv("PIPER_CLEAR_AUDIO_ON_STARTUP")
-    if clear_audio_on_startup == 'true' or clear_audio_on_startup == 'True':
-        clear_audio_on_startup = True
-    
-    for f in os.listdir(settings.model_dir):
-        if f.endswith("onnx"):
-            onnx = os.path.join(settings.model_dir, f)
-            config = None # explicit path to config file
-            cuda = False # gpu
-            voice = PiperVoice.load(onnx, config, cuda)
-            voice.name = Path(onnx).stem
-            synths[voice.name] = voice
-            logger.info(f"Loaded voice {voice.name}")
-
-    if clear_audio_on_startup == True:
-        clear_audio(settings.output_dir)
-    logger.info(f"Loaded config")
-    
-def clear_audio(audio_path):
-    logger.info(f"Clearing audio set to true")
-    n=0
-    for fn in os.listdir(audio_path):
-        file_path = os.path.join(audio_path, fn)
-        if os.path.isfile(file_path):
-            os.remove(file_path)
-            n+=1
-            #print(fn, "is removed")
-    logger.info(f"Deleted {n} files from folder {audio_path}")
-
-
-def create_path(p,create=False):
-    p = os.path.abspath(os.path.expandvars(p))
-    if create:
-        folder = Path(p)
-        folder.mkdir(exist_ok=True, parents=True)
-    if not os.path.isdir(p):
-        raise IOError(f"Couldn't create output folder: {p}")
-    return p
-
+global_cfg = None
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    load_config()
+    global global_cfg
+    json_config = os.getenv("PIPER_CONFIG") # Reads from .env file passed to uvicorn
+    if not json_config:
+        raise RuntimeError("Config not provided. Start server with --env-file")
+    global_cfg = config.load_config(json_config)
+    for v in global_cfg.voices:
+        global_cfg.voices[v].validate(fail_on_error=False)
 
-    global settings
-    app.mount("/static", StaticFiles(directory=settings.output_dir), name="static")
+    app.mount("/static", StaticFiles(directory=global_cfg.output_path), name="static")
     # ->  http://127.0.0.1:8000/static/FILENAME.wav    
 
     yield
@@ -97,7 +57,7 @@ async def synthesize_sv_se_nst(input_type: str = 'phonemes',
                                length_scale: Optional[float] = None,
                                noise_scale: Optional[float] = None,
                                noise_w_scale: Optional[float] = None):
-    return await synthesize_as_get(voice = 'sv_SE-nst-medium',
+    return await synthesize_as_get(voice = 'sv_se_nst_male1',
                                    input_type = input_type,
                                    input = input,
                                    length_scale = length_scale,
@@ -153,11 +113,12 @@ class SynthRequest(BaseModel):
     length_scale: float = -1
     noise_scale: float = -1
     noise_w_scale: float = -1
+    #speaker_id: int
     return_type: str = 'json'
 
 @app.post("/synthesize/")
 async def synthesize_as_post(request: SynthRequest):
-    if request.voice not in synths:
+    if request.voice not in global_cfg.voices:
         msg = f"No such voice: {request.voice}"
         logger.error(msg)
         raise HTTPException(status_code=404, detail=msg)              
@@ -175,10 +136,9 @@ async def synthesize_as_post(request: SynthRequest):
     if request.noise_w_scale >= 0:
         syn_config.noise_w_scale=request.noise_w_scale,  # speaking variation
 
-    res = tools.synthesize_all(synths[request.voice], request.input, request.input_type, settings.output_dir, syn_config)
+    res = global_cfg.voices[request.voice].synthesize_all(request.input, request.input_type, global_cfg.output_path, syn_config)
+    #res = tools.synthesize_all(synths[request.voice], request.input, request.input_type, global_cfg.output_dir, syn_config)
 
-    print("???", res)
-    
     # return type
     if request.return_type == 'json':
         for i, obj in enumerate(res):
@@ -187,7 +147,7 @@ async def synthesize_as_post(request: SynthRequest):
     elif request.return_type == 'wav':
         if len(res) == 1:
             f = res[0]['audio']
-            full_path = os.path.join(settings.output_dir, f)
+            full_path = os.path.join(global_cfg.output_dir, f)
             return FileResponse(full_path, filename=os.path.basename(f), media_type="audio/wav")
         else:
             msg = f"Cannot use return type {request.return_type} for multiple output objects. Try json instead."
@@ -209,7 +169,7 @@ async def synthesize_as_get(voice: str = "en_US-bryce-medium",
                             #sentence_silence: float = 0.0,
                             #speaker_id: str = None,
                             return_type: str = 'json'):
-    if voice not in synths:
+    if voice not in global_cfg.voices:
         msg = f"No such voice: {voice}"
         logger.error(msg)
         raise HTTPException(status_code=404, detail=msg)
@@ -236,7 +196,8 @@ async def synthesize_as_get(voice: str = "en_US-bryce-medium",
             #sentence_silence=sentence_silence,
             #speaker_id=0, # TODO: look up id from speaker name
         )
-        res = tools.synthesize_all(synths[voice], inputs, input_type, settings.output_dir, syn_config)
+        res = global_cfg.voices[voice].synthesize_all(inputs, input_type, global_cfg.output_path, syn_config)
+        #res = tools.synthesize_all(synths[voice], inputs, input_type, global_cfg.output_dir, syn_config)
                 
     except RuntimeError as e:
         raise HTTPException(status_code=500, detail="Internal server error, see server log for details")
@@ -263,24 +224,9 @@ async def synthesize_as_get(voice: str = "en_US-bryce-medium",
 
 @app.get("/voices/")
 async def voices():
-    global voices
+    global global_cfg
     res = []
-    for k,v in synths.items():
-        pc = v.config
-        # sort phoneme id map and render as a string sequence of chars
-        phoneme_id_map = sorted(pc.phoneme_id_map.items(), key=lambda kv: (kv[1], kv[0]))
-        phonemes = "".join([''.join(x[0]) for x in phoneme_id_map])
-        conf = {
-            "name": v.name,
-            "num_symbols": pc.num_symbols,
-            "num_speakers": pc.num_speakers,
-            "sample_rate": pc.sample_rate,
-            "espeak_voice": pc.espeak_voice,
-            "length_scale": pc.length_scale,
-            "noise_scale": pc.noise_scale,
-            #"noise_w_scale": pc.noise_w_scale, 
-            "phonemes": phonemes,
-            #"phoneme_id_map": phoneme_id_map
-        }
-        res.append(conf)
+    for k,v in global_cfg.voices.items():
+        # TODO: simple json representation
+        res.append(v.as_json())
     return res
