@@ -10,16 +10,27 @@ Supported version 0.0.19
 
 **2. Set up `venv` and install requirements**
 
+
+___2.1 For running the server___
+```
+uv venv 
+source .venv/bin/activate
+uv pip install torch --index-url https://download.pytorch.org/whl/cpu
+uv pip install -r requirements.txt
+```
+
+___2.1 For training deep phonemizer models___
 ```
 uv venv 
 source .venv/bin/activate
 uv pip install -r requirements.txt
 ```
 
+
 **3. Workaround for PyTorch**
 
 ```
-sed -i 's/checkpoint = torch.load(checkpoint_path, map_location=device)/checkpoint = torch.load(checkpoint_path, map_location=device, weights_only=False)/' .venv/lib/python3.??/site-packages/dp/model/model.py
+sed -i 's/checkpoint = torch.load(checkpoint_path, map_location=device)/checkpoint = torch.load(checkpoint_path, map_location=device, weights_only=False)/' .venv/lib/python3.*/site-packages/dp/model/model.py
 ```
 
 

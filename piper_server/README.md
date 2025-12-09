@@ -26,26 +26,22 @@ uv venv
 source .venv/bin/activate
 uv pip install -e .[dev]
 uv pip install uvicorn "fastapi[standard]" phonemizer
+uv pip install torch --index-url https://download.pytorch.org/whl/cpu
+uv pip install -r <deep_phonemizer>/requirements.txt	
 python3 setup.py build_ext --inplace
 ```
 
 
-<!--
-# piper 1.3.0
+**3. Workaround for PyTorch**
 
 ```
-uv venv
-source .venv/bin/activate
-uv pip install piper-tts==1.3.0
-uv pip install "fastapi[standard]"
-uv pip install uvicorn
+sed -i 's/checkpoint = torch.load(checkpoint_path, map_location=device)/checkpoint = torch.load(checkpoint_path, map_location=device, weights_only=False)/' .venv/lib/python3.*/site-packages/dp/model/model.py
 ```
--->
 
 
-**3. Models**
+**4. Models**
 
-___3.1 Download Piper models___
+___4.1 Download Piper models___
 
 Replace `$HOME/.local/share/piper_tts` if you want to save your models elsewhere.
 
@@ -66,14 +62,14 @@ cd -
 ```
 
 <!--
-___3.2 Additional models___
+___4.2 Additional models___
 
 For now, these models are only available for users approved by STTS. Some of these will be made publicly available once we sort out some licensing issues.
 
 Download additional Piper + Deep Phonemizer models from :
 -->
 
-___3.2 Alignment patching___
+___4.2 Alignment patching___
 
 ```
 python3 -m piper.patch_voice_with_alignment /path/to/model.onnx
@@ -83,38 +79,38 @@ Docs: https://github.com/OHF-Voice/piper1-gpl/blob/main/docs/ALIGNMENTS.md
 
 
 
-**4. Check config**
+**5. Check config**
 
-Verify paths and other config settings in `config_sample.env`
+Verify paths and other config settings in `config_sample.json`
 
 
-**5. Cmdline client**
+**6. Cmdline client**
 
 `python <path-to-piper-server>/piper_cli.py <onnx model> <input> <output file>`
 
 
-**6. Server**
+**7. Server**
 
-___6.1 Start server___
+___7.1 Start server___
 
 
 <!--
 ```
-uvicorn piper_server:app --env-file config_sample.json --port 8010
+uvicorn piper_server:app --env-file config_sample.env --port 8010
 ```
 -->
 
 ```
-uvicorn --app-dir <path-to-piper-server> piper_server:app --env-file <path-to-piper-server>/config_sample.json --port=8010
+uvicorn --app-dir <path-to-piper-server> piper_server:app --env-file <path-to-piper-server>/config_sample.env --port=8010
 ```
 
 
-___6.2 Access server___
+___7.2 Access server___
 
 Use your browser to go to http://127.0.0.1:8010/docs
 
 
-___6.3 Audio and other output___
+___7.3 Audio and other output___
 
 Output files will be in the `PIPER_OUTPUT_DIR` folder defined in the config file, default: `./audio_files`:
 
@@ -129,5 +125,5 @@ There are currently three ways to listen to the generated audio:
 Example: [http://127.0.0.1:8010/synthesize/?voice=en_US-bryce-medium&input=hello%20my%20name%20is%20bryce%20with%20a%20get%20request&input_type=mixed&return_type=wav](http://127.0.0.1:8010/synthesize/?voice=en_US-bryce-medium&input=hello%20my%20name%20is%20bryce%20with%20a%20get%20request&input_type=mixed&return_type=wav)
 
 
-Please note that the server's default setting is to clear the `output_path` on startup. This can be configured in the config file (see `config_sample.env`).
+Please note that the server's default setting is to clear the `output_path` on startup. This can be configured in the config file (see `config_sample.json`).
 

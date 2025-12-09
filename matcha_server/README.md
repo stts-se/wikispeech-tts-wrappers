@@ -11,6 +11,7 @@ Wrapper for runtime use of the [Matcha-TTS](https://github.com/shivammehta25/Mat
 ```
 uv venv
 source .venv/bin/activate
+uv pip install torch --index-url https://download.pytorch.org/whl/cpu
 uv pip install -r ../deep_phonemizer_server/requirements.txt	
 uv pip install Matcha-TTS==0.0.7.2
 ```
