@@ -112,14 +112,13 @@ def load_config():
             sentence_split_re = re.compile(component['sentence_split_re'])
             token_split_re = re.compile(component['token_split_re'])
             logger.debug(f"Dict loading is not implemented")
-            for f in component['expansion_dicts']:
-                path = io.find_file(f,resource_paths)
-                if path is None:
-                    raise IOError(f"Failed to find dict {f}")
-                # with open(path,"r") as fh:
-                #     string = fh.read()
-                    #print(string)
             dicts = []
+            # for f in component['expansion_dicts']:
+            #     path = io.find_file(f,resource_paths)
+            #     if path is None:
+            #         raise IOError(f"Failed to find dict {f}")
+            #     with open(path,"r") as fh:
+            #         string = fh.read()
             textprocs[name] = Textproc(name, lang, rbnf_lang, sentence_split_re, token_split_re, dicts, True)
 
 @asynccontextmanager
