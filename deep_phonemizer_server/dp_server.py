@@ -1,14 +1,4 @@
-# uvicorn dp_server:app --reload --env-file settings.env (--port 9999)
-#
-# or if the file .env exists
-#
-# uvicorn dp_server:app --reload
-#
-#   where settings.env or .env contain path to model: DP_MODEL_PATH=best_model_20250331.pt
-
-# # Refined with help from ChatGPT, an AI assistant by OpenAI
-
-# # This project was improved with the help of ChatGPT, an AI language model by OpenAI, who provided code refactoring and best practices guidance for the server setup. (<- text by ChatGPT)
+# For usage info, se README.md
 
 import os
 import sys
@@ -20,7 +10,7 @@ import json
 
 parentdir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 sys.path.insert(0, parentdir)
-from tools import phn_mapper
+from tools import phn_mapper, io
 
 load_dotenv()
 
@@ -45,14 +35,6 @@ if not json_config:
 phoners={}
 mappers={}
 
-# if the same model/file is found in multiple paths, the first one will be used
-def find_file(name, paths):
-    for p in paths:
-        f = os.path.join(p, name)
-        if os.path.isfile(f):
-            return f
-    return None
-
 def load_config():
     global models
     with open(json_config, 'r') as file:
@@ -67,10 +49,10 @@ def load_config():
             lang = model['lang']
             if 'maptable' in model:
                 maptable=model['maptable']
-                mapper=phn_mapper.PhnMapper("",find_file(maptable,model_paths))
+                mapper=phn_mapper.PhnMapper("",io.find_file(maptable,model_paths))
                 mappers[name] = mapper
                 
-            path = find_file(model_file,model_paths)
+            path = io.find_file(model_file,model_paths)
             if path is None:
                 raise IOError(f"Failed to find model {model_file}")
             dp = Phonemizer.from_checkpoint(path)

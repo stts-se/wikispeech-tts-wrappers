@@ -2,9 +2,7 @@
 
 Wrapper for runtime use of the [Matcha-TTS](https://github.com/shivammehta25/Matcha-TTS) text-to-speech engine.
 
-## Installation
-
-**1. Install [uv](https://docs.astral.sh/uv/getting-started/installation)**
+**1. Install [uv](https://docs.astral.sh/uv/getting-started/installation) (optional)**
 
 **2. Set up `venv` and install Matcha-TTS**
 
@@ -24,7 +22,6 @@ Supported Matcha version: [0.0.7.2](https://pypi.org/project/matcha-tts/0.0.7.2)
 sed -i 's/checkpoint = torch.load(checkpoint_path, map_location=device)/checkpoint = torch.load(checkpoint_path, map_location=device, weights_only=False)/' .venv/lib/python3.*/site-packages/dp/model/model.py
 
 sed -i 's|\(plot_spectrogram_to_numpy.*\) f"{filename}.png")|\1 folder / f"{filename}.png")|' .venv/lib/python3.*/site-packages/matcha/cli.py
-
 ```
 
 **4. Download models**

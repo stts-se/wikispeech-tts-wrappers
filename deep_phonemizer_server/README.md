@@ -4,9 +4,7 @@ Deep Phonemizer URL: https://github.com/spring-media/DeepPhonemizer
 
 Supported version 0.0.19
 
-## Installation
-
-**1. Install [uv](https://docs.astral.sh/uv/getting-started/installation)**
+**1. Install [uv](https://docs.astral.sh/uv/getting-started/installation) (optional)**
 
 **2. Set up `venv` and install requirements**
 
@@ -47,7 +45,7 @@ Download additional models from [STTS Google Drive](https://drive.google.com/dri
 
 **5. Check config**
 
-Verify paths and other config settings in `config_sample.env`
+Verify paths and other config settings in `config_sample.env` / `config_sample.json`
 
 **6. Start server** 
 

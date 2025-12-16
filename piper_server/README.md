@@ -6,9 +6,7 @@ Main Piper repo: [https://github.com/OHF-Voice/piper1-gpl](https://github.com/OH
 Supported Piper version 1.3.1
 
 
-## Installation
-
-**1. Install [uv](https://docs.astral.sh/uv/getting-started/installation)**
+**1. Install [uv](https://docs.astral.sh/uv/getting-started/installation) (optional)**
 
 **2. Set up `venv` and install piper-tts**
 
