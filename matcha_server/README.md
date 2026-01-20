@@ -49,7 +49,7 @@ Download additional Matcha + Deep Phonemizer models from :
 
 **5. Check config**
 
-Verify paths and other config settings in `config_sample.json`. Please not that voices in the config file that are not enabled refer to models currently not publicly available (see also Additional models above).
+Verify paths and other config settings in `config_sample.json`. Please not that voices in the config file that are not enabled refer to models currently not publicly available.
 
 
 **6. Cmdline client**
