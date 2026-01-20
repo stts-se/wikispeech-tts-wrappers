@@ -98,16 +98,9 @@ Verify paths and other config settings in `config_sample.json`
 ___5.1 Start server___
 
 
-<!--
 ```
 uvicorn piper_server:app --env-file config_sample.env --port 8010
 ```
--->
-
-```
-uvicorn --app-dir <path-to-piper-server> piper_server:app --env-file <path-to-piper-server>/config_sample.env --port=8010
-```
-
 
 ___5.2 Access server___
 
