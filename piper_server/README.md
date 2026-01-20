@@ -18,7 +18,7 @@ https://github.com/OHF-Voice/piper1-gpl/blob/main/docs/BUILDING.md
 https://github.com/OHF-Voice/piper1-gpl/blob/main/docs/ALIGNMENTS.md    
 
 ```
-cd ../.. # or to another location, just not in the wikispeech-tts-wrapers repo
+cd ../.. # or to another location, just not in the wikispeech-tts-wrappers repo
 git clone https://github.com/OHF-Voice/piper1-gpl.git
 cd piper1-gpl
 uv venv
