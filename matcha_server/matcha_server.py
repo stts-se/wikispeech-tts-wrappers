@@ -30,10 +30,10 @@ global_cfg = None
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     global global_cfg
-    json_config = os.getenv("MATCHA_CONFIG") # Reads from .env file passed to uvicorn
-    if not json_config:
-        raise RuntimeError("Config not provided. Start server with --env-file")
-    global_cfg = config.load_config(json_config)
+    json_config_path = os.getenv("MATCHA_CONFIG") # Reads from .env file passed to uvicorn
+    if not json_config_path:
+        raise RuntimeError("Config not provided. Start server with --env-file with a MATCHA_CONFIG variable pointing to the json config file (e.g. sample_config.env)")
+    global_cfg = config.load_config(json_config_path)
     for v in global_cfg.voices:
         global_cfg.voices[v].validate(fail_on_error=False)
 
@@ -89,7 +89,6 @@ async def voices():
     global global_cfg
     res = []
     for k,v in global_cfg.voices.items():
-        # TODO: simple json representation
         res.append(v.as_json())
     return res
 
@@ -134,22 +133,32 @@ async def synthesize_as_post(request: SynthRequest):
         msg = f"Voice not enabled: {request.voice}"
         logger.error(msg)
         raise HTTPException(status_code=404, detail=msg)
-        
     
     logger.debug(f"synthesize input: {request}")
 
     # remap default values from json
     if request.speaking_rate <= 0:
         request.speaking_rate = None
-    if request.speaker_id <0:
+    if request.speaker_id < 0:
         request.speaker_id = None
+
+    # TODO: also pass temperature and steps/n_timesteps here
     params = Namespace(
         speaking_rate = request.speaking_rate,
         speaker_id = request.speaker_id,
     )
     if not voice.loaded:
-        voice.load(global_cfg.model_paths)
-    res = voice.synthesize_all(request.input, request.input_type, global_cfg.output_path, params)
+        try:
+            voice.load(global_cfg.model_paths)
+        except Exception as e:
+            logger.error(f"Matcha error: {e}")
+            raise HTTPException(status_code=500, detail=f"Couldn't load voice {request.voice}, see server log for details")
+    try:
+        res = voice.synthesize_all(request.input, request.input_type, global_cfg.output_path, params)
+    except RuntimeError as e:
+        logger.error(f"Matcha error: {e}")
+        raise HTTPException(status_code=500, detail="Couldn't synthesize for voice {request.voice}, see server log for details")
+
         
 
     # return type
@@ -208,21 +217,23 @@ async def synthesize_as_get(voice: str = 'sv_se_nst_vc1',
         msg = f"Invalid input type: '{input_type}'. Use one of the following: {input_types}"
         logger.error(msg)
         raise HTTPException(status_code=400, detail=msg)
-    try:
-        v = global_cfg.voices[voice]
-        if not v.loaded:
+    v = global_cfg.voices[voice]
+    if not v.loaded:
+        try:
             v.load(global_cfg.model_paths)
+        except Exception as e:
+            logger.error(f"Matcha error: {e}")
+            raise HTTPException(status_code=500, detail=f"Couldn't load voice {voice}, see server log for details")
+    try:
         res = v.synthesize_all(inputs, input_type, global_cfg.output_path, params)
     except RuntimeError as e:
         logger.error(f"Matcha error: {e}")
-        raise HTTPException(status_code=500, detail="Internal server error, see server log for details")
+        raise HTTPException(status_code=500, detail="Couldn't synthesize for voice {voice}, see server log for details")
         
 
     # return type
     if return_type == 'json':
-        for i, obj in enumerate(res):
-            res[i] = obj
-            return res
+        return res
     elif return_type == 'wav':
         if len(res) == 1:
             f = res[0]['audio']

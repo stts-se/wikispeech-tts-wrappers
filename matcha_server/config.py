@@ -73,6 +73,7 @@ def load_config(config_file):
             if name in result.voices:
                 raise Exception(f"Config file contains duplicate voices named {name}")
 
+            # TODO error handling if symbols and/or symbols/XX is missing from config
             symbols = [voice_config['symbols']['pad']] + list(voice_config['symbols']['punctuation']) + list(voice_config['symbols']['letters']) + list(voice_config['symbols']['letters_ipa'])
             
             v = voice.Voice(name=voice_config['name'],

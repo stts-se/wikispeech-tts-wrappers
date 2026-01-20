@@ -59,6 +59,8 @@ class Voice:
             phner = self.selected_phonemizer().name
         obj = {
             "name": self.name,
+            "enabled": self.enabled,
+            "loaded": self.loaded,
             "model": self.model,
             "vocoder": self. vocoder,
             "steps": self.steps,
@@ -79,6 +81,8 @@ class Voice:
         if not self.enabled:
             logger.error("Cannot load voice {self.name} (voice not enabled)")
             return
+
+        # load phonemizer(s)
         phonemizers = []
         defaultPhnIndex = 0
         for i, phizer in enumerate(self.config['phonemizers']):
@@ -98,14 +102,18 @@ class Voice:
         if len(phonemizers) == 0:
             raise Exception(f"Couldn't find phonemizer for voice '{self.config['name']}' in config file {config_file}")
 
-        #self.symbols=symbols,
         self.phonemizers=phonemizers
         self.selected_phonemizer_index=defaultPhnIndex
 
+        # load voice stuff
         self.model=tools.find_file(self.config['model'], model_paths)
+        if self.model is None:
+            raise Exception(f"Couldn't find model {self.config['model']} for voice {self.name}. Looked in {model_paths}")
         self.vocoder=tools.find_file(self.config['vocoder'], model_paths)
+        if self.vocoder is None:
+            raise Exception(f"Couldn't find vocoder {self.config['vocoder']} for voice {self.name}. Looked in {model_paths}")
         checkpoint_path = Path(self.model)
-        vocoder_name = os.path.basename(self.vocoder)
+        vocoder_name = os.path.basename(self.vocoder) # equals self.config['vocoder'] ?
         self.matcha_model = load_matcha(self.model, checkpoint_path, self.device)
         self.matcha_vocoder, self.matcha_denoiser = load_vocoder(vocoder_name, self.vocoder, self.device)
 
@@ -159,6 +167,7 @@ class Voice:
         else:
             return None
     
+    # TODO: should be deprecated    
     def process_text(self, input: str, input_type: str):
         #print(f"[{i}] - Input text: {input}")
 
@@ -264,6 +273,7 @@ class Voice:
             output_file = os.path.join(output_folder, base_name)
             res.append(self.synthesize(input, input_type, output_file, params))
         if len(res) > 0:
+            # copy the last output utterance to latest.{json,wav,...}
             tools.copy_to_latest(res[len(res)-1],output_folder)
         return res
 
@@ -276,17 +286,16 @@ class Voice:
             
         ### SYNTHESIZE
         tokens_processed = self.process_tokens(input_tokens)
-        #print("tokens_processed", tokens_processed)
 
         spk_id = tools.get_or_else(vars(params).get("speaker"), self.speaker, None)
-
         spk = torch.tensor([spk_id],device=self.device) if spk_id is not None else None
+        
         speaking_rate = tools.get_or_else(vars(params).get("speaking_rate"), self.speaking_rate)
         output = self.matcha_model.synthesise(
             tokens_processed["x"],
             tokens_processed["x_lengths"],
-            n_timesteps=self.steps,
-            temperature=self.temperature,
+            n_timesteps=self.steps, # TODO: pass in runtime as with speaking_rate
+            temperature=self.temperature, # TODO: pass in runtime as with speaking_rate
             spks=spk,
             length_scale=speaking_rate,
         )
@@ -296,10 +305,6 @@ class Voice:
         id2symbol={i: s for i, s in enumerate(self.symbols)} 
         tokens = tokens_processed['words']
 
-        phonemes = []
-        for token in tokens:
-            if "phonemes" in token:
-                phonemes.append(token["phonemes"])
         aligned = alignment.align(tokens_processed, output, self.id2symbol)
         logger.debug(f"ALIGNED {aligned}")
 
@@ -311,6 +316,10 @@ class Voice:
             "speaking_rate": speaking_rate,
             "speaker_id": spk_id,         
         }
+        phonemes = []
+        for token in tokens:
+            if "phonemes" in token:
+                phonemes.append(token["phonemes"])
         if len(phonemes) > 0:
             result["phonemes"]=" ".join(phonemes)
         result["tokens"] = tokens
