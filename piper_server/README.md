@@ -19,11 +19,11 @@ https://github.com/OHF-Voice/piper1-gpl/blob/main/docs/ALIGNMENTS.md
 
 ```
 cd ../.. # or to another location, just not in the wikispeech-tts-wrappers repo
-git clone https://github.com/OHF-Voice/piper1-gpl.git
+git clone https://github.com/stts-se/piper1-gpl
 cd piper1-gpl
 uv venv
 source .venv/bin/activate
-uv pip install -e .[dev]
+uv pip install -e .[dev] # TODO: check to see if we can install this from the piper_server directory
 uv pip install uvicorn "fastapi[standard]" phonemizer
 uv pip install torch --index-url https://download.pytorch.org/whl/cpu
 uv pip install -r <deep_phonemizer>/requirements.txt	
