@@ -5,42 +5,47 @@ Main Piper repo: [https://github.com/OHF-Voice/piper1-gpl](https://github.com/OH
 
 Supported Piper version 1.3.1
 
-
-**1. Install [uv](https://docs.astral.sh/uv/getting-started/installation) (optional)**
-
-**2. Set up `venv` and install piper-tts**
-
-
-NB! For aligned output, you need to run this on a piper dev build for 1.3.1 or higher, since the released 1.3.0 version doesn't have alignment enabled.
-
 Docs:    
 https://github.com/OHF-Voice/piper1-gpl/blob/main/docs/BUILDING.md    
 https://github.com/OHF-Voice/piper1-gpl/blob/main/docs/ALIGNMENTS.md    
 
+**1. Installation**
+
+___1.1 Install [uv](https://docs.astral.sh/uv/getting-started/installation) (optional)___
+
+___1.2 Clone and build piper-tts___
+
+For aligned output, you need to run use a piper dev build for 1.3.1 or higher, since the released 1.3.0 version doesn't have alignment enabled.
+
+1. Clone [https://github.com/stts-se/piper1-gpl](https://github.com/stts-se/piper1-gpl)
+2. Make a dev build: https://github.com/OHF-Voice/piper1-gpl/blob/main/docs/BUILDING.md
+
+___1.3 Install piper_server___
+
+1. Clone [this repo](https://github.com/stts-se/wikispeech-tts-wrappers)
+
+2. Server setup
+
 ```
-cd ../.. # or to another location, just not in the wikispeech-tts-wrappers repo
-git clone https://github.com/stts-se/piper1-gpl
-cd piper1-gpl
+cd wikispeech_tts_wrappers/piper_server
 uv venv
 source .venv/bin/activate
-uv pip install -e .[dev] # TODO: check to see if we can install this from the piper_server directory
+uv pip install ../../piper1-gpl[dev]
 uv pip install uvicorn "fastapi[standard]" phonemizer
 uv pip install torch --index-url https://download.pytorch.org/whl/cpu
-uv pip install -r <deep_phonemizer>/requirements.txt	
-python3 setup.py build_ext --inplace
+uv pip install -r ../deep_phonemizer_server/requirements.txt
 ```
 
-
-**3. Workaround for PyTorch**
+___1.4 Workaround for PyTorch___
 
 ```
 sed -i 's/checkpoint = torch.load(checkpoint_path, map_location=device)/checkpoint = torch.load(checkpoint_path, map_location=device, weights_only=False)/' .venv/lib/python3.*/site-packages/dp/model/model.py
 ```
 
 
-**4. Models**
+**2. Models**
 
-___4.1 Download Piper models___
+___2.1 Download Piper models___
 
 Replace `$HOME/.local/share/piper_tts` if you want to save your models elsewhere.
 
@@ -61,14 +66,14 @@ cd -
 ```
 
 <!--
-___4.2 Additional models___
+___2.2 Additional models___
 
 For now, these models are only available for users approved by STTS. Some of these will be made publicly available once we sort out some licensing issues.
 
 Download additional Piper + Deep Phonemizer models from :
 -->
 
-___4.2 Alignment patching___
+___2.2 Alignment patching___
 
 ```
 python3 -m piper.patch_voice_with_alignment /path/to/model.onnx
@@ -78,19 +83,19 @@ Docs: https://github.com/OHF-Voice/piper1-gpl/blob/main/docs/ALIGNMENTS.md
 
 
 
-**5. Check config**
+**3. Check config**
 
 Verify paths and other config settings in `config_sample.json`
 
 
-**6. Cmdline client**
+**4. Cmdline client**
 
 `python <path-to-piper-server>/piper_cli.py <onnx model> <input> <output file>`
 
 
-**7. Server**
+**5. Server**
 
-___7.1 Start server___
+___5.1 Start server___
 
 
 <!--
@@ -104,12 +109,12 @@ uvicorn --app-dir <path-to-piper-server> piper_server:app --env-file <path-to-pi
 ```
 
 
-___7.2 Access server___
+___5.2 Access server___
 
 Use your browser to go to http://127.0.0.1:8010/docs
 
 
-___7.3 Audio and other output___
+___5.3 Audio and other output___
 
 Output files will be in the `PIPER_OUTPUT_DIR` folder defined in the config file, default: `./audio_files`:
 
