@@ -18,18 +18,13 @@ ___1.2 Clone piper-tts___
 For aligned output, you need to run use a piper dev build for 1.3.1 or higher, since the released 1.3.0 version doesn't have alignment enabled.
 
 1. Clone [https://github.com/stts-se/piper1-gpl](https://github.com/stts-se/piper1-gpl)
+2. Make a dev build: https://github.com/OHF-Voice/piper1-gpl/blob/main/docs/BUILDING.md
 
 ___1.3 Install piper-tts and piper_server___
 
 1. Clone [this repo](https://github.com/stts-se/wikispeech-tts-wrappers)
 
 2. Server setup
-
-Install the following softare using your package manager:
-
-* build-essential
-* cmake
-* ninja-build
 
 ```
 cd wikispeech_tts_wrappers/piper_server
@@ -39,7 +34,6 @@ uv pip install ../../piper1-gpl[dev] # pointing to the repo checked out in step 
 uv pip install uvicorn "fastapi[standard]" phonemizer
 uv pip install torch --index-url https://download.pytorch.org/whl/cpu
 uv pip install -r ../deep_phonemizer_server/requirements.txt
-python3 setup.py build_ext --inplace
 ```
 
 ___1.4 Workaround for PyTorch___
