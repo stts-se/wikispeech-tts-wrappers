@@ -19,6 +19,7 @@ For aligned output, you need to run use a piper dev build for 1.3.1 or higher, s
 
 1. Clone [https://github.com/stts-se/piper1-gpl](https://github.com/stts-se/piper1-gpl)
 2. Make a dev build: https://github.com/OHF-Voice/piper1-gpl/blob/main/docs/BUILDING.md
+ TODO: Move dev build instructions to 1.3 piper_server
 
 ___1.3 Install piper_server___
 
