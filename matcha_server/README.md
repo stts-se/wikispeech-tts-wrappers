@@ -14,6 +14,8 @@ uv pip install -r ../deep_phonemizer_server/requirements.txt
 uv pip install Matcha-TTS==0.0.7.2
 ```
 
+Please note that MatchaTTS requires Python 3.10. If you are not using `uv` for the virtual environment, you may need to explicitly specify the Python version when you create the virtual environment.
+
 Supported Matcha version: [0.0.7.2](https://pypi.org/project/matcha-tts/0.0.7.2)
 
 **3. Workarounds for PyTorch and MatchaTTS**
