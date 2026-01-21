@@ -41,7 +41,7 @@ wget https://public-asai-dl-models.s3.eu-central-1.amazonaws.com/DeepPhonemizer/
 cd -
 ```
 
-Download additional models from [STTS Google Drive](https://drive.google.com/drive/folders/1XAgg_fu7Ay4eEad0n5WW7m-IX1XKIXNz?usp=sharing)
+<!-- Download additional models from [STTS Google Drive](https://drive.google.com/drive/folders/1XAgg_fu7Ay4eEad0n5WW7m-IX1XKIXNz?usp=sharing) -->
 
 **5. Check config**
 
