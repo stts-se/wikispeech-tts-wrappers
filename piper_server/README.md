@@ -13,12 +13,32 @@ https://github.com/OHF-Voice/piper1-gpl/blob/main/docs/ALIGNMENTS.md
 
 ___1.1 Install [uv](https://docs.astral.sh/uv/getting-started/installation) (optional)___
 
-___1.2 Clone piper-tts___
+___1.2 Setup piper-tts___
 
-For aligned output, you need to run use a piper dev build for 1.3.1 or higher, since the released 1.3.0 version doesn't have alignment enabled.
+For aligned output, you need to set up a use a piper dev build for 1.3.1 or higher, since the released 1.3.0 version doesn't have alignment enabled.
 
-1. Clone [https://github.com/stts-se/piper1-gpl](https://github.com/stts-se/piper1-gpl)
-2. Make a dev build: https://github.com/OHF-Voice/piper1-gpl/blob/main/docs/BUILDING.md
+You will need the following system packages installed (`apt-get`):
+
+* `build-essential`
+* `cmake`
+* `ninja-build`
+
+To create a dev environment:
+
+``` sh
+git clone https://github.com/stts-se/piper1-gpl.git
+cd piper1-gpl
+python3 -m venv .venv
+source .venv/bin/activate
+python3 -m pip install -e .[dev]
+```
+
+Next, run `script/dev_build` or manually build the extension:
+
+``` sh
+python3 setup.py build_ext --inplace
+```
+
 
 ___1.3 Install piper-tts and piper_server___
 
