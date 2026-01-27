@@ -42,7 +42,7 @@ python3 setup.py build_ext --inplace
 
 ___1.3 Install piper_server___
 
-```
+``` sh
 cd .. # i.e., make sure you are not still inside the piper1-gpl directory
 git clone https://github.com/stts-se/wikispeech-tts-wrappers.git
 cd wikispeech_tts_wrappers/piper_server
@@ -56,7 +56,7 @@ uv pip install -r ../deep_phonemizer_server/requirements.txt
 
 ___1.4 Workaround for PyTorch___
 
-```
+``` sh
 sed -i 's/checkpoint = torch.load(checkpoint_path, map_location=device)/checkpoint = torch.load(checkpoint_path, map_location=device, weights_only=False)/' .venv/lib/python3.*/site-packages/dp/model/model.py
 ```
 
@@ -67,7 +67,7 @@ ___2.1 Download Piper models___
 
 Replace `$HOME/.local/share/piper_tts` if you want to save your models elsewhere.
 
-```
+``` sh
 mkdir -p $HOME/.local/share/piper_tts
 cd $HOME/.local/share/piper_tts
 wget https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/ar/ar_JO/kareem/medium/ar_JO-kareem-medium.onnx
