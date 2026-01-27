@@ -72,7 +72,7 @@
             "batch_size": 32
 	},
 	{
-	    "name": "sv_se_nst_vc_female1",
+	    "name": "sv_se_nst_female2_vc",
 	    "enabled": true,
 	    "load_on_startup": false,
 	    "vocoder": "hifigan_univ_v1",
