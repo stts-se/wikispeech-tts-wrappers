@@ -65,7 +65,7 @@
 	    ]
 	},
 	{
-	    "enabled": false,
+	    "enabled": true,
 	    "load_on_startup": false,
 	    "model": "ar_JO-kareem-medium",
 	    "phonemizers": [

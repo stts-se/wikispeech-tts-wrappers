@@ -60,7 +60,7 @@ class Voice:
 
     def load(self, model_paths):
         if not self.enabled:
-            logger.error("Cannot load voice {self.name} (voice not enabled)")
+            logger.error(f"Cannot load voice {self.name} (voice not enabled)")
             return
         phonemizers = []
         defaultPhnIndex = 0
