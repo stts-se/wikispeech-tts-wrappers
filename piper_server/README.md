@@ -13,7 +13,7 @@ https://github.com/OHF-Voice/piper1-gpl/blob/main/docs/ALIGNMENTS.md
 
 ___1.1 Install [uv](https://docs.astral.sh/uv/getting-started/installation) (optional)___
 
-___1.2 Setup piper-tts___
+___1.2 Install piper-tts___
 
 For aligned output, you need to set up a use a piper dev build for 1.3.1 or higher, since the released 1.3.0 version doesn't have alignment enabled.
 
@@ -40,7 +40,7 @@ python3 setup.py build_ext --inplace
 ```
 
 
-___1.3 Install piper-tts and piper_server___
+___1.3 Install piper_server___
 
 1. Clone [this repo](https://github.com/stts-se/wikispeech-tts-wrappers)
 
