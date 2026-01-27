@@ -28,9 +28,9 @@ To create a dev environment:
 ``` sh
 git clone https://github.com/stts-se/piper1-gpl.git
 cd piper1-gpl
-python3 -m venv .venv
+uv venv
 source .venv/bin/activate
-python3 -m pip install -e .[dev]
+uv pip install -e .[dev]
 ```
 
 Next, run `script/dev_build` or manually build the extension:
@@ -42,11 +42,9 @@ python3 setup.py build_ext --inplace
 
 ___1.3 Install piper_server___
 
-1. Clone [this repo](https://github.com/stts-se/wikispeech-tts-wrappers)
-
-2. Server setup
-
 ```
+cd .. # i.e., make sure you are not still inside the piper1-gpl directory
+git clone https://github.com/stts-se/wikispeech-tts-wrappers.git
 cd wikispeech_tts_wrappers/piper_server
 uv venv
 source .venv/bin/activate
