@@ -124,6 +124,8 @@ separate_comma_re = re.compile("(^|[^\\[]) *, *($|[^\\]])")
 wordsplit=re.compile(" +")
 def input2tokens(input, input_type):
     if input_type == "tokens":
+        # workaround for Swedish Piper voice
+        input.append({"orth": "."})
         return input
 
     tokens = []
@@ -142,6 +144,8 @@ def input2tokens(input, input_type):
     else: # text input
         for w in wordsplit.split(s):
             tokens.append({"orth": w})
+    # workaround for Swedish Piper voice
+    tokens.append({"orth": "."})
     return tokens
 
 

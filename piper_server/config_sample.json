@@ -9,7 +9,7 @@
     "output_path": "audio_files",
     "voices": [
 	{
-	    "name": "sv_se_nst_male1",
+	    "name": "sv_se_nst_male1_p",
 	    "enabled": true,
 	    "load_on_startup": false,
 	    "model": "martin_phonemes_20251017_epoch_alignments",
@@ -31,7 +31,7 @@
 	    ]
 	},
 	{
-	    "name": "sv_se_nst_female1",
+	    "name": "sv_se_nst_female1_p",
 	    "enabled": true,
 	    "load_on_startup": false,
 	    "model": "marianne_singlechar_ipa_20251119",
