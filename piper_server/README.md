@@ -1,9 +1,7 @@
 # Server for Piper TTS
 
-<!-- STTS' Piper fork: [https://github.com/stts-se/piper1-gpl](https://github.com/stts-se/piper1-gpl) -->
-Main Piper repo: [https://github.com/OHF-Voice/piper1-gpl](https://github.com/OHF-Voice/piper1-gpl)
-
-Supported Piper version 1.4.0
+Piper-TTS repo: [https://github.com/OHF-Voice/piper1-gpl](https://github.com/OHF-Voice/piper1-gpl)    
+Supported version 1.4.0
 
 Useful docs for building voices:    
 https://github.com/OHF-Voice/piper1-gpl/blob/main/docs/BUILDING.md    
