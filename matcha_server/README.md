@@ -9,7 +9,6 @@ Wrapper for runtime use of the [Matcha-TTS](https://github.com/shivammehta25/Mat
 ``` sh
 uv venv
 source .venv/bin/activate
-uv pip install torch --index-url https://download.pytorch.org/whl/cpu
 uv pip install -r requirements.txt	
 ```
 
