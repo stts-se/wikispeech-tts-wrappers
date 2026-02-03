@@ -5,7 +5,7 @@ Main Piper repo: [https://github.com/OHF-Voice/piper1-gpl](https://github.com/OH
 
 Supported Piper version 1.4.0
 
-Docs:    
+Useful docs for building voices:    
 https://github.com/OHF-Voice/piper1-gpl/blob/main/docs/BUILDING.md    
 https://github.com/OHF-Voice/piper1-gpl/blob/main/docs/ALIGNMENTS.md    
 
