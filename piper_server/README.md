@@ -1,9 +1,9 @@
 # Server for Piper TTS
 
-STTS' Piper fork: [https://github.com/stts-se/piper1-gpl](https://github.com/stts-se/piper1-gpl)    
+<!-- STTS' Piper fork: [https://github.com/stts-se/piper1-gpl](https://github.com/stts-se/piper1-gpl) -->
 Main Piper repo: [https://github.com/OHF-Voice/piper1-gpl](https://github.com/OHF-Voice/piper1-gpl)
 
-Supported Piper version 1.3.1
+Supported Piper version 1.4.0
 
 Docs:    
 https://github.com/OHF-Voice/piper1-gpl/blob/main/docs/BUILDING.md    
@@ -15,46 +15,14 @@ ___1.1 Install [uv](https://docs.astral.sh/uv/getting-started/installation) (opt
 
 ___1.2 Install piper-tts___
 
-For aligned output, you need to set up a use a piper dev build for 1.3.1 or higher, since the released 1.3.0 version doesn't have alignment enabled.
-
-You will need the following system packages installed (`apt-get`):
-
-* `build-essential`
-* `cmake`
-* `ninja-build`
-
-To create a dev environment:
-
 ``` sh
-git clone https://github.com/stts-se/piper1-gpl.git
-cd piper1-gpl
 uv venv
 source .venv/bin/activate
-uv pip install -e .[dev]
-```
-
-Next, run `script/dev_build` or manually build the extension:
-
-``` sh
-python3 setup.py build_ext --inplace
-```
-
-
-___1.3 Install piper_server___
-
-``` sh
-cd .. # i.e., make sure you are not still inside the piper1-gpl directory
-git clone https://github.com/stts-se/wikispeech-tts-wrappers.git
-cd wikispeech_tts_wrappers/piper_server
-uv venv
-source .venv/bin/activate
-uv pip install ../../piper1-gpl[dev] # pointing to the repo checked out in step 1.2
-uv pip install uvicorn "fastapi[standard]" phonemizer
 uv pip install torch --index-url https://download.pytorch.org/whl/cpu
-uv pip install -r ../deep_phonemizer_server/requirements.txt
+uv pip install -r requirements.txt
 ```
 
-___1.4 Workaround for PyTorch___
+___1.3 Workaround for PyTorch (Deep Phonemizer)___
 
 ``` sh
 sed -i 's/checkpoint = torch.load(checkpoint_path, map_location=device)/checkpoint = torch.load(checkpoint_path, map_location=device, weights_only=False)/' .venv/lib/python3.*/site-packages/dp/model/model.py
