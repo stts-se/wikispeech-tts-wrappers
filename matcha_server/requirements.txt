@@ -1,0 +1,6 @@
+Matcha-TTS==0.0.7.2
+uvicorn
+fastapi[standard]
+deep-phonemizer
+dotenv
+torch
