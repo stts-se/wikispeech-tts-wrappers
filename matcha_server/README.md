@@ -6,12 +6,11 @@ Wrapper for runtime use of the [Matcha-TTS](https://github.com/shivammehta25/Mat
 
 **2. Set up `venv` and install Matcha-TTS**
 
-```
+``` sh
 uv venv
 source .venv/bin/activate
 uv pip install torch --index-url https://download.pytorch.org/whl/cpu
-uv pip install -r ../deep_phonemizer_server/requirements.txt	
-uv pip install Matcha-TTS==0.0.7.2
+uv pip install -r requirements.txt	
 ```
 
 Please note that MatchaTTS requires Python 3.10. If you are not using `uv` for the virtual environment, you may need to explicitly specify the Python version when you create the virtual environment.
@@ -20,7 +19,7 @@ Supported Matcha version: [0.0.7.2](https://pypi.org/project/matcha-tts/0.0.7.2)
 
 **3. Workarounds for PyTorch (Deep Phonemizer) and MatchaTTS**
 
-```
+``` sh
 sed -i 's/checkpoint = torch.load(checkpoint_path, map_location=device)/checkpoint = torch.load(checkpoint_path, map_location=device, weights_only=False)/' .venv/lib/python3.*/site-packages/dp/model/model.py
 
 sed -i 's/MatchaTTS.load_from_checkpoint(checkpoint_path, map_location=device)/MatchaTTS.load_from_checkpoint(checkpoint_path, map_location=device, weights_only=False)/' .venv/lib/python3.*/site-packages/matcha/cli.py
@@ -31,7 +30,7 @@ sed -i 's|\(plot_spectrogram_to_numpy.*\) f"{filename}.png")|\1 folder / f"{file
 
 Replace `$HOME/.local/share/matcha_tts` if you want to save your models elsewhere. In that case, you also have to update `model_paths` in your config file (see below).
 
-```
+``` sh
 mkdir -p $HOME/.local/share/matcha_tts
 cd $HOME/.local/share/matcha_tts
 curl -L https://github.com/shivammehta25/Matcha-TTS-checkpoints/releases/download/v1.0/generator_v1 -o hifigan_T2_v1
@@ -66,7 +65,7 @@ Check example commands in the top part of matcha_cli.py
 
 ___7.1 Start server___
 
-```
+``` sh
 uvicorn matcha_server:app --env-file config_sample.env --port 8009
 ```
 
