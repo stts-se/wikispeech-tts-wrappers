@@ -75,7 +75,7 @@ Verify paths and other config settings in `config_sample.json`
 
 **4. Cmdline client**
 
-`python <path-to-piper-server>/piper_cli.py <onnx model> <input> <output file>`
+`python piper_cli.py <onnx model> <input> <output file>`
 
 
 **5. Server**
