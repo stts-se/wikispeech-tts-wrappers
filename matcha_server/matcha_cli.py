@@ -96,11 +96,10 @@ if args.input_type not in input_types:
     parser.error(f"Invalid input type: '{input_type}'. Use one of the following: {input_types}")
     os.exit(1)
        
-
 if args.config_file:
-    result = config.load_config(args.config_file)
-    if args.voice in result.voices:
-        voice = result.voices[args.voice]
+    global_cfg = config.load_config(args.config_file)
+    if args.voice in global_cfg.voices:
+        voice =global_cfg.voices[args.voice]
     else:
         raise Exception(f"Couldn't find a voice named '{args.voice}' in config file {args.config_file}")    
 else:
@@ -135,6 +134,8 @@ if not voice.enabled:
 
 voice.validate()
 logger.debug(f"Loaded voice: {voice.name}: {voice}")
+if not voice.loaded:
+    voice.load(global_cfg.model_paths)
 
 ### Select phonemizer
 if args.phonemizer == None:
