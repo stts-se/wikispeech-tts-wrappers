@@ -53,7 +53,7 @@ app = FastAPI(lifespan=lifespan,swagger_ui_parameters={"tryItOutEnabled": True})
 
 @app.get("/synthesize/sv_se_nst_male1")
 async def synthesize_sv_se_nst_male1(input_type: str = 'phonemes',
-                                     input: str = "jɑːɡ ɛːr ɛn ɡˈamal trˈœt ɡˈɵbə",
+                                     input: str = "jˈⱭ ˈE ˈen g°am`al trˈøt g°ɵb`ə .",
                                      length_scale: Optional[float] = None,
                                      noise_scale: Optional[float] = None,
                                      noise_w_scale: Optional[float] = None):
