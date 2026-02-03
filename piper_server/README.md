@@ -7,6 +7,7 @@ Supported Piper version 1.4.0
 
 Useful docs for building voices:    
 https://github.com/OHF-Voice/piper1-gpl/blob/main/docs/BUILDING.md    
+https://github.com/OHF-Voice/piper1-gpl/blob/main/docs/TRAINING.md    
 https://github.com/OHF-Voice/piper1-gpl/blob/main/docs/ALIGNMENTS.md    
 
 **1. Installation**
