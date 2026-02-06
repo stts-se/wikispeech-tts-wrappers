@@ -2,6 +2,8 @@
 
 This repository contains various wrappers and modules for the Wikispeech project. For documentation, see individual README files.
 
+[![Python application](https://github.com/stts-se/wikispeech-tts-wrappers/actions/workflows/python-app.yml/badge.svg)](https://github.com/stts-se/wikispeech-tts-wrappers/actions/workflows/python-app.yml)
+
 
 ---
 
