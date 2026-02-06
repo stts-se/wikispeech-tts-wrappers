@@ -1,14 +1,15 @@
+# pylint: disable=C0301,W1203,C0114
+
 import sys
 import os
-from pathlib import Path
+import argparse
 
 # imports from this repo
+import config
 import tools
 
 # Logging
 logger = tools.get_logger("matcha_cli")
-
-import config
 
 ### EXAMPLE COMMANDS WITH PUBLICLY AVAILABLE MODELS
 
@@ -28,12 +29,11 @@ import config
 # python matcha_cli.py --config_file config_stts.json --voice sv_se_nst_female1 --phonemizer sv_se_braxen_full_sv "jag är en kvinnlig röst med [[k°ɔnfɪgf\`Il]]"
 
 
-import argparse
 
 parser = argparse.ArgumentParser(
-                    prog='matcha_cli',
-                    description='Matcha client with option to use deep phonemizer for transcriptions',
-#                    epilog='<Extra help text>'
+    prog='matcha_cli',
+    description='Matcha client with option to use deep phonemizer for transcriptions',
+    epilog=''
 )
 
 # With config file
@@ -52,13 +52,14 @@ parser.add_argument('--denoiser-strength', help=f"default: {config.defaults['den
 parser.add_argument('--device', type=str, default="cpu")
 parser.add_argument('--speaker', type=int, default=None) # default is fetched from voice config
 parser.add_argument('--speaking-rate', type=float, default=None, help=f"higher value=>slower, lower=>faster, default: {config.defaults['speaking_rate']}") # default is fetched from voice config
-parser.add_argument('--clear-audio',action='store_true', help="Clear audio on startup")
+parser.add_argument('--clear-audio', action='store_true', help="Clear audio on startup")
 
 parser.add_argument('--phonemizer-type')
 parser.add_argument('--phonemizer')
 
 input_types = ['text','phonemes','mixed']
-parser.add_argument('-i', '--input-type', default="mixed", help=f"{input_types}; for mixed input, orth input is expected, but you can put phoneme input in [[double brackets]]")
+parser.add_argument('-i', '--input-type', default="mixed",
+                    help=f"{input_types}; for mixed input, orth input is expected, but you can put phoneme input in [[double brackets]]")
 
 parser.add_argument('input', help='input (text, phonemes or mixed)')
 
@@ -73,35 +74,35 @@ args = parser.parse_args()
 if args.config_file:
     if args.voice is None:
         parser.error("--config_file requires --voice")
-        os.exit(1)
+        sys.exit(1)
     if args.symbols is not None:
         parser.error("--symbols is not allowed with --config_file")
-        os.exit(1)
+        sys.exit(1)
 
 if not args.config_file:
     if  (args.model is None or args.vocoder is None):
         parser.error("--model and --vocoder are required for use without config file")
-        os.exit(1)
+        sys.exit(1)
     if args.input_type != "phonemes" and not args.phonemizer:
         parser.error(" --phonemizer is required for input_type mixed/text when used without config file")
-        os.exit(1)
+        sys.exit(1)
     if args.phonemizer and not args.phonemizer_type:
         parser.error(" --phonemizer-type is required for input_type mixed/text when used without config file")
-        os.exit(1)
+        sys.exit(1)
     if not args.symbols:
         parser.error(" --symbols is required for use without config file")
-        os.exit(1)
+        sys.exit(1)
 
 if args.input_type not in input_types:
     parser.error(f"Invalid input type: '{args.input_type}'. Use one of the following: {input_types}")
-    os.exit(1)
-       
+    sys.exit(1)
+
 if args.config_file:
     global_cfg = config.load_config(args.config_file)
     if args.voice in global_cfg.voices:
         voice =global_cfg.voices[args.voice]
     else:
-        raise Exception(f"Couldn't find a voice named '{args.voice}' in config file {args.config_file}")    
+        raise KeyError(f"Couldn't find a voice named '{args.voice}' in config file {args.config_file}")
 else:
     voice = config.load_from_args(args)
 
@@ -138,18 +139,18 @@ if not voice.loaded:
     voice.load(global_cfg.model_paths)
 
 ### Select phonemizer
-if args.phonemizer == None:
+if args.phonemizer is None:
     voice.selected_phonemizer_index = 0
-elif args.config_file == None:
+elif args.config_file is None:
     voice.selected_phonemizer_index = 0
 else:
-    found_named_phonemizer = False
+    FOUND_NAMED_PHONEMIZER = False
     for i, phoner in enumerate(voice.phonemizers):
         if phoner.name == args.phonemizer:
             voice.selected_phonemizer_index = i
-            found_named_phonemizer = True
-    if not found_named_phonemizer:
-        raise Exception(f"No phonemizer named {args.phonemizer} for voice {voice.name}")
+            FOUND_NAMED_PHONEMIZER = True
+    if not FOUND_NAMED_PHONEMIZER:
+        raise KeyError(f"No phonemizer named {args.phonemizer} for voice {voice.name}")
 
 logger.debug(f"Selected phonemizer: {voice.selected_phonemizer()}")
 

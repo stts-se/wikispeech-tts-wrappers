@@ -1,5 +1,14 @@
+# pylint: disable=C0301,W1203,C0114,C0116,E0118,W0603,C0103,R1705,C0115
+
+#import sys
+import os
+#import re
+from pathlib import Path
+import json
+
 # Imports from this repo
-import alignment, tools
+import alignment
+import tools
 
 # Logging
 logger = tools.get_logger()
@@ -9,10 +18,6 @@ from matcha.utils.utils import intersperse
 from matcha.cli import to_waveform, save_to_folder, load_matcha, load_vocoder
 import torch
 logger.debug("    ... Matcha imports completed")
-
-import sys, os, re
-from pathlib import Path
-import json
 
 from dataclasses import dataclass, asdict
 @dataclass
@@ -32,14 +37,14 @@ class Voice:
     speaking_rate: float
     speaker: object
     symbols: str
-    
+
     phonemizers: list
     selected_phonemizer_index: int
 
 
     def __post_init__(self):
         self.SPACE_ID = self.symbols.index(" ")
-        
+
         # Mappings from symbol to numeric ID and vice versa:
         self.symbol2id = {s: i for i, s in enumerate(self.symbols)}
         self.id2symbol = {i: s for i, s in enumerate(self.symbols)}  # pylint: disable=unnecessary-comprehension
@@ -48,7 +53,7 @@ class Voice:
         self.matcha_model = None
         self.matcha_vocoder = None
         self.matcha_denoiser = None
-    
+
     def __str__(self):
         dict = asdict(self)
         return f"{dict}"
@@ -67,7 +72,7 @@ class Voice:
             "temperature": self.temperature,
             "denoiser_strength": self.denoiser_strength,
             "device": self.device,
-            
+
             "speaking_rate": self.speaking_rate,
             "speaker": self.speaker,
             "symbols": "".join(self.symbols),
@@ -119,7 +124,7 @@ class Voice:
 
         self.loaded=True
         logger.debug(f"Loaded voice {self.name}")
-        
+
 
     def validate(self, fail_on_error = True):
         if self.speaking_rate < -1.0 or self.speaking_rate > 5.0:
@@ -222,17 +227,17 @@ class Voice:
 
     def synthesize(self, input, input_type, output_file, params):
         input_tokens = tools.input2tokens(input, input_type)
-        
+
         output_name = os.path.basename(output_file)
         output_name = Path(output_name).with_suffix('')
         output_folder = os.path.dirname(output_file)
-            
+
         ### SYNTHESIZE
         tokens_processed = self.process_tokens(input_tokens)
 
         spk_id = tools.get_or_else(vars(params).get("speaker"), self.speaker, None)
         spk = torch.tensor([spk_id],device=self.device) if spk_id is not None else None
-        
+
         speaking_rate = tools.get_or_else(vars(params).get("speaking_rate"), self.speaking_rate)
         output = self.matcha_model.synthesise(
             tokens_processed["x"],
@@ -245,19 +250,18 @@ class Voice:
 
         ## PROCESS ALIGNMENT
         import alignment
-        id2symbol={i: s for i, s in enumerate(self.symbols)} 
         tokens = tokens_processed['words']
 
         aligned = alignment.align(tokens_processed, output, self.id2symbol)
         logger.debug(f"ALIGNED {aligned}")
 
         tokens = alignment.combine(tokens, aligned)
-                
+
         result = {
             "input": input,
             "input_type": input_type,
             "speaking_rate": speaking_rate,
-            "speaker_id": spk_id,         
+            "speaker_id": spk_id,
         }
         phonemes = []
         for token in tokens:
@@ -297,7 +301,7 @@ class Voice:
                     f.write(f"{token['start_time']/1000.0}\t{token['end_time']/1000.0}\t{token['phonemes']}\n")
         else:
             logger.error(f"Different number of tokens vs aligned tokens -- label file will not be created")
-                    
+
         return result
 
 

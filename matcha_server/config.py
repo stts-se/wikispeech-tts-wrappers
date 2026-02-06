@@ -1,9 +1,12 @@
+# pylint: disable=C0301,W1203,C0114,C0116,E0118,W0603,C0103,R1705,C0115
+
 import json
-import sys, os
-from pathlib import Path
+#import sys
+import os
 
 # Imports from this repo
-import tools, voice
+import tools
+import voice
 
 # Logging
 logger = tools.get_logger()
@@ -21,13 +24,13 @@ class MatchaConfig:
     output_path: str
     force_cpu: bool
 
-    
+
 def load_from_args(args):
     symbols = args.symbols
     if os.path.isfile(args.symbols):
-        with open(args.symbols, 'r') as file:
+        with open(args.symbols, 'r', encoding="utf-8") as file:
             symbols = file.read()
-        
+
     if args.clear_audio:
         folder = os.path.dirname(args.output_file)
         tools.clear_audio(folder)
@@ -53,10 +56,10 @@ def load_from_args(args):
                        symbols=symbols,
                        phonemizers=phonemizers,
                        selected_phonemizer_index=0)
-    
+
 
 def load_config(config_file):
-    with open(config_file, 'r') as file:
+    with open(config_file, 'r', encoding="utf-8") as file:
         data = json.load(file)
         result = MatchaConfig()
         result.model_paths = list(map(tools.create_path, data['model_paths']))
@@ -75,7 +78,7 @@ def load_config(config_file):
 
             # TODO error handling if symbols and/or symbols/XX is missing from config
             symbols = [voice_config['symbols']['pad']] + list(voice_config['symbols']['punctuation']) + list(voice_config['symbols']['letters']) + list(voice_config['symbols']['letters_ipa'])
-            
+
             v = voice.Voice(name=voice_config['name'],
                             enabled=False,
                             config=voice_config,

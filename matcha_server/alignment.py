@@ -1,11 +1,13 @@
+# pylint: disable=C0301,W1203,C0114,C0116,E0118,W0603,C0103,R1705
+
 import torch
 
 import tools
 logger = tools.get_logger()
 
 # Constants
-hop_length = 256            # Typically 256 in most models
-sample_rate = 22050         # Depends on your setup
+HOP_LENGTH = 256            # Typically 256 in most models
+SAMPLE_RATE = 22050         # Depends on your setup
 
 word_boundary = ' '
 pause = ','
@@ -15,21 +17,21 @@ def combine(tokens, aligned):
     if len(tokens) == len(aligned):
         res = []
         for idx, w in enumerate(tokens):
-            res.append(tokens[idx] | aligned[idx])
+            res.append(w | aligned[idx])
         return res
     else:
-        logger.error(f"Different number of tokens vs aligned tokens -- output json file will not include aligmnent")
+        logger.error("Different number of tokens vs aligned tokens -- output json file will not include aligmnent")
         logger.error(f"Tokens {tokens}")
-        logger.error(f"Aligned tokens {aligned}")            
+        logger.error(f"Aligned tokens {aligned}")
         return tokens
 
 
 def align(input_processed, output, id2symbol):
     #"attn": torch.Tensor, shape: (batch_size, max_text_length, max_mel_length),
     #Alignment map between text and mel spectrogram
-    
-    alignment_phonemes = input_processed['x'][0]
- 
+
+    #alignment_phonemes = input_processed['x'][0]
+
     attn = output["attn"][0][0]  # shape: (max_text_length, max_mel_length)
     #mel_len = output["mel_lengths"][0].item()
     x = input_processed['x']
@@ -43,19 +45,19 @@ def align(input_processed, output, id2symbol):
     res = []
     for phoneme_idx in range(attn.shape[0]):
         mel_indices = torch.where(attn[phoneme_idx] > 0)[0]  # frames aligned to this phoneme
-        
+
         if len(mel_indices) > 0:
             start_frame = mel_indices[0].item()
             end_frame = mel_indices[-1].item()
-            
-            start_time = start_frame * hop_length / sample_rate
-            end_time = (end_frame + 1) * hop_length / sample_rate  # +1 for inclusive range
 
-            id = phoneme_ids[phoneme_idx].item()
-            phoneme = id2symbol.get(id, '?')
+            start_time = start_frame * HOP_LENGTH / SAMPLE_RATE
+            end_time = (end_frame + 1) * HOP_LENGTH / SAMPLE_RATE  # +1 for inclusive range
 
-            #logger.debug(f"alignment debug {id} {phoneme} {start_time} {end_time}")
-                
+            pid = phoneme_ids[phoneme_idx].item()
+            phoneme = id2symbol.get(pid, '?')
+
+            #logger.debug(f"alignment debug {pid} {phoneme} {start_time} {end_time}")
+
             if acc_word['start_time'] is None:
                 acc_word['start_time'] = start_time
 
@@ -65,7 +67,7 @@ def align(input_processed, output, id2symbol):
                     'phonemes': phoneme,
                     'start_time': start_time,
                     'end_time': end_time,
-                }                                
+                }
             elif phoneme == word_boundary:
                 acc_word['end_time'] = end_time
                 res.append(acc_word)
