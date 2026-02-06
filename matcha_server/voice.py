@@ -1,5 +1,3 @@
-# pylint: disable=C0301,W1203,C0114,C0116,E0118,W0603,C0103,R1705,C0115
-
 #import sys
 import os
 #import re
@@ -47,7 +45,7 @@ class Voice:
 
         # Mappings from symbol to numeric ID and vice versa:
         self.symbol2id = {s: i for i, s in enumerate(self.symbols)}
-        self.id2symbol = {i: s for i, s in enumerate(self.symbols)}  # pylint: disable=unnecessary-comprehension
+        self.id2symbol = {i: s for i, s in enumerate(self.symbols)}
 
         self.loaded = False
         self.matcha_model = None

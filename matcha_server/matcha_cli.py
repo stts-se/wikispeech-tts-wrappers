@@ -1,5 +1,3 @@
-# pylint: disable=C0301,W1203,C0114
-
 import sys
 import os
 import argparse

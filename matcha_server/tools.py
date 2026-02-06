@@ -1,5 +1,3 @@
-# pylint: disable=C0301,W1203,C0114,C0116,E0118,W0603
-
 import os
 import re
 import json
