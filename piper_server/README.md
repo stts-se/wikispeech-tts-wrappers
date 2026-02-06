@@ -53,6 +53,7 @@ Download additional Piper + Deep Phonemizer models from :
 ___2.2 Alignment patching___
 
 ```
+uv pip install onnx
 python3 -m piper.patch_voice_with_alignment /path/to/model.onnx
 ```
 
