@@ -178,7 +178,6 @@ async def synthesize_as_get(voice: str = "en_US-bryce-medium",
         inputs.remove("")
     while " " in inputs:
         inputs.remove(" ")
-    global input_types
     if input_type not in input_types:
         msg = f"Invalid input type: '{input_type}'. Use one of the following: {input_types}"
         logger.error(msg)
@@ -224,7 +223,6 @@ async def synthesize_as_get(voice: str = "en_US-bryce-medium",
 
 @app.get("/voices/")
 async def voices():
-    global global_cfg
     res = []
     for k,v in global_cfg.voices.items():
         # TODO: simple json representation

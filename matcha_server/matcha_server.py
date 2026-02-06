@@ -86,7 +86,6 @@ async def synthesize_en_us_ljspeech(input_type: str = 'text',
        
 @app.get("/voices/")
 async def voices():
-    global global_cfg
     res = []
     for k,v in global_cfg.voices.items():
         res.append(v.as_json())
@@ -94,7 +93,6 @@ async def voices():
 
 @app.get("/symbol_set/")
 async def symbols_set(voice: str):
-    global global_cfg
     for k,v in global_cfg.voices.items():
         if v.name == voice:
             return {
@@ -212,7 +210,6 @@ async def synthesize_as_get(voice: str = 'sv_se_nst_vc1',
         speaking_rate = speaking_rate,
         speaker = speaker_id,
     )
-    global input_types
     if input_type not in input_types:
         msg = f"Invalid input type: '{input_type}'. Use one of the following: {input_types}"
         logger.error(msg)

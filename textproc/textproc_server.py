@@ -98,7 +98,6 @@ class Textproc:
         return res
 
 def load_config():
-    global textprocs
     with open(json_config, 'r') as file:
         data = json.load(file)
         resource_paths = [os.path.expandvars(x) for x in data['resource_paths']]
@@ -131,7 +130,6 @@ app = FastAPI(lifespan=lifespan,swagger_ui_parameters={"tryItOutEnabled": True})
 
 @app.get("/process_utt")
 async def process_utt(name: str = "sv_se_1", input: str = "hej då 17"):
-    global textprocs
     if not name in textprocs:
         msg = f"No such textproc: {name}"
         logger.error(msg)
@@ -144,7 +142,6 @@ async def process_utt(name: str = "sv_se_1", input: str = "hej då 17"):
 
 @app.get("/process_text")
 async def process_text(name: str = "sv_se_1", input: str = "den 3 februari såg jag en häst"):
-    global textprocs
     if not name in textprocs:
         msg = f"No such textproc: {name}"
         logger.error(msg)

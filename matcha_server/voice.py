@@ -100,7 +100,7 @@ class Voice:
                     raise Exception(f"Unknown phonemizer type {type} for {phizer['name']}")
 
         if len(phonemizers) == 0:
-            raise Exception(f"Couldn't find phonemizer for voice '{self.config['name']}' in config file {config_file}")
+            raise Exception(f"Couldn't find phonemizer for voice '{self.config['name']}'")
 
         self.phonemizers=phonemizers
         self.selected_phonemizer_index=defaultPhnIndex
@@ -166,63 +166,6 @@ class Voice:
             return self.phonemizers[self.selected_phonemizer_index]
         else:
             return None
-    
-    # TODO: should be deprecated    
-    def process_text(self, input: str, input_type: str):
-        #print(f"[{i}] - Input text: {input}")
-
-        s = input
-        s = s.replace(".","")
-        s = separate_comma_re.sub("\\1 , \\2",s)
-
-        words = []
-        if input_type == "text":
-            phn_list = []
-            for w in wordsplit.split(s):
-                result = self.selected_phonemizer().phonemize(w)
-                phn_list.append(result)
-                words.append({
-                    "input": w,
-                    "orth": w,
-                    "phonemes": result
-                })
-            phn = " ".join(phn_list)
-            phn = separate_comma_re.sub(" , ", phn)
-            cleaned_text = self.cleaned_text_to_sequence(phn)
-        elif input_type == "mixed":
-            phn_list = []
-            for w in wordsplit.split(s):
-                m = phoneme_input_re.match(w)
-                if m:
-                    phn_list.append(m.group(1))
-                    words.append({
-                        "input": w,
-                        "phonemes": m.group(1)
-                    })
-                else:
-                    result = self.selected_phonemizer().phonemize(w)
-                    phn_list.append(result)
-                    words.append({
-                        "input": w,
-                        "orth": w,
-                        "phonemes": result
-                    })
-            phn = " ".join(phn_list)
-            cleaned_text = self.cleaned_text_to_sequence(phn)
-        else: # phoneme input
-            s = separate_comma_re.sub(" , ", s)
-            for w in wordsplit.split(s):
-                words.append({"phonemes": w})
-            cleaned_text = self.cleaned_text_to_sequence(input)
-
-        x = torch.tensor(
-            intersperse(cleaned_text, 0),
-            dtype=torch.long,
-            device=self.device,
-        )[None]
-        x_lengths = torch.tensor([x.shape[-1]], dtype=torch.long, device=self.device)
-        x_phones = self.sequence_to_text(x.squeeze(0).tolist())
-        return {"words": words, "x_orig": input, "x": x, "x_lengths": x_lengths, "x_phones": x_phones}
 
     def process_tokens(self, tokens: str):
         words = []
@@ -387,7 +330,7 @@ class Phonemizer:
                     logger=logger,
                 )
             else:
-                raise Exception(f"Unknown phonemizer type {typ} for {selfname}")
+                raise Exception(f"Unknown phonemizer type {tpe} for {self.name}")
         except RuntimeError as e:
             msg = f"Couldn't load phonetizer for voice {name}: {e}. Voice will not be loaded."
             logger.error(msg)

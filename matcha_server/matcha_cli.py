@@ -93,7 +93,7 @@ if not args.config_file:
         os.exit(1)
 
 if args.input_type not in input_types:
-    parser.error(f"Invalid input type: '{input_type}'. Use one of the following: {input_types}")
+    parser.error(f"Invalid input type: '{args.input_type}'. Use one of the following: {input_types}")
     os.exit(1)
        
 if args.config_file:

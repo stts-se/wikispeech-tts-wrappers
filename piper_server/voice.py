@@ -79,7 +79,7 @@ class Voice:
                     raise Exception(f"Unknown phonemizer type {type} for {phizer['name']}")
 
         if len(phonemizers) == 0:
-            raise Exception(f"Couldn't find phonemizer for voice '{self.config['name']}' in config file {config_file}")
+            raise Exception(f"Couldn't find phonemizer for voice '{self.config['name']}'")
 
         onnx_fn = str(Path(self.config['model']).with_suffix(".onnx"))
         model_path = tools.find_file( onnx_fn, model_paths)
@@ -268,7 +268,7 @@ class Phonemizer:
                 )
                 logger.debug(f"Loaded espeak phonemizer {self.pher}")
             else:
-                raise Exception(f"Unknown phonemizer type {typ} for {selfname}")
+                raise Exception(f"Unknown phonemizer type {tpe} for {self.name}")
         except RuntimeError as e:
             msg = f"Couldn't load phonetizer for voice {name}: {e}. Voice will not be loaded."
             logger.error(msg)

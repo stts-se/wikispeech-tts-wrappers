@@ -36,7 +36,6 @@ phoners={}
 mappers={}
 
 def load_config():
-    global models
     with open(json_config, 'r') as file:
         data = json.load(file)
         model_paths = [os.path.expandvars(x) for x in data['model_paths']]
@@ -98,7 +97,6 @@ async def phonemize_en_us(text = "this model does not have word stress at all"):
 
 @app.get("/phonemize/{model_name}/{text}")
 async def phonemize(model_name: str, text: str, lang: str=""):
-    global phoners
     if not model_name in phoners:
         msg = f"No such model: {model_name}"
         logger.error(msg)
@@ -116,7 +114,6 @@ async def phonemize(model_name: str, text: str, lang: str=""):
 
 @app.get("/models")
 async def models():
-    global phoners
     res = []
     for k,v in phoners.items():
         res.append({

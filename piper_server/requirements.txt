@@ -1,4 +1,4 @@
-piper-tts==1.4.0
+piper-tts==1.4.1
 uvicorn
 fastapi[standard]
 phonemizer
