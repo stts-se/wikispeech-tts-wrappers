@@ -3,6 +3,8 @@
 Wrapper for runtime use of the [Matcha-TTS](https://github.com/shivammehta25/Matcha-TTS) text-to-speech engine.    
 Supported Matcha version: [0.0.7.2](https://pypi.org/project/matcha-tts/0.0.7.2)
 
+[![Matcha server](https://github.com/stts-se/wikispeech-tts-wrappers/actions/workflows/matcha-server.yml/badge.svg)](https://github.com/stts-se/wikispeech-tts-wrappers/actions/workflows/matcha-server.yml)
+
 **1. Installation**
 
 ___1.1 Install [uv](https://docs.astral.sh/uv/getting-started/installation) (optional)___
