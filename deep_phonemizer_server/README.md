@@ -4,6 +4,8 @@ Deep Phonemizer URL: https://github.com/spring-media/DeepPhonemizer
 
 Supported version 0.0.19
 
+[![Deep phonemizer server](https://github.com/stts-se/wikispeech-tts-wrappers/actions/workflows/dp-server.yml/badge.svg)](https://github.com/stts-se/wikispeech-tts-wrappers/actions/workflows/dp-server.yml)
+
 **1. Install [uv](https://docs.astral.sh/uv/getting-started/installation) (optional)**
 
 **2. Set up `venv` and install requirements**
