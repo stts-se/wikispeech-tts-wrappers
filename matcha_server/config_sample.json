@@ -20,12 +20,6 @@
 		    "type": "deep_phonemizer",
 		    "lang": "sv",
 		    "model": "dp_single_char_swe_sv.pt"
-		},
-		{
-		    "name": "sv_se_braxen_full_langs",
-		    "type": "deep_phonemizer",
-		    "lang": "swe",
-		    "model": "dp_single_char_swe_langs.pt"
 		}
 	    ],
 	    "symbols": {
@@ -52,12 +46,6 @@
 		    "type": "deep_phonemizer",
 		    "lang": "sv",
 		    "model": "dp_single_char_swe_sv.pt"
-		},
-		{
-		    "name": "sv_se_braxen_full_langs",
-		    "type": "deep_phonemizer",
-		    "lang": "swe",
-		    "model": "dp_single_char_swe_langs.pt"
 		}
 	    ],
 	    "symbols": {

@@ -12,20 +12,13 @@
 	    "name": "sv_se_nst_male1_p",
 	    "enabled": true,
 	    "load_on_startup": false,
-	    "model": "martin_phonemes_20251017_epoch_alignments",
+	    "model": "martin_phonemes_20251017_epoch",
 	    "phonemizers": [
 		{
 		    "name": "sv_se_braxen_full_sv",
 		    "type": "deep_phonemizer",
 		    "lang": "sv",
 		    "model": "dp_single_char_swe_sv.pt",
-		    "maptable": "TODO"
-		},
-		{
-		    "name": "sv_se_braxen_full_langs",
-		    "type": "deep_phonemizer",
-		    "lang": "swe",
-		    "model": "dp_single_char_swe_langs.pt",
 		    "maptable": "TODO"
 		}
 	    ]
@@ -41,13 +34,6 @@
 		    "type": "deep_phonemizer",
 		    "lang": "sv",
 		    "model": "dp_single_char_swe_sv.pt",
-		    "maptable": "TODO"
-		},
-		{
-		    "name": "sv_se_braxen_full_langs",
-		    "type": "deep_phonemizer",
-		    "lang": "swe",
-		    "model": "dp_single_char_swe_langs.pt",
 		    "maptable": "TODO"
 		}
 	    ]
