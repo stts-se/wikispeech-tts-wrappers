@@ -3,6 +3,8 @@
 Piper-TTS repo: [https://github.com/OHF-Voice/piper1-gpl](https://github.com/OHF-Voice/piper1-gpl)    
 Supported version 1.4.1
 
+[![Piper server](https://github.com/stts-se/wikispeech-tts-wrappers/actions/workflows/piper-server.yml/badge.svg)](https://github.com/stts-se/wikispeech-tts-wrappers/actions/workflows/piper-server.yml)
+
 Useful docs for building voices:    
 https://github.com/OHF-Voice/piper1-gpl/blob/main/docs/BUILDING.md    
 https://github.com/OHF-Voice/piper1-gpl/blob/main/docs/TRAINING.md    
