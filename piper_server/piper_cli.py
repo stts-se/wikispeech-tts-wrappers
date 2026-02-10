@@ -1,6 +1,11 @@
+import sys, os
+
+cmd='piper_cli'
+print(f"[{cmd}] Work in progress, this client is not working atm", file=sys.stderr)
+sys.exit(1)
+
 import tools, voice
 
-import sys, os
 from pathlib import Path
 
 import wave
@@ -8,10 +13,6 @@ from piper import PiperVoice, SynthesisConfig
 
 import argparse
 
-cmd='piper_cli'
-
-print(f"[{cmd}] Work in progress, this client is not working atm", file=sys.stderr)
-sys.exit(1)
 
 
 # parser = argparse.ArgumentParser(

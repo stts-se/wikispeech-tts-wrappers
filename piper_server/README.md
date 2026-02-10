@@ -70,7 +70,7 @@ Verify paths and other config settings in `config_sample.json`
 
 **4. Cmdline client**
 
-`python piper_cli.py <onnx model> <input> <output file>`
+`python piper_cli.py <onnx model> <input> <output file>` -- Currently not working
 
 
 **5. Server**
