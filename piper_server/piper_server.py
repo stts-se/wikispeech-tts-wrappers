@@ -173,6 +173,7 @@ async def synthesize_as_get(voice: str = "en_US-bryce-medium",
         raise HTTPException(status_code=404, detail=msg)
         
     import re
+    input = input.strip()
     inputs = re.split(r"[.!?]+( +|$)", input)
     while "" in inputs:
         inputs.remove("")
