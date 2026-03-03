@@ -83,6 +83,8 @@ class Voice:
 
         onnx_fn = str(Path(self.config['model']).with_suffix(".onnx"))
         model_path = tools.find_file( onnx_fn, model_paths)
+        if model_path is None:
+            raise Exception(f"Couldn't find model {onnx_fn} for {self.name}. Looked in {model_paths}")
         cuda = False
         config = None # Explicit path to config file, but we should always have the config file stored with the onnx model
         piper_voice = PiperVoice.load(model_path, config, cuda)
