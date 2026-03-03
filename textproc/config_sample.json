@@ -11,9 +11,9 @@
 	    "rbnf_lang": "sv",
 	    "enabled": true,
 	    "load_on_startup": false,
-	    "token_split_re": "\\s+",
+	    "token_split_re": "[\\s.!?,;)(\"-]+",
 	    ".sentence_split_re": "[\\p{Ll}0-9][”\")]?[.!?]+[”\")]?(\\s+)[\"]?\\p{Lu}",
-	    "sentence_split_re": "[.?!] [A-Z0-9]+",
+	    "sentence_split_re": "([.?!]) ([A-Z0-9]+)",
 	    "rewrite_rules": [
 		"sv_rewrite_rules.json"
 	    ]
