@@ -1,0 +1,65 @@
+[
+    {
+	"rule_type": "utterance",
+	"input": "\\bt[. ]*ex(\\.|\\b)",
+	"output": "till exempel",
+	"test": {
+	    "from": "Man kan t.ex. baka med havremjöl istället",
+	    "to": "Man kan till exempel baka med havremjöl istället"
+	}
+    },
+    {
+	"rule_type": "utterance",
+	"input": "\\bbl[. ]*a(\\.|\\b)",
+	"output": "bland annat"
+	"test": {
+	    "from": "TODO",
+	    "to": "TODO"
+	}
+    },
+    {
+	"rule_type": "utterance",
+	"input": "\\bm[. ]*fl(\\.|\\b)",
+	"output": "med flera"
+	"test": {
+	    "from": "TODO",
+	    "to": "TODO"
+	}
+    },
+    {
+	"rule_type": "utterance",
+	"input": "\\b([kK]arl|[gG]ustav|[eE]rik) ([0-9]+|[XIV]+)(\\.|\\b)",
+	"output": "\\1 den \\2|||ordinal",
+	"test": {
+	    "from": "Gustav VI Adolf",
+	    "to": "Gustav den 6|||ordinal Adolf"
+	}
+    },
+    {
+	"rule_type": "utterance",
+	"input": "\\b([0-9]{1,2}[.]?) (januari|februari|mars|april|maj|juni|juli|augusti|september|oktober|november|december)\\b",
+	"output": "\\1|||ordinal \\2"
+	"test": {
+	    "from": "3 februari",
+	    "to": "3|||ordinal februari"
+	}
+    },
+    {
+	"rule_type": "token",
+	"input": "^(1[1-9][0-9]{2})$",
+	"output": "\\1|||year"
+	"test": {
+	    "from": "Året var 1994",
+	    "to": "Året var 1994|||year"
+	}
+    },
+    {
+	"rule_type": "token",
+	"input": "^([0-9]+):(a|e)$",
+	"output": "\\1|||ordinal"
+	"test": {
+	    "from": "Han kom på 2:a plats",
+	    "to": "Han kom på 2|||ordinal plats"
+	}
+    }
+]
