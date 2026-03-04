@@ -168,7 +168,6 @@ class Textproc:
             text = text + processed_token
             if not "nbsp" in tags and i < len(tokens)-1:
                 text = text + " "
-        print(text)
         res = {
             "converted_text": text,
             "tokens": acc

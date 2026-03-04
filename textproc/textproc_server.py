@@ -4,6 +4,7 @@ import os
 import sys
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel # data models for post requests
 from dotenv import load_dotenv
 import json, re
 
@@ -31,6 +32,23 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan, swagger_ui_parameters={"tryItOutEnabled": True})
 
+class UttRequest(BaseModel):
+    name: str = "sv_se_1"
+    input_type: str = "text"
+    input: str = "jag föddes 1984 bl.a."
+
+@app.post("/process_utt")
+async def process_utt_as_post(request: UttRequest):
+    if textprocs is None:
+        raise Exception("textprocs not initialized")
+    if not request.name in textprocs:
+        msg = f"No such textproc: {request.name}"
+        logger.error(msg)
+        raise HTTPException(status_code=404, detail=msg)
+    comp = textprocs[request.name]
+    res = comp.process_utt(request.input)
+    return res
+
 
 @app.get("/process_utt")
 async def process_utt(name: str = "sv_se_1", input: str = "Karl XII, t.ex., kom på 2:a plats den 3 maj 1984 och vann 5986 kr"):
@@ -42,8 +60,6 @@ async def process_utt(name: str = "sv_se_1", input: str = "Karl XII, t.ex., kom 
         raise HTTPException(status_code=404, detail=msg)
     comp = textprocs[name]
     res = comp.process_utt(input)
-
-    # assert engine.format_number(1234).text == "one thousand two hundred thirty-four"
     return res
 
 
@@ -59,6 +75,14 @@ async def process_text(
         raise HTTPException(status_code=404, detail=msg)
     comp = textprocs[name]
     res = comp.process_text(input)
+    return res
 
-    # assert engine.format_number(1234).text == "one thousand two hundred thirty-four"
+
+@app.get("/list")
+async def list():
+    if textprocs is None:
+        raise Exception("textprocs not initialized")
+    res = []
+    for tp in textprocs.values():
+        res.append(tp)
     return res
