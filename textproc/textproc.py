@@ -166,28 +166,11 @@ class Textproc:
                 "tags": tags
             })
             text = text + processed_token
-            if not "nbsp" in tags and i < len(tokens)-1:
+            if not "nodelim" in tags:
                 text = text + " "
         res = {
-            "converted_text": text,
+            "converted_text": text.strip(),
             "tokens": acc
         }
         return res
-        # res = []
-        # i = 0
-        # while i < len(acc)-1:
-        #     t1 = acc[i]
-        #     t2 = acc[i+1]
-        #     if "nbsp" in t1["tags"]:
-        #         print(tok)
-        #         tok["input"] = tok["input"] + " " + acc[i+1]["input"]
-        #         tok["converted"] = tok["converted"] + acc[i+1]["converted"]
-        #         tok["tags"].remove("nbsp")
-        #         tok["tags"] = tok["tags"] + acc[i+1]["tags"]
-        #         res.append(tok)
-        #         #i=i+1
-        #     else:
-        #         res.append(tok)
-            
-        # return res
 

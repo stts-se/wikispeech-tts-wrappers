@@ -4,7 +4,7 @@
 	{
 	    "rule_type": "utterance",
 	    "input": "\\b([1-9][0-9]+)-(tal(?:et)?s?)\\b",
-	    "output": "\\1|||year|||nbsp \\2",
+	    "output": "\\1|||year|||nodelim \\2",
 	    "tests": [
 		{
 		    "from": "90-talet",
@@ -117,7 +117,7 @@
 	},
 	{
 	    "rule_type": "utterance",
-	    "input": "\\b([kK]arl|[gG]ustav|[eE]rik) ([0-9]+|[XIV]+)(\\.|\\b)",
+	    "input": "\\b([kK]arl|[gG]ustav|[eE]rik|[hH]arald|[hH]åkon) ([0-9]+|[XIV]+)(\\.|\\b)",
 	    "output": "\\1 den \\2|||ordinal",
 	    "test": [
 		{
