@@ -34,7 +34,7 @@ app = FastAPI(lifespan=lifespan, swagger_ui_parameters={"tryItOutEnabled": True}
 
 class UttRequest(BaseModel):
     name: str = "sv_se_1"
-    input_type: str = "tokens"
+    input_type: str = "ssml-like"
     input: list = [
         {
             "type": "text",
@@ -43,7 +43,7 @@ class UttRequest(BaseModel):
         {
             "type": "alias",
             "text": "2",
-            "alias": "andra",            
+            "alias": "andra",        
         },
         {
             "type": "text",
