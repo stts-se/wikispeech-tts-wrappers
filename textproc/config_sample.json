@@ -1,22 +1,15 @@
 {
-    "_comment": "You can add multiple folders to model_paths. Environment variables are expanded, and relative paths are allowed. If the same model is found in multiple folders, the first one will be used.",
+    "_comment": "You can add multiple folders to resource_paths. Environment variables are expanded, and relative paths are allowed. If the same resource is found in multiple folders, the first one will be used.",
     "resource_paths": [
-	"./components",
-	"$HOME/.local/share/ws_textproc"
+	"./components"
     ],
     "textprocs": [
 	{
 	    "name": "sv_se_1",
 	    "lang": "sv",
-	    "rbnf_lang": "sv",
 	    "enabled": true,
-	    "load_on_startup": false,
-	    "token_split_re": "[\\s.!?,;)(\"-]+",
-	    ".sentence_split_re": "[\\p{Ll}0-9][”\")]?[.!?]+[”\")]?(\\s+)[\"]?\\p{Lu}",
-	    "sentence_split_re": "([.?!]) ([A-Z0-9]+)",
-	    "rewrite_rules": [
-		"sv_rewrite_rules.json"
-	    ]
+	    "load_on_startup": true,
+	    "rules": "sv_textproc.json"
 	}
     ]
 }

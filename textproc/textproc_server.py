@@ -34,8 +34,32 @@ app = FastAPI(lifespan=lifespan, swagger_ui_parameters={"tryItOutEnabled": True}
 
 class UttRequest(BaseModel):
     name: str = "sv_se_1"
-    input_type: str = "text"
-    input: str = "jag föddes 1984 bl.a."
+    input_type: str = "tokens"
+    input: list = [
+        {
+            "type": "text",
+            "text": "jag föddes på S/S Norrskär och S/S Storskär den"
+        },
+        {
+            "type": "alias",
+            "text": "2",
+            "alias": "andra",            
+        },
+        {
+            "type": "text",
+            "text": "i februari månad"
+        },
+        {
+            "type": "phonemes",
+            "phonemes": "j'u:"
+        },
+        {
+            "type": "text",
+            "text": "det var 1984 bl.a."
+        }
+    ]
+
+    #input: str = "jag föddes på S/S Norrskär och S/S Storskär, 1984 bl.a. och det var kul sa Karl XII och Gustav XVI både 1:a och 2:a gången också!"
 
 @app.post("/process_utt")
 async def process_utt_as_post(request: UttRequest):
@@ -46,7 +70,7 @@ async def process_utt_as_post(request: UttRequest):
         logger.error(msg)
         raise HTTPException(status_code=404, detail=msg)
     comp = textprocs[request.name]
-    res = comp.process_utt(request.input)
+    res = comp.process_utt(request.input,request.input_type)
     return res
 
 

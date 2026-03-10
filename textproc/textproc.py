@@ -41,26 +41,31 @@ def load_config(json_config):
             if not enabled:
                 continue
             lang = component["lang"]
-            rbnf_lang = component["rbnf_lang"]
-            sentence_split_re = re.compile(component["sentence_split_re"])
-            token_split_re = re.compile(component["token_split_re"])
-            logger.debug(f"Dict loading is not implemented")
-            rewrite_rules = []
-            for f in component["rewrite_rules"]:
-                path = io.find_file(f, resource_paths)
-                if path is None:
-                    raise IOError(f"Failed to find rewrite rules {f}")
-                with open(path, "r") as fh:
-                    rr_data = json.load(fh)
-                    rewrite_rules = rewrite_rules + rr_data["rules"]
-            textprocs[name] = Textproc(
-                name,
-                lang,
-                rbnf_lang,
-                sentence_split_re,
-                token_split_re,
-                rewrite_rules,
-                True,
+            path = io.find_file(component["rules"], resource_paths)
+            if path is None:
+                raise IOError(f"Failed to find textproc rules {f}")
+            with open(path, "r") as fh:
+                rules = json.load(fh)
+                rbnf_lang = rules["rbnf_lang"]
+                if rules["sentence_split_re"]:
+                    sentence_split_re = re.compile(rules["sentence_split_re"])
+                token_split_re = re.compile(rules["token_split_re"])
+                punctuation_re = re.compile(f"^((?:{rules['punctuation_re']})*)(.*?)((?:{rules['punctuation_re']})*)$")
+                rewrite_rules = rules["rules"]
+                for r in rewrite_rules:
+                    if r.get("ignore_case",True): 
+                        r["input_compiled"] = re.compile(r["input"],re.IGNORECASE)
+                    else:
+                        r["input_compiled"] = re.compile(r["input"])
+                textprocs[name] = Textproc(
+                    name,
+                    lang,
+                    rbnf_lang,
+                    sentence_split_re,
+                    token_split_re,
+                    punctuation_re,
+                    rewrite_rules,
+                    True,
             )
     return textprocs
 
@@ -73,6 +78,7 @@ class Textproc:
     rbnf_lang: str
     sentence_split_re: object
     token_split_re: object
+    punctuation_re: object
     rewrite_rules: list
     enabled: bool
 
@@ -93,6 +99,7 @@ class Textproc:
             return rbnfed.text
 
     def process_text(self, text: str):
+        logger.debug(f"textproc.process_text called with {text}")
         utts = []
         acc = text
         m = self.sentence_split_re.search(acc)
@@ -103,74 +110,173 @@ class Textproc:
             utts.append(self.process_utt(utt))
         return utts
 
-    def apply_rewrite_rules(self, utt: str):
-        acc = utt
-        for r in self.rewrite_rules:
-            if r["rule_type"] == "token":
-                tokens = self.token_split_re.split(acc) # TODO: keep delimiters
-                t2s = []
-                for tok in tokens:
-                    rex = re.compile(r["input"])
-                    t2 = rex.sub(r["output"], tok)
-                    t2s.append(t2)
-                acc = " ".join(t2s)
-            else:
-                rex = re.compile(r["input"])
-                acc = rex.sub(r["output"], acc)
-        return self.token_split_re.split(acc)
-
-    def process_utt(self, utt: str):
-        acc = []
-        text = ""
-        tokens = self.apply_rewrite_rules(utt)
-        for i, s in enumerate(tokens):
-            fs = s.split("|||",maxsplit=1)
-            s = fs[0]
-            tags = []
-            if len(fs) > 1:
-                tags = fs[1].split("|||")
-            formatPurpose = None
-            if "ordinal" in tags:
-                formatPurpose = FormatPurpose.ORDINAL
-            if "year" in tags:
+    def toksplit(self, utt: str):
+        input_tokens = self.token_split_re.split(utt)
+        res = []
+        for t in input_tokens:
+            m = self.punctuation_re.match(t)
+            prepunct = m.group(1)
+            word = m.group(2)
+            word2, tags = self.process_numeral(word)
+            postpunct = m.group(3)
+            token = {
+                "input": t,
+                "word": word2
+            }
+            if tags is not None and len(tags) > 0:
+                token["tags"] = tags
+            if len(prepunct) > 0:
+                token["prepunct"] = prepunct
+            if len(postpunct) > 0:
+                token["postpunct"] = postpunct
+            res.append(token)
+        return res           
+    
+    def process_numeral(self, s: str):
+        fs = s.split("|||",maxsplit=1)
+        s = fs[0]
+        tags = []
+        if len(fs) > 1:
+            tags = fs[1].split("|||")
+        formatPurpose = None
+        if "ordinal" in tags:
+            formatPurpose = FormatPurpose.ORDINAL
+        if "year" in tags:
+            formatPurpose = FormatPurpose.YEAR
+        processed_token = s
+        if len(s) > 1 and roman_re.match(s):
+            i = roman2int(s)
+            processed_token = self.rbnfify(i, formatPurpose)
+        elif year_re.match(s):
+            i = int(s)
+            if formatPurpose is None:
                 formatPurpose = FormatPurpose.YEAR
-            prev = None
-            next = None
-            if i > 0:
-                prev = tokens[i - 1]
-            if i < len(tokens) - 1:
-                next = tokens[i + 1]
-            processed_token = s
-            if len(s) > 1 and roman_re.match(s):
-                i = roman2int(s)
                 processed_token = self.rbnfify(i, formatPurpose)
-            elif year_re.match(s):
-                i = int(s)
-                if formatPurpose is None:
-                    formatPurpose = FormatPurpose.YEAR
-                    processed_token = self.rbnfify(i, formatPurpose)
+            else:
+                processed_token = self.rbnfify(i, formatPurpose)
+        elif int_re.match(s):
+            i = int(s)
+            processed_token = self.rbnfify(i, formatPurpose)
+        elif float_re.match(s):
+            f = float(s)
+            processed_token = self.rbnfify(f, formatPurpose)
+        elif comma_float_re.match(s):
+            f = float(s.replace(",", "."))
+            processed_token = self.rbnfify(f, formatPurpose)
+        return processed_token, tags
+    
+    def apply_rewrite_rule(self, rule, s: str):
+        res = []
+        rex = rule["input_compiled"]
+        #print("rule", rule)
+        #print("input", s)
+        if rule["rule_type"] == "token":
+            tokens = self.toksplit(s)
+            for tok in tokens:
+                m = rex.match(tok["input"])
+                if m:
+                    alias= rex.sub(rule["output"], tok["input"])
+                    res.append({
+                        "type": "alias",
+                        "text": tok["input"],
+                        "alias": alias
+                    })
                 else:
-                    processed_token = self.rbnfify(i, formatPurpose)
-            elif int_re.match(s):
-                i = int(s)
-                processed_token = self.rbnfify(i, formatPurpose)
-            elif float_re.match(s):
-                f = float(s)
-                processed_token = self.rbnfify(f, formatPurpose)
-            elif comma_float_re.match(s):
-                f = float(s.replace(",", "."))
-                processed_token = self.rbnfify(f, formatPurpose)
-            acc.append({
-                "input": s,
-                "converted": processed_token,
-                "tags": tags
-            })
-            text = text + processed_token
-            if not "nodelim" in tags:
-                text = text + " "
-        res = {
-            "converted_text": text.strip(),
-            "tokens": acc
-        }
+                    res.append({
+                        "type": "text",
+                        "text": tok["input"]
+                    })
+        else:
+            matches = rex.finditer(s)
+            i = 0
+            rest = s
+            for m in matches:
+                span = m.span()
+                res.append({
+                    "type": "text",
+                    "text": s[i:span[0]].strip()
+                })
+                text = s[span[0]:span[1]]
+                rest = s[span[1]:len(s)]
+                i = span[1]
+                alias = rex.sub(rule["output"],text)
+                res.append({
+                    "type": "alias",
+                    "text": text,
+                    "alias": alias
+                })
+            if len(rest) > 0:
+                end = {
+                    "type": "text",
+                    "text": rest.strip()
+                }
+                res.append(end)
         return res
+        
+    def apply_rewrite_rules(self, item: object):
+        acc = [item]
+        for r in self.rewrite_rules:
+            acc0 = acc
+            acc = []
+            for item in acc0:
+                if item["type"] == "text":
+                    subitems = self.apply_rewrite_rule(r, item["text"])
+                    acc.extend(subitems)
+                    #print("with subitems", acc)
+                elif item["type"] == "alias":
+                    acc.append(item)
+                elif item["type"] == "phonemes":
+                    acc.append(item)
+                else:
+                    raise ValueError(item)
+        return acc
 
+    def process_utt(self, input: object, input_type="text"):
+        logger.debug(f"textproc.process_utt called with {input}")
+        items = []
+        if input_type == "text":
+            items = [{
+                    "type": "text",
+                    "text": input
+                }]
+        else:
+            items = input
+        res = []
+        for item in items:
+            if item["type"] == "text":
+                subitems = self.apply_rewrite_rules(item)
+                for i, item in enumerate(subitems):
+                    if item["type"] == "text":
+                        item["tokens"] = self.toksplit(item["text"])
+                    elif item["type"] == "alias":
+                        item["tokens"] = self.toksplit(item["alias"])
+                    subitems[i] = item                    
+                res.extend(subitems)
+            elif item["type"] == "alias":
+                if not "tokens" in item:
+                    item["tokens"] = self.toksplit(item["alias"])
+                res.append(item)
+            elif item["type"] == "phonemes":
+                item["tokens"] = []
+                res.append(item)
+
+        derived_input = []
+        derived_output = ""
+        for item in res:
+            if "text" in item:
+                derived_input.append(item["text"])
+            for token in item["tokens"]:
+                t = f"{token.get('prepunct','')}{token['word']}{token.get('postpunct','')}"
+                # TODO: corner case with triple consonants here?
+                derived_output = derived_output + t
+                if not "nodelim" in token.get("tags",[]):
+                    derived_output = derived_output + " "
+        complete_res = {
+            "input": input,
+            "derived_input_text": " ".join(derived_input),
+            "derived_output_text": derived_output.strip(),
+            "tokens": res
+        }
+        print(complete_res)
+        return complete_res
+        
