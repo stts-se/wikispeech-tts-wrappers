@@ -41,9 +41,10 @@ def load_config(json_config):
             if not enabled:
                 continue
             lang = component["lang"]
-            path = io.find_file(component["rules"], resource_paths)
+            rf = component["rules"]
+            path = io.find_file(rf, resource_paths)
             if path is None:
-                raise IOError(f"Failed to find textproc rules {f}")
+                raise IOError(f"Failed to find textproc rules {rf}")
             with open(path, "r") as fh:
                 rules = json.load(fh)
                 rbnf_lang = rules["rbnf_lang"]
