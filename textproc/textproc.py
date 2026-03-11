@@ -52,6 +52,7 @@ def load_config(json_config):
                     sentence_split_re = re.compile(rules["sentence_split_re"])
                 token_split_re = re.compile(rules["token_split_re"])
                 punctuation_re = re.compile(f"^((?:{rules['punctuation_re']})*)(.*?)((?:{rules['punctuation_re']})*)$")
+                punctuation_after_match = re.compile(f"^((?:{rules['punctuation_re']})+)( |$)")
                 rewrite_rules = rules["rules"]
                 for r in rewrite_rules:
                     if r.get("ignore_case",True): 
@@ -65,6 +66,7 @@ def load_config(json_config):
                     sentence_split_re,
                     token_split_re,
                     punctuation_re,
+                    punctuation_after_match,                  
                     rewrite_rules,
                     True,
             )
@@ -80,6 +82,7 @@ class Textproc:
     sentence_split_re: object
     token_split_re: object
     punctuation_re: object
+    punctuation_after_match: object
     rewrite_rules: list
     enabled: bool
 
@@ -116,6 +119,7 @@ class Textproc:
         res = []
         for t in input_tokens:
             m = self.punctuation_re.match(t)
+            # print(f"??? m:{m} 1:'{m.group(1)}' 2:'{m.group(2)}' 3:'{m.group(3)}'")
             prepunct = m.group(1)
             word = m.group(2)
             word2, tags = self.process_numeral(word)
@@ -188,10 +192,12 @@ class Textproc:
                         "text": tok["input"]
                     })
         else:
+            # TODO: punctuation immediately after expanded rule (without whitespace) should be considered postpunct
             matches = rex.finditer(s)
             i = 0
             rest = s
             for m in matches:
+                #print("???", m)
                 span = m.span()
                 res.append({
                     "type": "text",
@@ -201,6 +207,12 @@ class Textproc:
                 rest = s[span[1]:len(s)]
                 i = span[1]
                 alias = rex.sub(rule["output"],text)
+                mx = self.punctuation_after_match.match(rest)
+                if mx:
+                    #print(f"???'{rest}' '{text}' '{alias}' '{m.group(1)}'")
+                    n = len(m.group(1))
+                    rest = s[span[1]+n:len(s)]
+                    alias = alias+m.group(1)
                 res.append({
                     "type": "alias",
                     "text": text,
@@ -278,6 +290,5 @@ class Textproc:
             "derived_output_text": derived_output.strip(),
             "tokens": res
         }
-        print(complete_res)
         return complete_res
         
