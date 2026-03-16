@@ -7,6 +7,17 @@
     [
 	{
 	    "rule_type": "utterance",
+	    "input": "\\b([0-9]+)[ \u00A0]([0-9]+)\\b",
+	    "output": "\\1\\2",
+	    "tests": [
+		{
+		    "from": "1 000",
+		    "to": "tusen"
+		}
+	    ]
+	},
+	{
+	    "rule_type": "utterance",
 	    "input": "\\bS/S\\b",
 	    "output": "SS|||spell",
 	    "tests": [
@@ -29,7 +40,7 @@
 	},
 	{
 	    "rule_type": "utterance",
-	    "input": "\\b([0-9.]+) *– *([0-9.]+)\\b",
+	    "input": "\\b([0-9.,]+) *– *([0-9.,]+)\\b",
 	    "output": "\\1 till \\2",
 	    "tests": [
 		{
@@ -40,7 +51,7 @@
 	},
 	{
 	    "rule_type": "utterance",
-	    "input": "\\b([0-9.]+) *\\+ *([0-9.]+)\\b",
+	    "input": "\\b([0-9.,]+) *\\+ *([0-9.,]+)\\b",
 	    "output": "\\1 plus \\2",
 	    "tests": [
 		{
@@ -51,7 +62,7 @@
 	},
 	{
 	    "rule_type": "utterance",
-	    "input": "\\b([0-9.]+) *- *([0-9.]+)\\b",
+	    "input": "\\b([0-9.,]+) *- *([0-9.,]+)\\b",
 	    "output": "\\1 minus \\2",
 	    "tests": [
 		{
@@ -62,7 +73,7 @@
 	},
 	{
 	    "rule_type": "utterance",
-	    "input": "\\b([0-9.]+) *[*x\u00D7] *([0-9.]+)\\b",
+	    "input": "\\b([0-9.,]+) *[*x\u00D7] *([0-9.,]+)\\b",
 	    "output": "\\1 gånger \\2",
 	    "tests": [
 		{
@@ -73,7 +84,7 @@
 	},
 	{
 	    "rule_type": "utterance",
-	    "input": "\\b([0-9.]+) *\u00F7 *([0-9.]+)\\b",
+	    "input": "\\b([0-9.,]+) *\u00F7 *([0-9.,]+)\\b",
 	    "output": "\\1 dividerat med \\2",
 	    "tests": [
 		{
@@ -176,7 +187,7 @@
 	},
 	{
 	    "rule_type": "utterance",
-	    "input": "\\b([kK]arl|[gG]ustav|Johan|[eE]rik|[hH]arald|[hH]åkon) ([0-9]+|[XIV]+)(\\.|\\b)",
+	    "input": "\\b(Karl|Gusta[vf]|Johan|Erik|Harald|Håkon|Viktoria|Victoria|Elisabeth|Elizabeth|Sigismund|Fredrik|Oscar) ([0-9]+|[XIV]+)(\\.|\\b)",
 	    "ignore_case": true,
 	    "output": "\\1 den \\2|||ordinal",
 	    "test": [
@@ -238,6 +249,50 @@
 		{
 		    "from": "gurra.g@regeringen.se",
 		    "to": "gurra g snabel-a regeringen punkt se"
+		}
+	    ]
+	},
+	{
+	    "rule_type": "utterance",
+	    "input": "-([0-9.,]+) *°",
+	    "output": "minus \\1 grader",
+	    "tests": [
+		{
+		    "from": "-12.5 °",
+		    "to": "minus tolv komma fem grader"
+		}
+	    ]
+	},
+	{
+	    "rule_type": "utterance",
+	    "input": "-([0-9.,]+) *° *C\\b",
+	    "output": "minus \\1 grader Celcius",
+	    "tests": [
+		{
+		    "from": "-12.5°C",
+		    "to": "minus tolv komma fem grader Celsius"
+		}
+	    ]
+	},
+	{
+	    "rule_type": "utterance",
+	    "input": "([0-9.,]+) *° *C\\b",
+	    "output": "\\1 grader Celcius",
+	    "tests": [
+		{
+		    "from": "12.5°C",
+		    "to": "tolv komma fem grader Celsius"
+		}
+	    ]
+	},
+	{
+	    "rule_type": "utterance",
+	    "input": "([0-9.,]+) *°",
+	    "output": "\\1 grader",
+	    "tests": [
+		{
+		    "from": "12.5 °",
+		    "to": "tolv komma fem grader"
 		}
 	    ]
 	}
