@@ -27,6 +27,8 @@ jobs:
         cd deep_phonemizer_server
         python -m pip install --upgrade pip
         pip install flake8 pytest
+        python -m venv .venv
+        source .venv/bin/activate
         pip install torch --index-url https://download.pytorch.org/whl/cpu
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
         # workaround for pytortgh
@@ -34,6 +36,7 @@ jobs:
     - name: Lint with flake8
       run: |
         cd deep_phonemizer_server
+        source .venv/bin/activate
         # stop the build if there are Python syntax errors or undefined names
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
@@ -49,6 +52,7 @@ jobs:
     - name: Start server
       run: |
         cd deep_phonemizer_server
+        source .venv/bin/activate
         uvicorn dp_server:app --env-file config_minimal.env --port 8008 &
     - name: Ping server
       run: |
