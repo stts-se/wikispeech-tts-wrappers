@@ -245,6 +245,6 @@ async def synthesize_as_get(voice: str = 'sv_se_nst_female1',
         logger.error(msg)
         raise HTTPException(status_code=400, detail=msg)
 
-
-          
-
+@app.get("/ping")
+async def ping():
+    return HTMLResponse(content="matcha", media_type="text")

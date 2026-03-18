@@ -4,6 +4,7 @@ import os
 import sys
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import HTMLResponse
 from pydantic import BaseModel # data models for post requests
 from dotenv import load_dotenv
 import json, re
@@ -110,3 +111,7 @@ async def list():
     for tp in textprocs.values():
         res.append(tp)
     return res
+
+@app.get("/ping")
+async def ping():
+    return HTMLResponse(content="textproc", media_type="text")

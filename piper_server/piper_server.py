@@ -229,3 +229,8 @@ async def voices():
         # TODO: simple json representation
         res.append(v.as_json())
     return res
+
+
+@app.get("/ping")
+async def ping():
+    return HTMLResponse(content="piper", media_type="text")

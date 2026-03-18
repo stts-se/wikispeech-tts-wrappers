@@ -4,6 +4,7 @@ import os
 import sys
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import HTMLResponse
 from dp.phonemizer import Phonemizer
 from dotenv import load_dotenv
 import json
@@ -48,7 +49,10 @@ def load_config():
             lang = model['lang']
             if 'maptable' in model:
                 maptable=model['maptable']
-                mapper=phn_mapper.PhnMapper("",io.find_file(maptable,model_paths))
+                f = io.find_file(maptable,model_paths)
+                if f is None:
+                    raise IOError(f"Could not find {maptable} in {model_paths}")
+                mapper=phn_mapper.PhnMapper("",f)
                 mappers[name] = mapper
                 
             path = io.find_file(model_file,model_paths)
@@ -122,3 +126,8 @@ async def models():
             'path': v.path
         })
     return res
+
+
+@app.get("/ping")
+async def ping():
+    return HTMLResponse(content="deep_phonemizer", media_type="text")
