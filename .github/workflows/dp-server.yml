@@ -31,7 +31,7 @@ jobs:
         source .venv/bin/activate
         pip install torch --index-url https://download.pytorch.org/whl/cpu
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-        # workaround for pytortch
+        # workaround for pytorch
         sed -i 's/checkpoint = torch.load(checkpoint_path, map_location=device)/checkpoint = torch.load(checkpoint_path, map_location=device, weights_only=False)/' .venv/lib/python3.*/site-packages/dp/model/model.py
     - name: Lint with flake8
       run: |
@@ -56,5 +56,4 @@ jobs:
         uvicorn dp_server:app --env-file config_minimal.env --port 8008 &
     - name: Ping server
       run: |
-        cd deep_phonemizer_server
         curl http://localhost:8008/ping

@@ -32,7 +32,7 @@ jobs:
         source .venv/bin/activate
         pip install torch --index-url https://download.pytorch.org/whl/cpu
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-        # workarounds for pytorch
+        # workaround for pytorch
         sed -i 's/checkpoint = torch.load(checkpoint_path, map_location=device)/checkpoint = torch.load(checkpoint_path, map_location=device, weights_only=False)/' .venv/lib/python3.*/site-packages/dp/model/model.py
         # workarounds for matcha
         sed -i 's/MatchaTTS.load_from_checkpoint(checkpoint_path, map_location=device)/MatchaTTS.load_from_checkpoint(checkpoint_path, map_location=device, weights_only=False)/' .venv/lib/python3.*/site-packages/matcha/cli.py
@@ -61,8 +61,8 @@ jobs:
         cd matcha_server
         source .venv/bin/activate
         uvicorn matcha_server:app --env-file config_minimal.env --port 8009 &
+        sleep 30
     - name: Ping server
       run: |
-        cd matcha_server
         curl http://localhost:8009/ping
 
