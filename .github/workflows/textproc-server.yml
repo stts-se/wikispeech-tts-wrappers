@@ -46,7 +46,7 @@ jobs:
       run: |
         cd textproc
         uvicorn textproc_server:app --env-file config_sample.env --port 8011 &
-	sleep 10
+        sleep 10
 
     - name: Ping server
       run: |

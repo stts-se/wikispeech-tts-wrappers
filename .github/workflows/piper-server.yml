@@ -62,7 +62,7 @@ jobs:
         cd piper_server
         source .venv/bin/activate
         uvicorn piper_server:app --env-file config_minimal.env --port 8010 &
-	sleep 20
+        sleep 20
 
     - name: Ping server
       run: |
