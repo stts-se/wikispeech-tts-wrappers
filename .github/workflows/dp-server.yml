@@ -57,4 +57,4 @@ jobs:
     - name: Ping server
       run: |
         cd deep_phonemizer_server
-        curl http://localhost:8011/ping
+        curl http://localhost:8008/ping
