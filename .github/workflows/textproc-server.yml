@@ -22,14 +22,14 @@ jobs:
       uses: actions/setup-python@v3
       with:
         python-version: "3.10"
-	
+
     - name: Install dependencies
       run: |
         cd textproc
         python -m pip install --upgrade pip
         pip install flake8 pytest
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-	
+
     - name: Lint with flake8
       run: |
         cd textproc
@@ -37,16 +37,16 @@ jobs:
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics --extend-ignore=E501,E266
-	
+
     #- name: Test with pytest
     #  run: |
     #    pytest
-    
+
     - name: Start server
       run: |
         cd textproc
         uvicorn textproc_server:app --env-file config_sample.env --port 8011 &
-	
+
     - name: Ping server
       run: |
         curl -f http://localhost:8011/ping
