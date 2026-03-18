@@ -61,6 +61,7 @@ jobs:
         cd matcha_server
         source .venv/bin/activate
         uvicorn matcha_server:app --env-file config_minimal.env --port 8009 &
+        sleep 30
     - name: Ping server
       run: |
         curl http://localhost:8009/ping
