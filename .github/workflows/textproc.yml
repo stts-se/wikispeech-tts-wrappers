@@ -39,4 +39,7 @@ jobs:
     #- name: Test with pytest
     #  run: |
     #    pytest
+    - name: Start server
+      run: |
+        uvicorn textproc_server:app --env-file config_sample.env --port 8011
 
