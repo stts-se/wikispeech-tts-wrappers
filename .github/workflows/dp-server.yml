@@ -56,5 +56,4 @@ jobs:
         uvicorn dp_server:app --env-file config_minimal.env --port 8008 &
     - name: Ping server
       run: |
-        cd deep_phonemizer_server
         curl http://localhost:8008/ping
