@@ -59,6 +59,7 @@ jobs:
         cd deep_phonemizer_server
         source .venv/bin/activate
         uvicorn dp_server:app --env-file config_minimal.env --port 8008 &
+	sleep 20
 
     - name: Ping server
       run: |
