@@ -44,6 +44,5 @@ jobs:
         uvicorn textproc_server:app --env-file config_sample.env --port 8011 &
     - name: Ping server
       run: |
-        cd textproc
         curl http://localhost:8011/ping
 
