@@ -22,7 +22,7 @@ jobs:
       uses: actions/setup-python@v3
       with:
         python-version: "3.10"
-	
+
     - name: Install dependencies
       run: |
         cd piper_server
@@ -34,7 +34,7 @@ jobs:
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
         # workaround for pytorch
         sed -i 's/checkpoint = torch.load(checkpoint_path, map_location=device)/checkpoint = torch.load(checkpoint_path, map_location=device, weights_only=False)/' .venv/lib/python3.*/site-packages/dp/model/model.py
-	
+
     - name: Lint with flake8
       run: |
         cd piper_server
@@ -43,7 +43,7 @@ jobs:
         flake8 . --bug-report --count --select=E9,F63,F7,F82 --show-source --statistics
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 . --bug-report --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics --extend-ignore=E501,E266
-	
+
     #- name: Test with pytest
     #  run: |
     #    pytest
@@ -56,13 +56,13 @@ jobs:
         wget https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/ar/ar_JO/kareem/medium/ar_JO-kareem-medium.onnx.json
         wget https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/en/en_US/bryce/medium/en_US-bryce-medium.onnx
         wget https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/en/en_US/bryce/medium/en_US-bryce-medium.onnx.json
-	
+
     - name: Start server
       run: |
         cd piper_server
         source .venv/bin/activate
         uvicorn piper_server:app --env-file config_minimal.env --port 8010 &
-	
+
     - name: Ping server
       run: |
         curl -f http://localhost:8010/ping
