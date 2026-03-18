@@ -25,16 +25,44 @@ jobs:
         python-version: "3.10"
     - name: Install dependencies
       run: |
+        cd matcha_server
         python -m pip install --upgrade pip
         pip install flake8 pytest
+        python -m venv .venv
+        source .venv/bin/activate
+        pip install torch --index-url https://download.pytorch.org/whl/cpu
+        # workarounds for pytortch
+        sed -i 's/checkpoint = torch.load(checkpoint_path, map_location=device)/checkpoint = torch.load(checkpoint_path, map_location=device, weights_only=False)/' .venv/lib/python3.*/site-packages/dp/model/model.py
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        # workarounds for matcha
+        sed -i 's/MatchaTTS.load_from_checkpoint(checkpoint_path, map_location=device)/MatchaTTS.load_from_checkpoint(checkpoint_path, map_location=device, weights_only=False)/' .venv/lib/python3.*/site-packages/matcha/cli.py
+        sed -i 's|\(plot_spectrogram_to_numpy.*\) f"{filename}.png")|\1 folder / f"{filename}.png")|' .venv/lib/python3.*/site-packages/matcha/cli.py
     - name: Lint with flake8
       run: |
         cd matcha_server
+        source .venv/bin/activate
         # stop the build if there are Python syntax errors or undefined names
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        flake8 . --bug-report --count --select=E9,F63,F7,F82 --show-source --statistics
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics --extend-ignore=E501,E266
+        flake8 . --bug-report --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics --extend-ignore=E501,E266
     #- name: Test with pytest
     #  run: |
     #    pytest
+    - name: Fetch models
+      run: |
+        mkdir -p $HOME/.local/share/matcha_tts
+        cd $HOME/.local/share/matcha_tts
+        curl -L https://github.com/shivammehta25/Matcha-TTS-checkpoints/releases/download/v1.0/generator_v1 -o hifigan_T2_v1
+        curl -L https://github.com/shivammehta25/Matcha-TTS-checkpoints/releases/download/v1.0/g_02500000 -o hifigan_univ_v1
+        curl -L https://github.com/shivammehta25/Matcha-TTS-checkpoints/releases/download/v1.0/matcha_ljspeech.ckpt -o matcha_ljspeech.ckpt
+        curl -L https://github.com/shivammehta25/Matcha-TTS-checkpoints/releases/download/v1.0/matcha_vctk.ckpt -o matcha_vctk.ckpt
+    - name: Start server
+      run: |
+        cd matcha_server
+        source .venv/bin/activate
+        uvicorn matcha_server:app --env-file config_minimal.env --port 8009 &
+    - name: Ping server
+      run: |
+        cd matcha_server
+        curl http://localhost:8009/ping
+
