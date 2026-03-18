@@ -56,7 +56,7 @@ jobs:
       run: |
         cd piper_server
         source .venv/bin/activate
-        uvicorn matcha_server:app --env-file config_minimal.env --port 8010 &
+        uvicorn piper_server:app --env-file config_minimal.env --port 8010 &
     - name: Ping server
       run: |
         curl http://localhost:8010/ping
