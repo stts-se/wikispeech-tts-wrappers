@@ -208,6 +208,7 @@ class Voice:
         return {"words": words, "x_orig": input, "x": x, "x_lengths": x_lengths, "x_phones": x_phones}
 
     def synthesize_all(self, inputs, input_type, output_folder, params):
+        logger.debug(f"voice.synthesize_all input {inputs}")
         import uuid
         uid = uuid.uuid4()
         res = []
@@ -348,6 +349,8 @@ class Phonemizer:
         return obj
 
     def phonemize(self, input, lang=None):
+        if input == "":
+            return ""
         if self.tpe == "deep_phonemizer":
             if lang is None:
                 lang = self.lang
