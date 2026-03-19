@@ -54,7 +54,8 @@ def load_config(json_config):
                 punctuation_re = re.compile(f"^((?:{rules['punctuation_re']})*)(.*?)((?:{rules['punctuation_re']})*)$")
                 punctuation_after_match = re.compile(f"^((?:{rules['punctuation_re']})+)( |$)")
                 rewrite_rules = rules["rules"]
-                for r in rewrite_rules:
+                for id, r in enumerate(rewrite_rules,start=1):
+                    r["id"] = id
                     if r.get("ignore_case",True): 
                         r["input_compiled"] = re.compile(r["input"],re.IGNORECASE)
                     else:
@@ -68,8 +69,11 @@ def load_config(json_config):
                     punctuation_re,
                     punctuation_after_match,                  
                     rewrite_rules,
-                    True,
-            )
+                    rules["tests"],
+                    rules.get("enabled",True),
+                    rules.get("fail_on_error",True)
+                )
+                logger.info(f"Loaded textproc {name} with {len(rules['tests'])} rules")
     return textprocs
 
 from dataclasses import dataclass, asdict
@@ -84,6 +88,8 @@ class Textproc:
     punctuation_re: object
     punctuation_after_match: object
     rewrite_rules: list
+    tests: list
+    fail_on_error: bool
     enabled: bool
 
     def __post_init__(self):
@@ -103,7 +109,7 @@ class Textproc:
             return rbnfed.text
 
     def process_text(self, text: str):
-        logger.debug(f"textproc.process_text called with {text}")
+        #logger.debug(f"textproc.process_text called with {text}")
         utts = []
         acc = text
         m = self.sentence_split_re.search(acc)
@@ -114,7 +120,7 @@ class Textproc:
             utts.append(self.process_utt(utt))
         return utts
 
-    def toksplit(self, utt: str):
+    def toksplit(self, utt: str, process_numeral=True):
         input_tokens = self.token_split_re.split(utt)
         res = []
         for t in input_tokens:
@@ -122,7 +128,10 @@ class Textproc:
             # print(f"??? m:{m} 1:'{m.group(1)}' 2:'{m.group(2)}' 3:'{m.group(3)}'")
             prepunct = m.group(1)
             word = m.group(2)
-            word2, tags = self.process_numeral(word)
+            if process_numeral:
+                word2, tags = self.process_numeral(word)
+            else:
+                word2, tags = word, []
             postpunct = m.group(3)
             token = {
                 "input": t,
@@ -173,14 +182,10 @@ class Textproc:
     def apply_rewrite_rule(self, rule, s: str):
         res = []
         rex = rule["input_compiled"]
-        #print("rule", rule)
-        #print("input", s)
         if rule["rule_type"] == "token":
             tokens = self.toksplit(s)
             for tok in tokens:
-                #print("???", tok["input"], tok)
                 m = rex.match(tok["input"])
-                #print("???a", m)
                 if m:
                     alias= rex.sub(rule["output"], tok["input"])
                     res.append({
@@ -190,7 +195,6 @@ class Textproc:
                     })
                 else:
                     m = rex.match(tok["word"])
-                    #print("???b", m)
                     if m:
                         alias= tok.get("prepunct","")+rex.sub(rule["output"], tok["word"])+tok.get("postpunct","")
                         text = tok["input"]
@@ -199,7 +203,6 @@ class Textproc:
                             "text": text,
                             "alias": alias
                         }
-                        #print("??????", t2)
                         res.append(t2)
                     else:
                         res.append({
@@ -207,12 +210,10 @@ class Textproc:
                             "text": tok["input"]
                         })
         else:
-            # TODO: punctuation immediately after expanded rule (without whitespace) should be considered postpunct
             matches = rex.finditer(s)
             i = 0
             rest = s
             for m in matches:
-                #print("???", m)
                 span = m.span()
                 res.append({
                     "type": "text",
@@ -224,7 +225,6 @@ class Textproc:
                 alias = rex.sub(rule["output"],text)
                 mx = self.punctuation_after_match.match(rest)
                 if mx:
-                    #print(f"???'{rest}' '{text}' '{alias}' '{mx.group(1)}'")
                     n = len(mx.group(1))
                     rest = s[span[1]+n:len(s)]
                     alias = alias+mx.group(1)
@@ -249,9 +249,7 @@ class Textproc:
             for item in acc0:
                 if item["type"] == "text":
                     subitems = self.apply_rewrite_rule(r, item["text"])
-                    #print("subitems", subitems)
                     acc.extend(subitems)
-                    #print("with subitems", acc)
                 elif item["type"] == "alias":
                     acc.append(item)
                 elif item["type"] == "phonemes":
@@ -261,7 +259,7 @@ class Textproc:
         return acc
 
     def process_utt(self, input: object, input_type="text"):
-        logger.debug(f"textproc.process_utt called with {input}")
+        #logger.debug(f"textproc.process_utt called with {input}")
         items = []
         if input_type == "text":
             items = [{
@@ -295,9 +293,7 @@ class Textproc:
             if "text" in item:
                 derived_input.append(item["text"])
             for token in item["tokens"]:
-                #print("???", token)
                 t = f"{token.get('prepunct','')}{token['word']}{token.get('postpunct','')}"
-                # TODO: corner case with triple consonants here?
                 derived_output = derived_output + t
                 if not "nodelim" in token.get("tags",[]):
                     derived_output = derived_output + " "
@@ -308,4 +304,52 @@ class Textproc:
             "tokens": res
         }
         return complete_res
+
+    def self_tests(self):
+        errs = []
+        nOK = 0
+        for test in self.tests:
+            input = test["from"]
+            expect = test["to"]
+            result = self.process_utt(input)
+            result_text = result["derived_output_text"]
+            if expect == result_text:
+                logger.debug(f"textproc selftest {self.name} COMBINED | {input} -> {expect} | OK")
+                nOK+=1
+            else:
+                err = f"textproc selftest {self.name} COMBINED | {input} -> expected: <{expect}> got: <{result_text}> | FAILED"
+                logger.error(err)
+                errs.append(err)
+        for r in self.rewrite_rules:
+            for test in r.get("test",[]):
+                input = test["from"]
+                expect = test["to"]
+                result = self.apply_rewrite_rule(r, input)
+                for i, item in enumerate(result):
+                    if item["type"] == "text":
+                        item["tokens"] = self.toksplit(item["text"], process_numeral=False)
+                    elif item["type"] == "alias":
+                        item["tokens"] = self.toksplit(item["alias"], process_numeral=False)
+                    result[i] = item                    
+
+                #print(input,expect,result)
+                result_text = ""
+                for item in result:
+                    for token in item["tokens"]:
+                        #print("??", token)
+                        t = f"{token.get('prepunct','')}{token['word']}{token.get('postpunct','')}"
+                        result_text = result_text + t
+                        if not "nodelim" in token.get("tags",[]):
+                            result_text = result_text + " "
+                result_text = result_text.strip()
+                if expect == result_text:
+                    logger.debug(f"textproc selftest {self.name} rule #{r['id']} | {input} -> {expect} | OK")
+                    nOK+=1
+                else:
+                    err = f"textproc selftest {self.name} rule #{r['id']} | {input} -> expected: <{expect}> got: <{result_text}> | FAILED"
+                    logger.error(err)
+                    errs.append(err)
+                            
+        logger.info(f"textproc selftests {self.name}: {nOK} OK, {len(errs)} failed")
+        return errs
         

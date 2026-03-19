@@ -3,6 +3,7 @@
     "sentence_split_re": "([.?!]) +([A-Z0-9]+)",
     "token_split_re": "[\\s]+",
     "punctuation_re": "[(),;.¿?¡!-]+",
+    "fail_on_error": true,
     "rules":
     [
 	{
@@ -114,8 +115,8 @@
 	    "output": "bland annat",
 	    "test": [
 		{
-		    "from": "TODO",
-		    "to": "TODO"
+		    "from": "Det var bl.a. hans fel",
+		    "to": "Det var bland annat hans fel"
 		}
 	    ]
 	},
@@ -125,8 +126,8 @@
 	    "output": "det vill säga",
 	    "test": [
 		{
-		    "from": "TODO",
-		    "to": "TODO"
+		    "from": "Hon sa, dvs., inget",
+		    "to": "Hon sa, det vill säga, inget"
 		}
 	    ]
 	},
@@ -136,8 +137,8 @@
 	    "output": "och så vidare",
 	    "test": [
 		{
-		    "from": "TODO",
-		    "to": "TODO"
+		    "from": "Det var bad, bad, bad, osv., i all oändlighet.",
+		    "to": "Det var bad, bad, bad, och så vidare, i all oändlighet."
 		}
 	    ]
 	},
@@ -158,8 +159,8 @@
 	    "output": "med flera",
 	    "test": [
 		{
-		    "from": "TODO",
-		    "to": "TODO"
+		    "from": "Arresten på Bohus med Rolf Cederlöf, Gunilla Söderström, Loa Falkman m.fl",
+		    "to": "Arresten på Bohus med Rolf Cederlöf, Gunilla Söderström, Loa Falkman med flera"
 		}
 	    ]
 	},
@@ -169,19 +170,19 @@
 	    "output": "med mera",
 	    "test": [
 		{
-		    "from": "TODO",
-		    "to": "TODO"
+		    "from": "Våtmark, sankmark och sumpmark m. m. är enligt den svenska våtmarksinventeringens definition sådan mark.",
+		    "to": "Våtmark, sankmark och sumpmark med mera är enligt den svenska våtmarksinventeringens definition sådan mark."
 		}
 	    ]
 	},
 	{
 	    "rule_type": "utterance",
-	    "input": "\\bmm(\\.|\\b)",
-	    "output": "millimeter",
+	    "input": "(\\b|[0-9]+)mm(\\.|\\b)",
+	    "output": "\\1 millimeter",
 	    "test": [
 		{
-		    "from": "TODO",
-		    "to": "TODO"
+		    "from": "Bordsskivan var 17mm lång",
+		    "to": "Bordsskivan var 17 millimeter lång"
 		}
 	    ]
 	},
@@ -193,7 +194,7 @@
 	    "test": [
 		{
 		    "from": "Gustav VI Adolf",
-		    "to": "Gustav den 6|||ordinal Adolf"
+		    "to": "Gustav den VI|||ordinal Adolf"
 		},
 		{
 		    "from": "Det var karl XII, som dog.",
@@ -234,7 +235,7 @@
 		},
 		{
 		    "from": "Han var den 3:e, av alla, som kom i mål",
-		    "to": "Han var den 2|||ordinal, av alla, som kom i mål"
+		    "to": "Han var den 3|||ordinal, av alla, som kom i mål"
 		}
 	    ]
 	},
@@ -245,7 +246,7 @@
 	    "test": [
 		{
 		    "from": "Skalan är 1:2",
-		    "to": "Skalan är ett kolon två"
+		    "to": "Skalan är 1 kolon 2"
 		}
 	    ]
 	},
@@ -256,7 +257,7 @@
 	    "test": [
 		{
 		    "from": "gurra.g@regeringen.se",
-		    "to": "gurra g snabel-a regeringen punkt se"
+		    "to": "gurra punkt g snabel-a regeringen punkt se"
 		}
 	    ]
 	},
@@ -308,7 +309,7 @@
     "tests": [
 	{
 	    "from": "Karl XII, t.ex., kom på 2:a plats den 3 maj 1984, och vann 10 kr",
-	    "to": "Karl den tolfte, till exempel, kom på andra plats den tredje maj nitton hundra åttiofyra, och vann tio kronor"
+	    "to": "Karl den tolfte, till exempel, kom på andra plats den tredje maj nittonhundraåttiofyra, och vann tio kronor"
 	},
 	{
 	    "from": "Den 3 februari såg jag en häst",

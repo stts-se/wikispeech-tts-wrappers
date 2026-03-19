@@ -28,6 +28,17 @@ textprocs = {}
 async def lifespan(app: FastAPI):
     global textprocs
     textprocs = textproc.load_config(json_config)
+    errs_total = []
+    fail = False
+    for tpname in textprocs:
+        tp = textprocs[tpname]
+        errs = tp.self_tests()
+        if len(errs) > 0 and tp.fail_on_error:
+            fail = True
+        #print(errs)
+    if fail:
+        raise Exception("Server exit after textproc selftest errors")
+        #sys.exit(1)
     yield
 
 
