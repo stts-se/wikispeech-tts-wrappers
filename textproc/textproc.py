@@ -178,7 +178,9 @@ class Textproc:
         if rule["rule_type"] == "token":
             tokens = self.toksplit(s)
             for tok in tokens:
+                #print("???", tok["input"], tok)
                 m = rex.match(tok["input"])
+                #print("???a", m)
                 if m:
                     alias= rex.sub(rule["output"], tok["input"])
                     res.append({
@@ -187,10 +189,23 @@ class Textproc:
                         "alias": alias
                     })
                 else:
-                    res.append({
-                        "type": "text",
-                        "text": tok["input"]
-                    })
+                    m = rex.match(tok["word"])
+                    #print("???b", m)
+                    if m:
+                        alias= tok.get("prepunct","")+rex.sub(rule["output"], tok["word"])+tok.get("postpunct","")
+                        text = tok["input"]
+                        t2 = {
+                            "type": "alias",
+                            "text": text,
+                            "alias": alias
+                        }
+                        #print("??????", t2)
+                        res.append(t2)
+                    else:
+                        res.append({
+                            "type": "text",
+                            "text": tok["input"]
+                        })
         else:
             # TODO: punctuation immediately after expanded rule (without whitespace) should be considered postpunct
             matches = rex.finditer(s)
@@ -209,10 +224,10 @@ class Textproc:
                 alias = rex.sub(rule["output"],text)
                 mx = self.punctuation_after_match.match(rest)
                 if mx:
-                    #print(f"???'{rest}' '{text}' '{alias}' '{m.group(1)}'")
-                    n = len(m.group(1))
+                    #print(f"???'{rest}' '{text}' '{alias}' '{mx.group(1)}'")
+                    n = len(mx.group(1))
                     rest = s[span[1]+n:len(s)]
-                    alias = alias+m.group(1)
+                    alias = alias+mx.group(1)
                 res.append({
                     "type": "alias",
                     "text": text,
@@ -234,6 +249,7 @@ class Textproc:
             for item in acc0:
                 if item["type"] == "text":
                     subitems = self.apply_rewrite_rule(r, item["text"])
+                    #print("subitems", subitems)
                     acc.extend(subitems)
                     #print("with subitems", acc)
                 elif item["type"] == "alias":
@@ -279,6 +295,7 @@ class Textproc:
             if "text" in item:
                 derived_input.append(item["text"])
             for token in item["tokens"]:
+                #print("???", token)
                 t = f"{token.get('prepunct','')}{token['word']}{token.get('postpunct','')}"
                 # TODO: corner case with triple consonants here?
                 derived_output = derived_output + t

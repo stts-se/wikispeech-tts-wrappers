@@ -1,13 +1,13 @@
 {
     "rbnf_lang": "sv",
-    "sentence_split_re": "([.?!]) ([A-Z0-9]+)",
+    "sentence_split_re": "([.?!]) +([A-Z0-9]+)",
     "token_split_re": "[\\s]+",
     "punctuation_re": "[(),;.¿?¡!-]+",
     "rules":
     [
 	{
 	    "rule_type": "utterance",
-	    "input": "\\b([0-9]+)[ \u00A0]([0-9]+)\\b",
+	    "input": "\\b([0-9]+)[ \u00A0]+([0-9]+)\\b",
 	    "output": "\\1\\2",
 	    "tests": [
 		{
@@ -187,19 +187,23 @@
 	},
 	{
 	    "rule_type": "utterance",
-	    "input": "\\b(Karl|Gusta[vf]|Johan|Erik|Harald|Håkon|Viktoria|Victoria|Elisabeth|Elizabeth|Sigismund|Fredrik|Oscar) ([0-9]+|[XIV]+)(\\.|\\b)",
+	    "input": "\\b(Karl|Gusta[vf]|Johan|Erik|Harald|Håkon|Viktoria|Victoria|Elisabeth|Elizabeth|Sigismund|Fredrik|Oscar) +([0-9]+|[XIV]+)(\\.|\\b)",
 	    "ignore_case": true,
 	    "output": "\\1 den \\2|||ordinal",
 	    "test": [
 		{
 		    "from": "Gustav VI Adolf",
 		    "to": "Gustav den 6|||ordinal Adolf"
+		},
+		{
+		    "from": "Det var karl XII, som dog.",
+		    "to": "Det var karl den XII|||ordinal, som dog."
 		}
 	    ]
 	},
 	{
 	    "rule_type": "utterance",
-	    "input": "\\b([0-9]{1,2}[.]?) (januari|februari|mars|april|maj|juni|juli|augusti|september|oktober|november|december)\\b",
+	    "input": "\\b([0-9]{1,2}[.]?) +(januari|februari|mars|april|maj|juni|juli|augusti|september|oktober|november|december)\\b",
 	    "output": "\\1|||ordinal \\2",
 	    "test": [
 		{
@@ -227,6 +231,10 @@
 		{
 		    "from": "Han kom på 2:a plats",
 		    "to": "Han kom på 2|||ordinal plats"
+		},
+		{
+		    "from": "Han var den 3:e, av alla, som kom i mål",
+		    "to": "Han var den 2|||ordinal, av alla, som kom i mål"
 		}
 	    ]
 	},
@@ -301,6 +309,26 @@
 	{
 	    "from": "Karl XII, t.ex., kom på 2:a plats den 3 maj 1984, och vann 10 kr",
 	    "to": "Karl den tolfte, till exempel, kom på andra plats den tredje maj nitton hundra åttiofyra, och vann tio kronor"
+	},
+	{
+	    "from": "Den 3 februari såg jag en häst",
+	    "to": "Den tredje februari såg jag en häst"
+	},
+	{
+	    "from": "Den 3   februari såg jag en häst",
+	    "to": "Den tredje februari såg jag en häst"
+	},
+	{
+	    "from": "Han kom på 2:a plats",
+	    "to": "Han kom på andra plats"
+	},
+	{
+	    "from": "Han var den 3:e, av alla, som kom i mål",
+	    "to": "Han var den tredje, av alla, som kom i mål"
+	},
+	{
+	    "from": "Det var Karl XII, som dog",
+	    "to": "Det var Karl den tolfte, som dog"
 	}
     ]
 }
