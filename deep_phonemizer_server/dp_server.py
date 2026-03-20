@@ -11,7 +11,7 @@ import json
 
 parentdir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 sys.path.insert(0, parentdir)
-from tools import phn_mapper, io
+from common import phn_mapper, io, release
 
 load_dotenv()
 
@@ -66,6 +66,9 @@ def load_config():
     
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    global vInfo
+    startedAt = release.genStartedAtString()
+    vInfo = release.versionInfo("deep_phonemizer",startedAt)
     load_config()
     yield
 
@@ -131,3 +134,9 @@ async def models():
 @app.get("/ping")
 async def ping():
     return HTMLResponse(content="deep_phonemizer", media_type="text")
+
+@app.get('/version')
+def version():
+    resp = HTMLResponse("\n".join(vInfo), media_type="text")
+    resp.headers["Content-type"] = "text/plain"
+    return resp

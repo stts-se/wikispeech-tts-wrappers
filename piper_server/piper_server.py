@@ -8,6 +8,10 @@ from piper import PiperVoice, SynthesisConfig
 # Local import
 import tools, config
 
+parentdir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+sys.path.insert(0, parentdir)
+from common import release
+
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import HTMLResponse, FileResponse
@@ -33,7 +37,9 @@ global_cfg = None
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    global global_cfg
+    global global_cfg, vInfo
+    startedAt = release.genStartedAtString()
+    vInfo = release.versionInfo("piper",startedAt)
     json_config = os.getenv("PIPER_CONFIG") # Reads from .env file passed to uvicorn
     if not json_config:
         raise RuntimeError("Config not provided. Start server with --env-file")
@@ -234,3 +240,9 @@ async def voices():
 @app.get("/ping")
 async def ping():
     return HTMLResponse(content="piper", media_type="text")
+
+@app.get('/version')
+def version():
+    resp = HTMLResponse("\n".join(vInfo), media_type="text")
+    resp.headers["Content-type"] = "text/plain"
+    return resp

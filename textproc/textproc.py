@@ -6,12 +6,12 @@ from unicode_rbnf import RbnfEngine, FormatPurpose
 
 # Logging
 import logging
-logger = logging.getLogger("uvicorn")
+logger = logging.getLogger("textproc")
 logger.setLevel(logging.DEBUG)
 
 parentdir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 sys.path.insert(0, parentdir)
-from tools import io
+from common import io
 
 int_re = re.compile("^[0-9]+$")
 roman_re = re.compile("^[XIV]+$")
@@ -133,17 +133,17 @@ class Textproc:
             else:
                 word2, tags = word, []
             postpunct = m.group(3)
-            token = {
+            word = {
                 "input": t,
                 "word": word2
             }
             if tags is not None and len(tags) > 0:
-                token["tags"] = tags
+                word["tags"] = tags
             if len(prepunct) > 0:
-                token["prepunct"] = prepunct
+                word["prepunct"] = prepunct
             if len(postpunct) > 0:
-                token["postpunct"] = postpunct
-            res.append(token)
+                word["postpunct"] = postpunct
+            res.append(word)
         return res           
     
     def process_numeral(self, s: str):
@@ -259,7 +259,8 @@ class Textproc:
         return acc
 
     def process_utt(self, input: object, input_type="text"):
-        #logger.debug(f"textproc.process_utt called with {input}")
+        logger.info(f"textproc.process_utt called with {input} / {input_type}")
+        print(f"textproc.process_utt called with {input} / {input_type}")        
         items = []
         if input_type == "text":
             items = [{
@@ -274,25 +275,37 @@ class Textproc:
                 subitems = self.apply_rewrite_rules(item)
                 for i, item in enumerate(subitems):
                     if item["type"] == "text":
-                        item["tokens"] = self.toksplit(item["text"])
+                        item["words"] = self.toksplit(item["text"])
                     elif item["type"] == "alias":
-                        item["tokens"] = self.toksplit(item["alias"])
+                        item["words"] = self.toksplit(item["alias"])
                     subitems[i] = item                    
                 res.extend(subitems)
             elif item["type"] == "alias":
                 if not "tokens" in item:
-                    item["tokens"] = self.toksplit(item["alias"])
+                    item["words"] = self.toksplit(item["alias"])
                 res.append(item)
             elif item["type"] == "phonemes":
-                item["tokens"] = []
+                item["words"] = []
                 res.append(item)
+
+        # TODO: merge words with nodelim
+        # for t in res:
+        #     wds = []
+        #     accWs = []
+        #     for i, w0 in enumerate(t["words"]):
+        #         print(w0)
+        #         accWs.append(w0)
+        #         if "tags" in w0 and "nodelim" in w0["tags"]:
+        #             print(accWs)
+        #             accWs = []
+            
 
         derived_input = []
         derived_output = ""
         for item in res:
             if "text" in item:
                 derived_input.append(item["text"])
-            for token in item["tokens"]:
+            for token in item["words"]:
                 t = f"{token.get('prepunct','')}{token['word']}{token.get('postpunct','')}"
                 derived_output = derived_output + t
                 if not "nodelim" in token.get("tags",[]):

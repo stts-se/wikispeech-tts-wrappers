@@ -2,3 +2,5 @@ deep-phonemizer
 dotenv
 fastapi
 uvicorn
+pytz
+tzlocal

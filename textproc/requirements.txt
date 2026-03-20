@@ -2,3 +2,5 @@ unicode-rbnf
 dotenv
 fastapi
 uvicorn
+pytz
+tzlocal

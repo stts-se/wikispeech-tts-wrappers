@@ -9,6 +9,10 @@ from pydantic import BaseModel # data models for post requests
 from dotenv import load_dotenv
 import json, re
 
+parentdir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+sys.path.insert(0, parentdir)
+from common import release
+
 import textproc
 
 json_config = os.getenv("TEXTPROC_CONFIG")  # Reads from .env file passed to uvicorn
@@ -19,14 +23,16 @@ load_dotenv()
 
 # Logging
 import logging
-logger = logging.getLogger("uvicorn")
+logger = logging.getLogger("textproc")
 logger.setLevel(logging.DEBUG)
 
 textprocs = {}
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    global textprocs
+    global textprocs, vInfo
+    startedAt = release.genStartedAtString()
+    vInfo = release.versionInfo("textproc",startedAt)
     textprocs = textproc.load_config(json_config)
     errs_total = []
     fail = False
@@ -87,7 +93,7 @@ async def process_utt_as_post(request: UttRequest):
 
 
 @app.get("/process_utt")
-async def process_utt(name: str = "sv_se_1", input: str = "Karl XII, t.ex., kom på 2:a plats den 3 maj 1984 och vann 5986 kr"):
+async def process_utt(name: str = "sv_se_1", input: str = "Karl XII, t.ex., kom på 2:a plats den 3 maj 1984 och vann 5986 kr", input_type: str = "text"):
     if textprocs is None:
         raise Exception("textprocs not initialized")
     if not name in textprocs:
@@ -95,7 +101,7 @@ async def process_utt(name: str = "sv_se_1", input: str = "Karl XII, t.ex., kom 
         logger.error(msg)
         raise HTTPException(status_code=404, detail=msg)
     comp = textprocs[name]
-    res = comp.process_utt(input)
+    res = comp.process_utt(input,input_type)
     return res
 
 
@@ -126,3 +132,10 @@ async def list():
 @app.get("/ping")
 async def ping():
     return HTMLResponse(content="textproc", media_type="text")
+
+
+@app.get('/version')
+def version():
+    resp = HTMLResponse("\n".join(vInfo), media_type="text")
+    resp.headers["Content-type"] = "text/plain"
+    return resp

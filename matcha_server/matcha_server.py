@@ -3,6 +3,7 @@
 import os, sys
 
 from argparse import Namespace
+import json
 
 # Imports from this repo
 import tools
@@ -11,6 +12,9 @@ logger = tools.get_logger("matcha_server")
 
 import config
 
+parentdir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+sys.path.insert(0, parentdir)
+from common import release
 
 # Other imports
 from contextlib import asynccontextmanager
@@ -29,7 +33,9 @@ global_cfg = None
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    global global_cfg
+    global global_cfg, vInfo
+    startedAt = release.genStartedAtString()
+    vInfo = release.versionInfo("matcha",startedAt)
     json_config_path = os.getenv("MATCHA_CONFIG") # Reads from .env file passed to uvicorn
     if not json_config_path:
         raise RuntimeError("Config not provided. Start server with --env-file with a MATCHA_CONFIG variable pointing to the json config file (e.g. sample_config.env)")
@@ -121,6 +127,7 @@ class SynthRequest(BaseModel):
 
 @app.post("/synthesize/")
 async def synthesize_as_post(request: SynthRequest):
+    logger.debug(f"matcha_server.synthesize_as_post with input {request}")
     if request.voice not in global_cfg.voices:
         msg = f"No such voice: {request.voice}"
         logger.error(msg)
@@ -248,3 +255,10 @@ async def synthesize_as_get(voice: str = 'sv_se_nst_female1',
 @app.get("/ping")
 async def ping():
     return HTMLResponse(content="matcha", media_type="text")
+
+
+@app.get('/version')
+def version():
+    resp = HTMLResponse("\n".join(vInfo), media_type="text")
+    resp.headers["Content-type"] = "text/plain"
+    return resp
