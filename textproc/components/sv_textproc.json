@@ -2,10 +2,21 @@
     "rbnf_lang": "sv",
     "sentence_split_re": "([.?!]) +([A-Z0-9]+)",
     "token_split_re": "[\\s]+",
-    "punctuation_re": "[(),;.¿?¡!-]+",
+    "punctuation_re": "[(),;.¿?¡!-\"']+",
     "fail_on_error": true,
     "rules":
     [
+	{
+	    "rule_type": "utterance",
+	    "input": "\\b(del) ([XIV]+)\\b",
+	    "output": "\\1 \\2|||roman",
+	    "tests": [
+		{
+		    "from": "del I",
+		    "to": "del I|||roman"
+		}
+	    ]
+	},
 	{
 	    "rule_type": "utterance",
 	    "input": "\\b([0-9]+)[ \u00A0]+([0-9]+)\\b",
@@ -30,7 +41,7 @@
 	},
 	{
 	    "rule_type": "utterance",
-	    "input": "\\b([1-9][0-9]+)-(tal(?:et)?s?)\\b",
+	    "input": "\\b([0-9][0-9]+)-(tal(?:et)?s?)\\b",
 	    "output": "\\1|||year|||nodelim \\2",
 	    "tests": [
 		{
@@ -177,12 +188,49 @@
 	},
 	{
 	    "rule_type": "utterance",
+	    "input": "\\bvs(\\.|\\b)",
+	    "output": "versus",
+	    "test": [
+		{
+		    "from": "Gorilla vs. Bear",
+		    "to": "Gorilla versus Bear"
+		}
+	    ]
+	},
+	{
+	    "rule_type": "utterance",
+	    "input": "\\bB[. ]*P(\\.|\\b)",
+	    "output": "före nutid",
+	    "test": [
+		{
+		    "from": "2000 BP",
+		    "to": "2000 före nutid"
+		}
+	    ]
+	},
+	{
+	    "rule_type": "utterance",
 	    "input": "(\\b|[0-9]+)mm(\\.|\\b)",
 	    "output": "\\1 millimeter",
 	    "test": [
 		{
 		    "from": "Bordsskivan var 17mm lång",
 		    "to": "Bordsskivan var 17 millimeter lång"
+		}
+	    ]
+	},
+	{
+	    "rule_type": "utterance",
+	    "input": "(\\b|[0-9]*)%",
+	    "output": "\\1 procent",
+	    "test": [
+		{
+		    "from": "Bordsskivan var 17% längre",
+		    "to": "Bordsskivan var 17 procent längre"
+		},
+		{
+		    "from": "Bordsskivan var 17 % längre",
+		    "to": "Bordsskivan var 17 procent längre"
 		}
 	    ]
 	},
@@ -304,6 +352,28 @@
 		    "to": "tolv komma fem grader"
 		}
 	    ]
+	},
+	{
+	    "rule_type": "utterance",
+	    "input": "\\b([\\w]+)-([0-9.,]+)\\b",
+	    "output": "\\1 \\2",
+	    "tests": [
+		{
+		    "from": "cesium-135",
+		    "to": "cesium 135"
+		}
+	    ]
+	},
+	{
+	    "rule_type": "utterance",
+	    "input": "\\b([0-9.,]+)-([\\w]+)\\b",
+	    "output": "\\1 \\2",
+	    "tests": [
+		{
+		    "from": "48-bitars",
+		    "to": "fyrtioåtta bitars"
+		}
+	    ]
 	}
     ],
     "tests": [
@@ -330,6 +400,19 @@
 	{
 	    "from": "Det var Karl XII, som dog",
 	    "to": "Det var Karl den tolfte, som dog"
+	},
+	{
+	    "from": "del I",
+	    "to": "del ett"
+	},
+	{
+	    "from": "cesium-137",
+	    "to": "cesium etthundratrettiosju"
+	},
+	{
+	    "from": "48-bitars",
+	    "to": "fyrtioåtta bitars"
 	}
+
     ]
 }

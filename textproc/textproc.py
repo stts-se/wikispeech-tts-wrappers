@@ -51,7 +51,8 @@ def load_config(json_config):
                 if rules["sentence_split_re"]:
                     sentence_split_re = re.compile(rules["sentence_split_re"])
                 token_split_re = re.compile(rules["token_split_re"])
-                punctuation_re = re.compile(f"^((?:{rules['punctuation_re']})*)(.*?)((?:{rules['punctuation_re']})*)$")
+                p_re = f"^((?:{rules['punctuation_re']})*)(.*?)((?:{rules['punctuation_re']})*)$"
+                punctuation_re = re.compile(p_re)
                 punctuation_after_match = re.compile(f"^((?:{rules['punctuation_re']})+)( |$)")
                 rewrite_rules = rules["rules"]
                 for id, r in enumerate(rewrite_rules,start=1):
@@ -125,6 +126,8 @@ class Textproc:
         res = []
         for t in input_tokens:
             m = self.punctuation_re.match(t)
+            if m is None:
+                raise Exception(f"Expected token '{t}' to match punctuation_re /{self.punctuation_re.pattern}/")
             prepunct = m.group(1)
             word = m.group(2)
             if process_numeral:
@@ -158,6 +161,9 @@ class Textproc:
             formatPurpose = FormatPurpose.YEAR
         processed_token = s
         if len(s) > 1 and roman_re.match(s):
+            i = roman2int(s)
+            processed_token = self.rbnfify(i, formatPurpose)
+        elif roman_re.match(s) and "roman" in tags:
             i = roman2int(s)
             processed_token = self.rbnfify(i, formatPurpose)
         elif year_re.match(s):
@@ -222,6 +228,7 @@ class Textproc:
                 rest = s[span[1]:len(s)]
                 i = span[1]
                 alias = rex.sub(rule["output"],text)
+                alias = alias.replace("  "," ")
                 mx = self.punctuation_after_match.match(rest)
                 if mx:
                     n = len(mx.group(1))
@@ -326,6 +333,7 @@ class Textproc:
                 derived_output = derived_output + t
                 if not "nodelim" in token.get("tags",[]):
                     derived_output = derived_output + " "
+        derived_output = derived_output.replace("  "," ")
         complete_res = {
             "input": input,
             "derived_input_text": " ".join(derived_input),
@@ -370,6 +378,7 @@ class Textproc:
                         if not "nodelim" in token.get("tags",[]):
                             result_text = result_text + " "
                 result_text = result_text.strip()
+                result_text = result_text.replace("  "," ")
                 if expect == result_text:
                     logger.debug(f"textproc selftest {self.name} rule #{r['id']} | {input} -> {expect} | OK")
                     nOK+=1
