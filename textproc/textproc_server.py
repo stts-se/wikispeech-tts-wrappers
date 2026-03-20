@@ -52,29 +52,12 @@ app = FastAPI(lifespan=lifespan, swagger_ui_parameters={"tryItOutEnabled": True}
 
 class UttRequest(BaseModel):
     name: str = "sv_se_1"
-    input_type: str = "ssml-like"
+    input_type: str = "tokens"
     input: list = [
-        {
-            "type": "text",
-            "text": "jag föddes på S/S Norrskär och S/S Storskär den"
-        },
-        {
-            "type": "alias",
-            "text": "2",
-            "alias": "andra",        
-        },
-        {
-            "type": "text",
-            "text": "i februari månad"
-        },
-        {
-            "type": "phonemes",
-            "phonemes": "j'u:"
-        },
-        {
-            "type": "text",
-            "text": "det var 1984 bl.a."
-        }
+        {'text': 'jag heter', 'type': 'text'},
+        {'text': 'Karl XII', 'type': 'alias', 'alias': 'Karl den tolfte'},
+        {'text': 'och jag är en', 'type': 'text'},
+        {'text': 'apa', 'type': 'phonemes', 'phonemes': '"" A: . p a'},
     ]
 
     #input: str = "jag föddes på S/S Norrskär och S/S Storskär, 1984 bl.a. och det var kul sa Karl XII och Gustav XVI både 1:a och 2:a gången också!"

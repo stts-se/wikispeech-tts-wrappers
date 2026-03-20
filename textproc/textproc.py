@@ -125,7 +125,6 @@ class Textproc:
         res = []
         for t in input_tokens:
             m = self.punctuation_re.match(t)
-            # print(f"??? m:{m} 1:'{m.group(1)}' 2:'{m.group(2)}' 3:'{m.group(3)}'")
             prepunct = m.group(1)
             word = m.group(2)
             if process_numeral:
@@ -278,6 +277,13 @@ class Textproc:
                         item["words"] = self.toksplit(item["text"])
                     elif item["type"] == "alias":
                         item["words"] = self.toksplit(item["alias"])
+                    elif item["type"] == "phonemes":
+                        item["words"] = [
+                            {
+                                "orth": item["text"],
+                                "phonemes": item["phonemes"]
+                            }
+                        ]
                     subitems[i] = item                    
                 res.extend(subitems)
             elif item["type"] == "alias":
@@ -285,8 +291,18 @@ class Textproc:
                     item["words"] = self.toksplit(item["alias"])
                 res.append(item)
             elif item["type"] == "phonemes":
-                item["words"] = []
-                res.append(item)
+                i = {
+                    "text": item["text"],
+                    "type": item["type"],
+                    "words": [
+                        {
+                            "word": item["text"],
+                            "phonemes": item["phonemes"]
+                        }
+                    ]
+                }
+                res.append(i)
+
 
         # TODO: merge words with nodelim
         # for t in res:
@@ -349,7 +365,6 @@ class Textproc:
                 result_text = ""
                 for item in result:
                     for token in item["tokens"]:
-                        #print("??", token)
                         t = f"{token.get('prepunct','')}{token['word']}{token.get('postpunct','')}"
                         result_text = result_text + t
                         if not "nodelim" in token.get("tags",[]):
