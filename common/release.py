@@ -47,11 +47,15 @@ def versionInfo(name: str, startedAt: str):
 
 
 def genStartedAtString():
-    from time import strftime, gmtime
-    from tzlocal import get_localzone
-    local_tz = get_localzone()
-    now = datetime.datetime.now()
-    if local_tz != None:
-        now = now.replace(tzinfo=local_tz)
-    now = now.astimezone(pytz.utc)
-    return '{:%Y-%m-%d %H:%M:%S %Z}'.format(now)
+    try:
+        from time import strftime, gmtime
+        from tzlocal import get_localzone
+        local_tz = get_localzone()
+        now = datetime.datetime.now()
+        if local_tz != None:
+            now = now.replace(tzinfo=local_tz)
+            now = now.astimezone(pytz.utc)
+            return '{:%Y-%m-%d %H:%M:%S %Z}'.format(now)
+    except Exception as e:
+        logger.info("Couldn't retriev start time: {e}")
+        return "unknown"
