@@ -24,7 +24,7 @@
 	    "tests": [
 		{
 		    "from": "1 000",
-		    "to": "tusen"
+		    "to": "1000"
 		}
 	    ]
 	},
@@ -35,7 +35,7 @@
 	    "tests": [
 		{
 		    "from": "S/S Norrskär",
-		    "to": "SS Norrskär"
+		    "to": "SS|||spell Norrskär"
 		}
 	    ]
 	},
@@ -46,7 +46,7 @@
 	    "tests": [
 		{
 		    "from": "90-talet",
-		    "to": "nittiotalet"
+		    "to": "90|||year|||nodelim talet"
 		}
 	    ]
 	},
@@ -56,7 +56,7 @@
 	    "output": "\\1 till \\2",
 	    "tests": [
 		{
-		    "from": "3+2",
+		    "from": "3–2",
 		    "to": "3 till 2"
 		}
 	    ]
@@ -100,7 +100,7 @@
 	    "output": "\\1 dividerat med \\2",
 	    "tests": [
 		{
-		    "from": "3*2",
+		    "from": "3\u00F72",
 		    "to": "3 dividerat med 2"
 		}
 	    ]
@@ -124,7 +124,7 @@
 	    "rule_type": "utterance",
 	    "input": "\\bbl[. ]*a(\\.|\\b)",
 	    "output": "bland annat",
-	    "test": [
+	    "tests": [
 		{
 		    "from": "Det var bl.a. hans fel",
 		    "to": "Det var bland annat hans fel"
@@ -135,7 +135,7 @@
 	    "rule_type": "utterance",
 	    "input": "\\bdvs(\\.|\\b)",
 	    "output": "det vill säga",
-	    "test": [
+	    "tests": [
 		{
 		    "from": "Hon sa, dvs., inget",
 		    "to": "Hon sa, det vill säga, inget"
@@ -146,7 +146,7 @@
 	    "rule_type": "utterance",
 	    "input": "\\bo[. ]*s[. ]*v(\\.|\\b)",
 	    "output": "och så vidare",
-	    "test": [
+	    "tests": [
 		{
 		    "from": "Det var bad, bad, bad, osv., i all oändlighet.",
 		    "to": "Det var bad, bad, bad, och så vidare, i all oändlighet."
@@ -157,7 +157,7 @@
 	    "rule_type": "utterance",
 	    "input": "\\bkr(\\.|\\b)",
 	    "output": "kronor",
-	    "test": [
+	    "tests": [
 		{
 		    "from": "10 kr",
 		    "to": "10 kronor"
@@ -168,7 +168,7 @@
 	    "rule_type": "utterance",
 	    "input": "\\bm[. ]*fl(\\.|\\b)",
 	    "output": "med flera",
-	    "test": [
+	    "tests": [
 		{
 		    "from": "Arresten på Bohus med Rolf Cederlöf, Gunilla Söderström, Loa Falkman m.fl",
 		    "to": "Arresten på Bohus med Rolf Cederlöf, Gunilla Söderström, Loa Falkman med flera"
@@ -179,7 +179,7 @@
 	    "rule_type": "utterance",
 	    "input": "\\bm[. ]+m(\\.|\\b)",
 	    "output": "med mera",
-	    "test": [
+	    "tests": [
 		{
 		    "from": "Våtmark, sankmark och sumpmark m. m. är enligt den svenska våtmarksinventeringens definition sådan mark.",
 		    "to": "Våtmark, sankmark och sumpmark med mera är enligt den svenska våtmarksinventeringens definition sådan mark."
@@ -190,7 +190,7 @@
 	    "rule_type": "utterance",
 	    "input": "\\bvs(\\.|\\b)",
 	    "output": "versus",
-	    "test": [
+	    "tests": [
 		{
 		    "from": "Gorilla vs. Bear",
 		    "to": "Gorilla versus Bear"
@@ -201,7 +201,7 @@
 	    "rule_type": "utterance",
 	    "input": "\\bB[. ]*P(\\.|\\b)",
 	    "output": "före nutid",
-	    "test": [
+	    "tests": [
 		{
 		    "from": "2000 BP",
 		    "to": "2000 före nutid"
@@ -212,7 +212,7 @@
 	    "rule_type": "utterance",
 	    "input": "(\\b|[0-9]+)mm(\\.|\\b)",
 	    "output": "\\1 millimeter",
-	    "test": [
+	    "tests": [
 		{
 		    "from": "Bordsskivan var 17mm lång",
 		    "to": "Bordsskivan var 17 millimeter lång"
@@ -223,7 +223,7 @@
 	    "rule_type": "utterance",
 	    "input": "(\\b|[0-9]*)%",
 	    "output": "\\1 procent",
-	    "test": [
+	    "tests": [
 		{
 		    "from": "Bordsskivan var 17% längre",
 		    "to": "Bordsskivan var 17 procent längre"
@@ -239,7 +239,7 @@
 	    "input": "\\b(Karl|Gusta[vf]|Johan|Erik|Harald|Håkon|Viktoria|Victoria|Elisabeth|Elizabeth|Sigismund|Fredrik|Oscar) +([0-9]+|[XIV]+)(\\.|\\b)",
 	    "ignore_case": true,
 	    "output": "\\1 den \\2|||ordinal",
-	    "test": [
+	    "tests": [
 		{
 		    "from": "Gustav VI Adolf",
 		    "to": "Gustav den VI|||ordinal Adolf"
@@ -254,7 +254,7 @@
 	    "rule_type": "utterance",
 	    "input": "\\b([0-9]{1,2}[.]?) +(januari|februari|mars|april|maj|juni|juli|augusti|september|oktober|november|december)\\b",
 	    "output": "\\1|||ordinal \\2",
-	    "test": [
+	    "tests": [
 		{
 		    "from": "3 februari",
 		    "to": "3|||ordinal februari"
@@ -265,7 +265,7 @@
 	    "rule_type": "token",
 	    "input": "^(1[1-9][0-9]{2})$",
 	    "output": "\\1|||year",
-	    "test": [
+	    "tests": [
 		{
 		    "from": "Året var 1994",
 		    "to": "Året var 1994|||year"
@@ -276,7 +276,7 @@
 	    "rule_type": "token",
 	    "input": "^([0-9]+):(a|e)$",
 	    "output": "\\1|||ordinal",
-	    "test": [
+	    "tests": [
 		{
 		    "from": "Han kom på 2:a plats",
 		    "to": "Han kom på 2|||ordinal plats"
@@ -291,7 +291,7 @@
 	    "rule_type": "token",
 	    "input": "^([0-9]+):([0-9]+)$",
 	    "output": "\\1 kolon \\2",
-	    "test": [
+	    "tests": [
 		{
 		    "from": "Skalan är 1:2",
 		    "to": "Skalan är 1 kolon 2"
@@ -302,7 +302,7 @@
 	    "rule_type": "token",
 	    "input": "^([a-z0-9]+)[.]([a-z0-9]+)@([a-z0-9]+)[.]([a-z0-9]+)",
 	    "output": "\\1 punkt \\2 snabel-a \\3 punkt \\4",
-	    "test": [
+	    "tests": [
 		{
 		    "from": "gurra.g@regeringen.se",
 		    "to": "gurra punkt g snabel-a regeringen punkt se"
@@ -316,29 +316,29 @@
 	    "tests": [
 		{
 		    "from": "-12.5 °",
-		    "to": "minus tolv komma fem grader"
+		    "to": "minus 12.5 grader"
 		}
 	    ]
 	},
 	{
 	    "rule_type": "utterance",
 	    "input": "-([0-9.,]+) *° *C\\b",
-	    "output": "minus \\1 grader Celcius",
+	    "output": "minus \\1 grader Celsius",
 	    "tests": [
 		{
 		    "from": "-12.5°C",
-		    "to": "minus tolv komma fem grader Celsius"
+		    "to": "minus 12.5 grader Celsius"
 		}
 	    ]
 	},
 	{
 	    "rule_type": "utterance",
 	    "input": "([0-9.,]+) *° *C\\b",
-	    "output": "\\1 grader Celcius",
+	    "output": "\\1 grader Celsius",
 	    "tests": [
 		{
 		    "from": "12.5°C",
-		    "to": "tolv komma fem grader Celsius"
+		    "to": "12.5 grader Celsius"
 		}
 	    ]
 	},
@@ -349,7 +349,7 @@
 	    "tests": [
 		{
 		    "from": "12.5 °",
-		    "to": "tolv komma fem grader"
+		    "to": "12.5 grader"
 		}
 	    ]
 	},
@@ -371,7 +371,7 @@
 	    "tests": [
 		{
 		    "from": "48-bitars",
-		    "to": "fyrtioåtta bitars"
+		    "to": "48 bitars"
 		}
 	    ]
 	}

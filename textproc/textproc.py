@@ -358,7 +358,7 @@ class Textproc:
                 logger.error(err)
                 errs.append(err)
         for r in self.rewrite_rules:
-            for test in r.get("test",[]):
+            for test in r.get("test",r.get("tests",[])):
                 input = test["from"]
                 expect = test["to"]
                 result = self.apply_rewrite_rule(r, input)
@@ -369,7 +369,6 @@ class Textproc:
                         item["tokens"] = self.toksplit(item["alias"], process_numeral=False)
                     result[i] = item                    
 
-                #print(input,expect,result)
                 result_text = ""
                 for item in result:
                     for token in item["tokens"]:
