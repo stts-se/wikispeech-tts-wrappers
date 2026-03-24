@@ -28,11 +28,11 @@ def versionInfo(name: str, startedAt: str):
     try:
         commit = subprocess.check_output(["git", "rev-parse", "HEAD"]).decode("utf-8").strip()
         branch = subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"]).decode("utf-8").strip()
-        logger.info("git branch", branch)
-        logger.info("git commit", commit)
+        logger.info(f"git branch {branch}")
+        logger.info(f"git commit {commit}")
         try:
             tag = subprocess.check_output(["git","describe","--tags"]).decode("utf-8").strip()
-            logger.info("git tag", tag)
+            logger.info(f"git tag {tag}")
             res.append( ("Release %s on branch %s") % (tag, branch) )
         except: 
             logger.warning("couldn't retrieve git tags: %s" % sys.exc_info()[1])
@@ -57,5 +57,5 @@ def genStartedAtString():
             now = now.astimezone(pytz.utc)
             return '{:%Y-%m-%d %H:%M:%S %Z}'.format(now)
     except Exception as e:
-        logger.info("Couldn't retriev start time: {e}")
+        logger.info(f"Couldn't retrieve start time: {e}")
         return "unknown"
