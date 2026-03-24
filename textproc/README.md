@@ -32,9 +32,10 @@ http://localhost:8011/docs
 
 **6. API access** 
 
-http://localhost:8011/proc/TEXTPROCNAME/TEXT
+http://localhost:8011/process_utt?name=TEXTPROCNAME&input=INPUT&input_type=INPUT_TYPE" --response-charset=utf8
 
 Example (requires `httpie`):
+
 ```
-http "http://localhost:8011/phonemize/sv_se_1/god morgon" --response-charset=utf8
+http 'http://localhost:8011/process_utt?name=sv_se_1&input=god%20morgon, idag är det den 24 mars&input_type=text'
 ```
