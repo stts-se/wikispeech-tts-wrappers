@@ -15,9 +15,9 @@ Please note that MatchaTTS requires Python 3.10. If you are not using `uv` for t
 
 
 ``` sh
-uv venv
+uv venv uv venv --python 3.10
 source .venv/bin/activate
-uv pip install -r requirements.txt	
+uv pip install -r requirements.txt
 # workaround for PyTorch (Deep Phonemizer) and MatchaTTS
 sed -i 's/checkpoint = torch.load(checkpoint_path, map_location=device)/checkpoint = torch.load(checkpoint_path, map_location=device, weights_only=False)/' .venv/lib/python3.*/site-packages/dp/model/model.py
 sed -i 's/MatchaTTS.load_from_checkpoint(checkpoint_path, map_location=device)/MatchaTTS.load_from_checkpoint(checkpoint_path, map_location=device, weights_only=False)/' .venv/lib/python3.*/site-packages/matcha/cli.py
