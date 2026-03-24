@@ -217,7 +217,8 @@ async def synthesize_as_get(voice: str = "en_US-bryce-medium",
     elif return_type == 'wav':
         if len(res) == 1:
             f = res[0]['audio']
-            return FileResponse(f, filename=os.path.basename(f), media_type="audio/wav")
+            full_path = os.path.join(global_cfg.output_path, f)
+            return FileResponse(full_path, filename=os.path.basename(f), media_type="audio/wav")
         else:
             msg = f"Cannot use return type {return_type} for multiple output objects. Try json instead."
             logger.error(msg)
