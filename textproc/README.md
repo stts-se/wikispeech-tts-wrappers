@@ -1,6 +1,6 @@
 # Server for tokenization and text processing
 
-[![Textproc](https://github.com/stts-se/wikispeech-tts-wrappers/actions/workflows/textproc.yml/badge.svg)](https://github.com/stts-se/wikispeech-tts-wrappers/actions/workflows/textproc.yml)
+[![Textproc server](https://github.com/stts-se/wikispeech-tts-wrappers/actions/workflows/textproc-server.yml/badge.svg)](https://github.com/stts-se/wikispeech-tts-wrappers/actions/workflows/textproc-server.yml)
 
 **1. Install [uv](https://docs.astral.sh/uv/getting-started/installation) (optional)**
 
