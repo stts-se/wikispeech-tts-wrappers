@@ -1,0 +1,66 @@
+{
+    "_comment": "You can add multiple folders to model_paths. Environment variables are expanded, and relative paths are allowed. If the same model is found in multiple folders, the first one will be used.",
+    "clear_audio_on_startup": true,
+    "force_cpu": false,
+    "model_paths": [
+	"$HOME/.local/share/piper_tts",
+	"$HOME/.local/share/deep_phonemizer"
+    ],
+    "output_path": "audio_files",
+    "voices": [
+	{
+	    "name": "sv_vc_male_mart2nik_p",
+	    "enabled": true,
+	    "load_on_startup": false,
+	    "model": "sv_vc_male_mart2nik",
+	    "phonemizers": [
+		{
+		    "name": "sv_se_braxen_full_sv",
+		    "type": "deep_phonemizer",
+		    "lang": "sv",
+		    "model": "dp_single_char_swe_sv.pt",
+		    "maptable": "TODO"
+		}
+	    ]
+	},
+	{
+	    "name": "sv_vc_female_mart2han_p",
+	    "enabled": true,
+	    "load_on_startup": false,
+	    "model": "sv_vc_female_mart2han",
+	    "phonemizers": [
+		{
+		    "name": "sv_se_braxen_full_sv",
+		    "type": "deep_phonemizer",
+		    "lang": "sv",
+		    "model": "dp_single_char_swe_sv.pt",
+		    "maptable": "TODO"
+		}
+	    ]
+	},
+	{
+	    "enabled": true,
+	    "load_on_startup": false,
+	    "model": "en_US-bryce-medium",
+	    "phonemizers": [
+		{
+		    "name": "espeak",
+		    "type": "espeak",
+		    "lang": "en-us"
+		}
+	    ]
+	},
+	{
+	    "enabled": true,
+	    "load_on_startup": false,
+	    "model": "ar_JO-kareem-medium",
+	    "phonemizers": [
+		{
+		    "name": "espeak",
+		    "type": "espeak",
+		    "lang": "ar"
+		}
+	    ]
+	}
+    ]
+}
