@@ -1,6 +1,8 @@
 # uv pip install httpx
 # uv pip install pytest
 
+# Run using the pytest command:
+# pytest test_textproc_server.py
 
 from dotenv import load_dotenv
 load_dotenv("testing.env") 
