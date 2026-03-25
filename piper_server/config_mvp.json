@@ -53,12 +53,12 @@
 	{
 	    "enabled": true,
 	    "load_on_startup": false,
-	    "model": "ar_JO-kareem-medium",
+	    "model": "en_US-ljspeech-high",
 	    "phonemizers": [
 		{
 		    "name": "espeak",
 		    "type": "espeak",
-		    "lang": "ar"
+		    "lang": "en-us"
 		}
 	    ]
 	}
