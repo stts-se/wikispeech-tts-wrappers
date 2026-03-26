@@ -365,7 +365,7 @@
 	    ]
 	},
 	{
-	    "rule_type": "utterance",
+	    "rule_type": "token",
 	    "input": "\\b([0-9.,]+)-([\\w]+)\\b",
 	    "output": "\\1 \\2",
 	    "tests": [
