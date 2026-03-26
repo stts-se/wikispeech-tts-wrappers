@@ -1,0 +1,255 @@
+{
+    "rbnf_lang": "en",
+    "sentence_split_re": "([.?!]) +([A-Z0-9]+)",
+    "token_split_re": "[\\s]+",
+    "punctuation_re": "[(),;.¿?¡!-\"']+",
+    "fail_on_error": true,
+    "rules":
+    [
+	{
+	    "rule_type": "utterance",
+	    "input": "\\b([0-9.,]+) *– *([0-9.,]+)\\b",
+	    "output": "\\1 to \\2",
+	    "tests": [
+		{
+		    "from": "3–2",
+		    "to": "3 to 2"
+		}
+	    ]
+	},
+	{
+	    "rule_type": "utterance",
+	    "input": "\\b([0-9.,]+) *\\+ *([0-9.,]+)\\b",
+	    "output": "\\1 plus \\2",
+	    "tests": [
+		{
+		    "from": "3+2",
+		    "to": "3 plus 2"
+		}
+	    ]
+	},
+	{
+	    "rule_type": "utterance",
+	    "input": "\\b([0-9.,]+) *- *([0-9.,]+)\\b",
+	    "output": "\\1 minus \\2",
+	    "tests": [
+		{
+		    "from": "3-2",
+		    "to": "3 minus 2"
+		}
+	    ]
+	},
+	{
+	    "rule_type": "utterance",
+	    "input": "\\b([0-9.,]+) *[*x\u00D7] *([0-9.,]+)\\b",
+	    "output": "\\1 times \\2",
+	    "tests": [
+		{
+		    "from": "3*2",
+		    "to": "3 times 2"
+		}
+	    ]
+	},
+	{
+	    "rule_type": "utterance",
+	    "input": "\\b([0-9.,]+) *\u00F7 *([0-9.,]+)\\b",
+	    "output": "\\1 divided by \\2",
+	    "tests": [
+		{
+		    "from": "3\u00F72",
+		    "to": "3 divided by 2"
+		}
+	    ]
+	},
+	{
+	    "rule_type": "utterance",
+	    "input": "\\bvs(\\.|\\b)",
+	    "output": "versus",
+	    "tests": [
+		{
+		    "from": "Gorilla vs. Bear",
+		    "to": "Gorilla versus Bear"
+		}
+	    ]
+	},
+	{
+	    "rule_type": "utterance",
+	    "input": "(\\b|[0-9]*)%",
+	    "output": "\\1 percent",
+	    "tests": [
+		{
+		    "from": "The board was 17% longer",
+		    "to": "The board was 17 percent longer"
+		},
+		{
+		    "from": "The board was 17 % longer",
+		    "to": "The board was 17 percent longer"
+		}
+	    ]
+	},
+	{
+	    "rule_type": "utterance",
+	    "input": "\\b(Charles|John|Victoria|Elisabeth|Elizabeth|Oscar) +([0-9]+|[XIV]+)(\\.|\\b)",
+	    "ignore_case": true,
+	    "output": "\\1 the \\2|||ordinal",
+	    "tests": [
+		{
+		    "from": "Charles II",
+		    "to": "Charles the II|||ordinal"
+		}
+	    ]
+	},
+	{
+	    "rule_type": "utterance",
+	    "input": "\\b([0-9]{1,2}[.]?) +(January|February|March|April|May|June|July|August|September|October|November|December)\\b",
+	    "output": "\\1|||ordinal of \\2",
+	    "ignore_case": true,
+	    "tests": [
+		{
+		    "from": "3 February",
+		    "to": "3|||ordinal of February"
+		}
+	    ]
+	},
+	{
+	    "rule_type": "utterance",
+	    "input": "\\b(January|February|March|April|May|June|July|August|September|October|November|December) +([0-9]{1,2}[.]?)\\b",
+	    "output": "\\1 \\2|||ordinal",
+	    "ignore_case": true,
+	    "tests": [
+		{
+		    "from": "February 3",
+		    "to": "February 3|||ordinal"
+		}
+	    ]
+	},
+	{
+	    "rule_type": "token",
+	    "input": "^(US)$",
+	    "output": "\\1|||spellout",
+	    "tests": [
+		{
+		    "from": "I speak US English",
+		    "to": "I speak US|||spellout English"
+		}
+	    ]
+	},
+	{
+	    "rule_type": "token",
+	    "input": "^(1[1-9][0-9]{2})$",
+	    "output": "\\1|||year",
+	    "tests": [
+		{
+		    "from": "It was the year 1994",
+		    "to": "It was the year 1994|||year"
+		}
+	    ]
+	},
+	{
+	    "rule_type": "token",
+	    "input": "^(20[0-9]{2})$",
+	    "output": "\\1|||year",
+	    "tests": [
+		{
+		    "from": "It was the year 2026",
+		    "to": "It was the year 2026|||year"
+		}
+	    ]
+	},
+	{
+	    "rule_type": "token",
+	    "input": "^([0-9]+):?(st|nd)$",
+	    "output": "\\1|||ordinal",
+	    "tests": [
+		{
+		    "from": "He placed 2nd",
+		    "to": "He placed 2|||ordinal"
+		}
+	    ]
+	},
+	{
+	    "rule_type": "token",
+	    "input": "^([a-z0-9]+)[.]([a-z0-9]+)@([a-z0-9]+)[.]([a-z0-9]+)",
+	    "output": "\\1 dot \\2 at \\3 dot \\4",
+	    "tests": [
+		{
+		    "from": "john.doe@somewhere.uk",
+		    "to": "john dot doe at somewhere dot uk"
+		}
+	    ]
+	},
+	{
+	    "rule_type": "utterance",
+	    "input": "-([0-9.,]+) *°",
+	    "output": "minus \\1 degrees",
+	    "tests": [
+		{
+		    "from": "-12.5 °",
+		    "to": "minus 12.5 degrees"
+		}
+	    ]
+	},
+	{
+	    "rule_type": "utterance",
+	    "input": "-([0-9.,]+) *° *C\\b",
+	    "output": "minus \\1 degrees Celsius",
+	    "tests": [
+		{
+		    "from": "-12.5°C",
+		    "to": "minus 12.5 degrees Celsius"
+		}
+	    ]
+	},
+	{
+	    "rule_type": "utterance",
+	    "input": "([0-9.,]+) *° *C\\b",
+	    "output": "\\1 degrees Celsius",
+	    "tests": [
+		{
+		    "from": "12.5°C",
+		    "to": "12.5 degrees Celsius"
+		}
+	    ]
+	},
+	{
+	    "rule_type": "utterance",
+	    "input": "([0-9.,]+) *°",
+	    "output": "\\1 degrees",
+	    "tests": [
+		{
+		    "from": "12.5 °",
+		    "to": "12.5 degrees"
+		}
+	    ]
+	},
+	{
+	    "rule_type": "utterance",
+	    "input": "\\b([\\w]+)-([0-9.,]+)\\b",
+	    "output": "\\1 \\2",
+	    "tests": [
+		{
+		    "from": "cesium-135",
+		    "to": "cesium 135"
+		}
+	    ]
+	},
+	{
+	    "rule_type": "utterance",
+	    "input": "\\b([0-9.,]+)-([\\w]+)\\b",
+	    "output": "\\1 \\2",
+	    "tests": [
+		{
+		    "from": "48-bit",
+		    "to": "48 bit"
+		}
+	    ]
+	}
+    ],
+    "tests": [
+	{
+	    "from": "Charles II, for example, placed 2nd",
+	    "to": "Charles the second, for example, placed second"
+	}
+
+    ]
+}

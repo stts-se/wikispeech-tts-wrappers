@@ -54,47 +54,61 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan,swagger_ui_parameters={"tryItOutEnabled": True})
 
-@app.get("/synthesize/sv_se_nst_male1")
-async def synthesize_sv_se_nst_male1(input_type: str = 'phonemes',
+# @app.get("/synthesize/sv_se_nst_male1")
+# async def synthesize_sv_se_nst_male1(input_type: str = 'phonemes',
+#                                      input: str = "jˈⱭ ˈE ˈen g°am`al trˈøt g°ɵb`ə .",
+#                                      length_scale: Optional[float] = None,
+#                                      noise_scale: Optional[float] = None,
+#                                      noise_w_scale: Optional[float] = None):
+#     return await synthesize_as_get(voice = 'sv_se_nst_male1_p',
+#                                    input_type = input_type,
+#                                    input = input,
+#                                    length_scale = length_scale,
+#                                    noise_scale = noise_scale,
+#                                    noise_w_scale = noise_w_scale)
+
+@app.get("/synthesize/sv_vc_male_mart2nik_p")
+async def synthesize_sv_vc_male_mart2nik_p(input_type: str = 'phonemes',
                                      input: str = "jˈⱭ ˈE ˈen g°am`al trˈøt g°ɵb`ə .",
                                      length_scale: Optional[float] = None,
                                      noise_scale: Optional[float] = None,
                                      noise_w_scale: Optional[float] = None):
-    return await synthesize_as_get(voice = 'sv_se_nst_male1_p',
+    return await synthesize_as_get(voice = 'sv_vc_male_mart2nik_p',
                                    input_type = input_type,
                                    input = input,
                                    length_scale = length_scale,
                                    noise_scale = noise_scale,
                                    noise_w_scale = noise_w_scale)
 
-@app.get("/synthesize/en_us_bryce")
-async def synthesize_en_us_bryce(input_type: str = 'mixed',
-                               input: str = "hello, my name is bryce",
+@app.get("/synthesize/sv_vc_female_mart2han_p")
+async def synthesize_sv_vc_female_mart2han_p(input_type: str = 'mixed',
+                                     input: str = "[[ jˈⱭ ˈE ˈen g°am`al trˈøt ]] gumma .",
+                                     length_scale: Optional[float] = None,
+                                     noise_scale: Optional[float] = None,
+                                     noise_w_scale: Optional[float] = None):
+    return await synthesize_as_get(voice = 'sv_vc_female_mart2han_p',
+                                   input_type = input_type,
+                                   input = input,
+                                   length_scale = length_scale,
+                                   noise_scale = noise_scale,
+                                   noise_w_scale = noise_w_scale)
+
+@app.get("/synthesize/en_us_ljspeech")
+async def synthesize_en_us_ljspeech(input_type: str = 'mixed',
+                               input: str = "hello, my name is lj speech",
                                length_scale: Optional[float] = None,
                                noise_scale: Optional[float] = None,
                                noise_w_scale: Optional[float] = None):
-    return await synthesize_as_get(voice = 'en_US-bryce-medium',
+    return await synthesize_as_get(voice = 'en_US-ljspeech-high',
                                    input_type = input_type,
                                    input = input,
                                    length_scale = length_scale,
                                    noise_scale = noise_scale,
                                    noise_w_scale = noise_w_scale)
 
-@app.get("/synthesize/ar_jo_kareem")
-async def synthesize_ar_jo_kareem(input_type: str = 'phonemes',
-                                  input: str = "wikibˈiːdia alʕarabˈiːa",
-                                  length_scale: Optional[float] = None,
-                                  noise_scale: Optional[float] = None,
-                                  noise_w_scale: Optional[float] = None):
-    return await synthesize_as_get(voice = 'ar_JO-kareem-medium',
-                                   input_type = input_type,
-                                   input = input,
-                                   length_scale = length_scale,
-                                   noise_scale = noise_scale,
-                                   noise_w_scale = noise_w_scale)
 
 class SynthRequest(BaseModel):
-    voice: str = "en_US-bryce-medium"
+    voice: str = "en_US-ljspeech-high"
     input_type: str = "tokens"
     input: list = [
         [
@@ -106,11 +120,8 @@ class SynthRequest(BaseModel):
             { "orth": "my" },
             { "orth": "name"},
             { "orth": "is"},
-            { "orth": "bryce", "phonemes": "brˈɪs" },
-            { "orth": "with"} ,
-            { "orth": "a" },
-            { "orth": "post" },
-            { "orth": "request" },            
+            { "orth": "lj", "phonemes": "ˈɛlˌdʒeɪ"},
+            { "orth": "speech"}
        ],
     ]
     length_scale: float = -1
@@ -135,14 +146,16 @@ async def synthesize_as_post(request: SynthRequest):
     if request.length_scale >= 0:
         syn_config.length_scale=request.length_scale
     if request.noise_scale >= 0:
-        syn_config.noise_scale=request.noise_scale,  # audio variation
+        syn_config.noise_scale=request.noise_scale  # audio variation
     if request.noise_w_scale >= 0:
-        syn_config.noise_w_scale=request.noise_w_scale,  # speaking variation
+        syn_config.noise_w_scale=request.noise_w_scale  # speaking variation
     v = global_cfg.voices[request.voice]
     if not v.loaded:
         v.load(global_cfg.model_paths)
     res = v.synthesize_all(request.input, request.input_type, global_cfg.output_path, syn_config)
 
+    logger.debug(f"synthesize_as_post res: {res}")
+    
     # return type
     if request.return_type == 'json':
         for i, obj in enumerate(res):
@@ -164,8 +177,8 @@ async def synthesize_as_post(request: SynthRequest):
 
     
 @app.get("/synthesize/")
-async def synthesize_as_get(voice: str = "en_US-bryce-medium",
-                            input: str = "hello my name is bryce with a get request",
+async def synthesize_as_get(voice: str = "en_US-ljspeech-high",
+                            input: str = "hello my name is ljspeech with a get request",
                             input_type: str = "mixed",
                             length_scale: Optional[float] = None,
                             noise_scale: Optional[float] = None,

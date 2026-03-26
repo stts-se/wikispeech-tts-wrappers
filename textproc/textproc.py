@@ -166,6 +166,9 @@ class Textproc:
         elif roman_re.match(s) and "roman" in tags:
             i = roman2int(s)
             processed_token = self.rbnfify(i, formatPurpose)
+        elif roman_re.match(s) and "ordinal" in tags:
+            i = roman2int(s)
+            processed_token = self.rbnfify(i, formatPurpose)
         elif year_re.match(s):
             i = int(s)
             if formatPurpose is None:
@@ -192,7 +195,12 @@ class Textproc:
             for tok in tokens:
                 m = rex.match(tok["input"])
                 if m:
-                    alias= rex.sub(rule["output"], tok["input"])
+                    alias = ""
+                    try:
+                        alias = rex.sub(rule["output"], tok["input"])
+                    except Exception as e:
+                        logger.error(f"Couldn't replace {tok['input']} to {rule['output']} with rule {rule}")
+                        raise e
                     res.append({
                         "type": "alias",
                         "text": tok["input"],

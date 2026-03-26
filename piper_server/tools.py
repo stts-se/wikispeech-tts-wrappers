@@ -125,7 +125,7 @@ wordsplit=re.compile(" +")
 def input2tokens(input, input_type):
     if input_type == "tokens":
         # workaround for Swedish Piper voice
-        input.append({"orth": "."})
+        input.append({"orth": ".", "hidden": True})
         return input
 
     tokens = []
@@ -145,16 +145,21 @@ def input2tokens(input, input_type):
         for w in wordsplit.split(s):
             tokens.append({"orth": w})
     # workaround for Swedish Piper voice
-    tokens.append({"orth": "."})
+    tokens.append({"orth": ".", "hidden": True})
     return tokens
 
 
+empty_phoneme_re = re.compile("^\\[\\[ *\\]\\]")
 def tokens2piper(tokens):
     res = []
     for t in tokens:
         if t in tokens:
             if "phonemes" in t:
                 res.append(f"[[ {t['phonemes']} ]]")
-            else:
+            else: #elif "orth" in t:
                 res.append(t['orth'])
+            # if res[-1] == "":
+            #     res[-1] = "."
+            # if empty_phoneme_re.match(res[-1]):
+            #     res[-1] = "."
     return " ".join(res).replace(" ]] [[ ", " ")

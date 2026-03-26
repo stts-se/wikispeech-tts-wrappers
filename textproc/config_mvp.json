@@ -10,6 +10,13 @@
 	    "enabled": true,
 	    "load_on_startup": true,
 	    "rules": "sv_textproc.json"
+	},
+	{
+	    "name": "en_1",
+	    "lang": "en",
+	    "enabled": true,
+	    "load_on_startup": true,
+	    "rules": "en_textproc.json"
 	}
     ]
 }

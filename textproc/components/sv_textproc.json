@@ -31,11 +31,11 @@
 	{
 	    "rule_type": "utterance",
 	    "input": "\\bS/S\\b",
-	    "output": "SS|||spell",
+	    "output": "SS|||spellout",
 	    "tests": [
 		{
 		    "from": "S/S Norrskär",
-		    "to": "SS|||spell Norrskär"
+		    "to": "SS|||spellout Norrskär"
 		}
 	    ]
 	},

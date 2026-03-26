@@ -128,10 +128,21 @@ class Voice:
             else:
                 lang = w.get("lang", None)
                 phner = self.selected_phonemizer()
-                result = phner.phonemize(t["orth"], lang)
+                phner_input = ""
+                if len(t["orth"]) > 0:
+                    phner_input = t["orth"]
+                else:
+                    phner_input = t.get("prepunct","")+t.get("postpunct","") ## How to handle input words without orthography, because if we use the empty string, we will not be able to track back the number of tokens from the phonetizer output
+                result = phner.phonemize(phner_input, lang)
                 w["input"] = t["orth"]
                 w["phonemes"] = result
                 w["g2p_method"] = phner.tpe
+            if "hidden" in t:
+                w["hidden"] = t["hidden"]
+            if "postpunct" in t:
+                w["postpunct"] = t["postpunct"]
+            if "prepunct" in t:
+                w["prepunct"] = t["prepunct"]
             res.append(w)
         return res
         
@@ -160,8 +171,6 @@ class Voice:
         tokens_processed = self.process_tokens(input_tokens)
         piper_input = tools.tokens2piper(tokens_processed)
 
-        logger.debug(f"syn_config: {syn_config}")
-
         wav_file=str(Path(output_file).with_suffix('.wav'))
         lab_file=str(Path(output_file).with_suffix('.lab'))
 
@@ -171,32 +180,40 @@ class Voice:
 
         logger.debug(f"Input: {input}")
         logger.debug(f"Piper input: {piper_input}")
+        logger.debug(f"syn_config: {syn_config}")
 
-        with wave.open(wav_file, "wb") as wf:
-            chunks = []
-            try:
-                chunks = self.piper_voice.synthesize(piper_input, syn_config=syn_config, include_alignments=piper_alignments_enabled)
-            except TypeError as e:
+        try:
+            with wave.open(wav_file, "wb") as wf:
+                chunks = []
+                try:
+                    chunks = self.piper_voice.synthesize(piper_input, syn_config=syn_config, include_alignments=piper_alignments_enabled)
+                except TypeError as e:
                     logger.warning(f"Got TypeError from voice.synthesize: {e}. Likely caused by running on piper release 1.3.0 rather than a dev build (because of alignment dependency). Alignment output will be disabled.")    
                     chunks = self.piper_voice.synthesize(piper_input, syn_config=syn_config)
                     piper_alignments_enabled = False
+                except Exception as e:
+                    logger.warning(f"Got Exception from voice.synthesize: {e}")    
+                    chunks = self.piper_voice.synthesize(piper_input, syn_config=syn_config)
+                    piper_alignments_enabled = False
+                first_chunk = True
+                for audio_chunk in chunks:
+                    sample_rate = audio_chunk.sample_rate
+                    if first_chunk and set_wav_format:
+                        # Set audio format on first chunk
+                        wf.setframerate(audio_chunk.sample_rate)
+                        wf.setsampwidth(audio_chunk.sample_width)
+                        wf.setnchannels(audio_chunk.sample_channels)
+                    first_chunk = False
 
-            first_chunk = True
-            for audio_chunk in chunks:
-                sample_rate = audio_chunk.sample_rate
-                if first_chunk and set_wav_format:
-                    # Set audio format on first chunk
-                    wf.setframerate(audio_chunk.sample_rate)
-                    wf.setsampwidth(audio_chunk.sample_width)
-                    wf.setnchannels(audio_chunk.sample_channels)
-                first_chunk = False
+                    wf.writeframes(audio_chunk.audio_int16_bytes)
+                    logger.info(f"Audio saved to {wav_file}")
 
-                wf.writeframes(audio_chunk.audio_int16_bytes)
-                logger.info(f"Audio saved to {wav_file}")
-
-                if piper_alignments_enabled and audio_chunk.phoneme_alignments:
-                    alignments.extend(audio_chunk.phoneme_alignments)
-
+                    if piper_alignments_enabled and audio_chunk.phoneme_alignments:
+                        alignments.extend(audio_chunk.phoneme_alignments)
+        except Exception as e:
+            logger.error(f"Got exception: {e}")
+            raise e
+                        
         if piper_alignments_enabled and len(alignments) == 0:
             logger.warning(f" No alignments in output from synthesize_wav. This is probably because the model is not alignment-enabled. See https://github.com/OHF-Voice/piper1-gpl/blob/main/docs/ALIGNMENTS.md for information on how to enable alignments.")
             #return
@@ -211,8 +228,20 @@ class Voice:
             tokens = tools.align(alignments, sample_rate)
             if len(tokens) == len(tokens_processed):
                 for i, t in enumerate(tokens):
+                    hidden = tokens[i].get("hidden", False)
                     tokens[i] = tokens[i] | tokens_processed[i]
+            else:
+                logger.debug(f"Unable to match input tokens with aligned tokens: {tokens_processed} {tokens}")
+                # TODO: Smarter matching for aligned output
             result["tokens"] = tokens
+
+            # remove workaround-added final period, if added
+            if len(tokens)>2 and "hidden" in tokens[-1]:
+                hidden = tokens[-1]
+                actual_last = tokens[-2]
+                actual_last["end_time"] = hidden["end_time"]
+                del tokens[-1]
+                
         result["audio"] = os.path.basename(wav_file)
 
         # json file
@@ -286,7 +315,9 @@ class Phonemizer:
         return obj
 
     def phonemize(self, input, lang=None):
-        if self.tpe == "deep_phonemizer":
+        if input == "":
+            return ""
+        elif self.tpe == "deep_phonemizer":
             if lang is None:
                 lang = self.lang
             else:
@@ -295,7 +326,11 @@ class Phonemizer:
                     lang = self.lang
             return self.pher(input, lang)
         else:
-            return self.pher.phonemize([input], strip=True, njobs=1)[0]
+            tmp = self.pher.phonemize([input], strip=True, njobs=1)
+            if len(tmp) > 0:
+                return tmp[0]
+            else:
+                raise Exception(f"Unexpected output from phonemize input '{input}': {tmp}")
 
     def __str__(self):
         return f"(name={self.name},lang={self.lang},model={self.path})"
