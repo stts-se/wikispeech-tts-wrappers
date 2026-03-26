@@ -1,6 +1,6 @@
 import pytest
 from dotenv import load_dotenv
-load_dotenv("testing.env")
+load_dotenv("pytest_config.env")
 
 from fastapi.testclient import TestClient
 from textproc_server import app
