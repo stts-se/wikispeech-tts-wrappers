@@ -132,7 +132,7 @@ class Voice:
                 if len(t["orth"]) > 0:
                     phner_input = t["orth"]
                 else:
-                    phner_input = t.get("prepunct","")+t.get("postpunct","") ## How to handle input words without orthography, because if we use the empty string, we will not be able to track back the number of tokens from the phonetizer output
+                    phner_input = t.get("prepunct","")+t.get("postpunct","") ## Workaround to handle input words without orthography, because if we use the empty string, we will not be able to track back the number of tokens from the phonetizer output
                 result = phner.phonemize(phner_input, lang)
                 w["input"] = t["orth"]
                 w["phonemes"] = result
@@ -164,7 +164,8 @@ class Voice:
     def synthesize(self, input, input_type, output_file, syn_config):
         if not self.loaded:
             return None
-            
+
+        logger.debug(f"voice.synthesize input: {input}")
         input_tokens = tools.input2tokens(input, input_type)
         
         set_wav_format = True
