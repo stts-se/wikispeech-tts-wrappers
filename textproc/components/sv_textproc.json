@@ -3,6 +3,7 @@
     "sentence_split_re": "([.?!]) +([A-Z0-9]+)",
     "token_split_re": "[\\s]+",
     "punctuation_re": "[(),;.¿?¡!-\"']+",
+    "rbnf_compound_delimiter": "-",
     "fail_on_error": true,
     "rules":
     [
@@ -354,7 +355,7 @@
 	    ]
 	},
 	{
-	    "rule_type": "utterance",
+	    "rule_type": "token",
 	    "input": "\\b([\\w]+)-([0-9.,]+)\\b",
 	    "output": "\\1 \\2",
 	    "tests": [
@@ -379,7 +380,7 @@
     "tests": [
 	{
 	    "from": "Karl XII, t.ex., kom på 2:a plats den 3 maj 1984, och vann 10 kr",
-	    "to": "Karl den tolfte, till exempel, kom på andra plats den tredje maj nittonhundraåttiofyra, och vann tio kronor"
+	    "to": "Karl den tolfte, till exempel, kom på andra plats den tredje maj nitton-hundra-åttio-fyra, och vann tio kronor"
 	},
 	{
 	    "from": "Den 3 februari såg jag en häst",
@@ -407,11 +408,11 @@
 	},
 	{
 	    "from": "cesium-137",
-	    "to": "cesium etthundratrettiosju"
+	    "to": "cesium ett-hundra-trettio-sju"
 	},
 	{
 	    "from": "48-bitars",
-	    "to": "fyrtioåtta bitars"
+	    "to": "fyrtio-åtta bitars"
 	}
 
     ]

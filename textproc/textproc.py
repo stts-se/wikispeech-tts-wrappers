@@ -2,7 +2,8 @@ import os
 import sys
 import json
 import re
-from unicode_rbnf import RbnfEngine, FormatPurpose
+from unicode_rbnf import RbnfEngine, FormatPurpose, FormatOptions
+from typing import Final
 
 # Logging
 import logging
@@ -13,12 +14,11 @@ parentdir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 sys.path.insert(0, parentdir)
 from common import io
 
-int_re = re.compile("^[0-9]+$")
-roman_re = re.compile("^[XIV]+$")
-year_re = re.compile("^1[0-9]{3}$")
-float_re = re.compile("^[0-9]+[.][0-9]+$")
-comma_float_re = re.compile("^[0-9]+[,][0-9]+$")
-roman_re = re.compile("^[XIVMCLD]+$")
+INT_RE: Final[str] = re.compile("^[0-9]+$")
+FLOAT_RE: Final[str] = re.compile("^[0-9]+[.][0-9]+$")
+ROMAN_RE: Final[str] = re.compile("^[XIVMCLD]+$")
+YEAR_RE: Final[str] = re.compile("^1[0-9]{3}$")
+COMMA_FLOAT_RE: Final[str] = re.compile("^[0-9]+[,][0-9]+$")
 
 def roman2int(s):
     values = {"I": 1, "V": 5, "X": 10, "L": 50, "C": 100, "D": 500, "M": 1000}
@@ -62,22 +62,25 @@ def load_config(json_config):
                     else:
                         r["input_compiled"] = re.compile(r["input"])
                 textprocs[name] = Textproc(
-                    name,
-                    lang,
-                    rbnf_lang,
-                    sentence_split_re,
-                    token_split_re,
-                    punctuation_re,
-                    punctuation_after_match,                  
-                    rewrite_rules,
-                    rules["tests"],
-                    rules.get("enabled",True),
-                    rules.get("fail_on_error",True)
+                    name = name,
+                    lang = lang,
+                    rbnf_lang = rbnf_lang,
+                    sentence_split_re = sentence_split_re,
+                    token_split_re = token_split_re,
+                    punctuation_re = punctuation_re,
+                    punctuation_after_match = punctuation_after_match,
+                    rbnf_compound_delimiter = rules.get("rbnf_compound_delimiter",None),
+                    rewrite_rules = rewrite_rules,
+                    tests = rules["tests"],
+                    enabled = rules.get("enabled",True),
+                    fail_on_error = rules.get("fail_on_error",True)
                 )
                 logger.info(f"Loaded textproc {name} with {len(rules['tests'])} rules")
     return textprocs
 
 from dataclasses import dataclass, asdict
+
+SOFT_HYPHEN: Final[str] = "\u00AD"
 
 @dataclass
 class Textproc:
@@ -88,6 +91,7 @@ class Textproc:
     token_split_re: object
     punctuation_re: object
     punctuation_after_match: object
+    rbnf_compound_delimiter: str or None
     rewrite_rules: list
     tests: list
     fail_on_error: bool
@@ -102,12 +106,17 @@ class Textproc:
         return f"{dict}"
 
     def rbnfify(self, number, fmt=None):
+        opts = FormatOptions.PRESERVE_SOFT_HYPENS
+        res = number
         if fmt is None:
-            rbnfed = self.rbnf.format_number(number)
-            return rbnfed.text
+            rbnfed = self.rbnf.format_number(number=number, options=opts)
+            res = rbnfed.text
         else:
-            rbnfed = self.rbnf.format_number(number, fmt)
-            return rbnfed.text
+            rbnfed = self.rbnf.format_number(number=number, purpose=fmt, options=opts)
+            res = rbnfed.text
+        if self.rbnf_compound_delimiter is not None:
+            res = res.replace(SOFT_HYPHEN, self.rbnf_compound_delimiter)
+        return res
 
     def process_text(self, text: str):
         #logger.debug(f"textproc.process_text called with {text}")
@@ -160,29 +169,29 @@ class Textproc:
         if "year" in tags:
             formatPurpose = FormatPurpose.YEAR
         processed_token = s
-        if len(s) > 1 and roman_re.match(s):
+        if len(s) > 1 and ROMAN_RE.match(s):
             i = roman2int(s)
             processed_token = self.rbnfify(i, formatPurpose)
-        elif roman_re.match(s) and "roman" in tags:
+        elif ROMAN_RE.match(s) and "roman" in tags:
             i = roman2int(s)
             processed_token = self.rbnfify(i, formatPurpose)
-        elif roman_re.match(s) and "ordinal" in tags:
+        elif ROMAN_RE.match(s) and "ordinal" in tags:
             i = roman2int(s)
             processed_token = self.rbnfify(i, formatPurpose)
-        elif year_re.match(s):
+        elif YEAR_RE.match(s):
             i = int(s)
             if formatPurpose is None:
                 formatPurpose = FormatPurpose.YEAR
                 processed_token = self.rbnfify(i, formatPurpose)
             else:
                 processed_token = self.rbnfify(i, formatPurpose)
-        elif int_re.match(s):
+        elif INT_RE.match(s):
             i = int(s)
             processed_token = self.rbnfify(i, formatPurpose)
-        elif float_re.match(s):
+        elif FLOAT_RE.match(s):
             f = float(s)
             processed_token = self.rbnfify(f, formatPurpose)
-        elif comma_float_re.match(s):
+        elif COMMA_FLOAT_RE.match(s):
             f = float(s.replace(",", "."))
             processed_token = self.rbnfify(f, formatPurpose)
         return processed_token, tags

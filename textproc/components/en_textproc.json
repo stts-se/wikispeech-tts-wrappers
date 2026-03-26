@@ -3,6 +3,7 @@
     "sentence_split_re": "([.?!]) +([A-Z0-9]+)",
     "token_split_re": "[\\s]+",
     "punctuation_re": "[(),;.¿?¡!-\"']+",
+    "rbnf_compound_delimiter": "-",
     "fail_on_error": true,
     "rules":
     [
@@ -223,7 +224,7 @@
 	    ]
 	},
 	{
-	    "rule_type": "utterance",
+	    "rule_type": "token",
 	    "input": "\\b([\\w]+)-([0-9.,]+)\\b",
 	    "output": "\\1 \\2",
 	    "tests": [
@@ -234,7 +235,7 @@
 	    ]
 	},
 	{
-	    "rule_type": "utterance",
+	    "rule_type": "token",
 	    "input": "\\b([0-9.,]+)-([\\w]+)\\b",
 	    "output": "\\1 \\2",
 	    "tests": [
