@@ -10,6 +10,7 @@
     "voices": [
 	{
 	    "enabled": true,
+	    "lang": "en-US",
 	    "load_on_startup": false,
 	    "model": "en_US-bryce-medium",
 	    "phonemizers": [
@@ -22,6 +23,7 @@
 	},
 	{
 	    "enabled": true,
+	    "lang": "en-US",
 	    "load_on_startup": false,
 	    "model": "ar_JO-kareem-medium",
 	    "phonemizers": [

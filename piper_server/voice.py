@@ -19,6 +19,7 @@ from dataclasses import dataclass, asdict
 @dataclass
 class Voice:
     name: str
+    lang: str
     enabled: bool
     config: object
 
@@ -166,7 +167,7 @@ class Voice:
             return None
 
         logger.debug(f"voice.synthesize input: {input}")
-        input_tokens = tools.input2tokens(input, input_type)
+        input_tokens = tools.input2tokens(input, input_type, self.lang)
         
         set_wav_format = True
         tokens_processed = self.process_tokens(input_tokens)
@@ -237,11 +238,15 @@ class Voice:
             result["tokens"] = tokens
 
             # remove workaround-added final period, if added
-            if len(tokens)>2 and "hidden" in tokens[-1]:
-                hidden = tokens[-1]
-                actual_last = tokens[-2]
-                actual_last["end_time"] = hidden["end_time"]
-                del tokens[-1]
+            if len(tokens)>2:
+                if "hidden" in tokens[-1]:
+                    hidden = tokens[-1]
+                    actual_last = tokens[-2]
+                    actual_last["end_time"] = hidden["end_time"]
+                    del tokens[-1]
+                if "hidden" in tokens[0]:
+                    hidden = tokens[0]
+                    del tokens[0]
                 
         result["audio"] = os.path.basename(wav_file)
 

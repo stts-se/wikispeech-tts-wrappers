@@ -122,30 +122,33 @@ def copy_to_latest(result, output_folder):
 phoneme_input_re = re.compile("\\[\\[(.*)\\]\\]")
 separate_comma_re = re.compile("(^|[^\\[]) *, *($|[^\\]])")
 wordsplit=re.compile(" +")
-def input2tokens(input, input_type):
+def input2tokens(input, input_type, lang):
+    tokens = None
     if input_type == "tokens":
-        # workaround for Swedish Piper voice
-        input.append({"orth": ".", "hidden": True})
-        return input
-
-    tokens = []
-    s = input
-    s = separate_comma_re.sub("\\1 , \\2",s)
-    if input_type == "phonemes":
-        for w in wordsplit.split(s):
-            tokens.append({"phonemes": w})
-    elif input_type == "mixed":
-        for w in wordsplit.split(s):
-            m = phoneme_input_re.match(w)
-            if m:
-                tokens.append({"phonemes": m.group(1)})
-            else:
+        tokens = input
+    else:
+        tokens = []
+        s = input
+        s = separate_comma_re.sub("\\1 , \\2",s)
+        if input_type == "phonemes":
+            for w in wordsplit.split(s):
+                tokens.append({"phonemes": w})
+        elif input_type == "mixed":
+            for w in wordsplit.split(s):
+                m = phoneme_input_re.match(w)
+                if m:
+                    tokens.append({"phonemes": m.group(1)})
+                else:
+                    tokens.append({"orth": w})
+        else: # text input
+            for w in wordsplit.split(s):
                 tokens.append({"orth": w})
-    else: # text input
-        for w in wordsplit.split(s):
-            tokens.append({"orth": w})
     # workaround for Swedish Piper voice
-    tokens.append({"orth": ".", "hidden": True})
+    if lang.startswith("sv"):
+        if len(tokens) > 0 and tokens[-1].get("orth","") != "":
+            tokens.append({"orth": ".", "hidden": True, "prepunct": ",", "phonemes": "."})
+        if len(tokens) > 0 and tokens[0].get("orth","") != "":
+            tokens.insert(0,{"orth": ".", "hidden": True, "prepunct": ",", "phonemes": "."})
     return tokens
 
 

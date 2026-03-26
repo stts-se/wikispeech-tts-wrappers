@@ -10,6 +10,7 @@
     "voices": [
 	{
 	    "name": "sv_vc_male_mart2nik_p",
+	    "lang": "sv-SE",
 	    "enabled": true,
 	    "load_on_startup": false,
 	    "model": "sv_vc_male_mart2nik",
@@ -25,6 +26,7 @@
 	},
 	{
 	    "name": "sv_vc_female_mart2han_p",
+	    "lang": "sv-SE",
 	    "enabled": true,
 	    "load_on_startup": false,
 	    "model": "sv_vc_female_mart2han",
@@ -40,6 +42,7 @@
 	},
 	{
 	    "enabled": true,
+	    "lang": "en-US",
 	    "load_on_startup": false,
 	    "model": "en_US-bryce-medium",
 	    "phonemizers": [
@@ -52,6 +55,7 @@
 	},
 	{
 	    "enabled": true,
+	    "lang": "en-US",
 	    "load_on_startup": false,
 	    "model": "en_US-ljspeech-high",
 	    "phonemizers": [

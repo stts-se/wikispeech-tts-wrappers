@@ -42,6 +42,7 @@ def load_config(config_file):
                 raise Exception(f"Config file contains duplicate voices named {name}")
 
             v = voice.Voice(name=voice_config.get('name',voice_config['model']),
+                            lang=voice_config.get('lang',''),
                             enabled=False,
                             config=voice_config,
                             piper_voice=None,

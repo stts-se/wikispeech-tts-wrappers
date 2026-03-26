@@ -10,6 +10,7 @@
     "voices": [
 	{
 	    "name": "sv_se_nst_male1_p",
+	    "lang": "sv-SE",
 	    "enabled": true,
 	    "load_on_startup": false,
 	    "model": "martin_phonemes_20251017_epoch",
@@ -25,6 +26,7 @@
 	},
 	{
 	    "name": "sv_se_nst_female1_p",
+	    "lang": "sv-SE",
 	    "enabled": true,
 	    "load_on_startup": false,
 	    "model": "marianne_singlechar_ipa_20251119",
@@ -40,6 +42,7 @@
 	},
 	{
 	    "enabled": true,
+	    "lang": "en-US",
 	    "load_on_startup": false,
 	    "model": "en_US-bryce-medium",
 	    "phonemizers": [
@@ -52,6 +55,7 @@
 	},
 	{
 	    "enabled": true,
+	    "lang": "en-US",
 	    "load_on_startup": false,
 	    "model": "ar_JO-kareem-medium",
 	    "phonemizers": [
