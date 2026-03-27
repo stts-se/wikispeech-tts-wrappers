@@ -31,7 +31,7 @@ jobs:
         python -m venv .venv
         source .venv/bin/activate
         pip install torch --index-url https://download.pytorch.org/whl/cpu
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        pip install -r requirements.txt
         # workaround for pytorch
         sed -i 's/checkpoint = torch.load(checkpoint_path, map_location=device)/checkpoint = torch.load(checkpoint_path, map_location=device, weights_only=False)/' .venv/lib/python3.*/site-packages/dp/model/model.py
 
@@ -44,7 +44,7 @@ jobs:
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 . --bug-report --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics --extend-ignore=E501,E266
 
-    #- name: Test with pytest
+    #- name: Run pytest
     #  run: |
     #    pytest
     
