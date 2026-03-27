@@ -40,6 +40,7 @@ jobs:
 
     - name: Run pytest
       run: |
+        cd textproc
         pytest
 
     - name: Start server
