@@ -4,6 +4,7 @@
 # Run using the pytest command:
 # pytest test_textproc_server.py
 
+# Reading config env file defined in conftest.py
 
 def test_read_main(client):
     response = client.get("/")
