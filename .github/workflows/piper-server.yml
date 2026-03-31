@@ -27,7 +27,7 @@ jobs:
       run: |
         cd piper_server
         python -m pip install --upgrade pip
-        pip install flake8 pytest
+        pip install flake8
         python -m venv .venv
         source .venv/bin/activate
         pip install torch --index-url https://download.pytorch.org/whl/cpu
@@ -44,9 +44,11 @@ jobs:
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 . --bug-report --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics --extend-ignore=E501,E266
 
-    #- name: Run pytest
-    #  run: |
-    #    pytest
+    - name: Run pytest
+      run: |
+        cd piper_server
+        source .venv/bin/activate
+        pytest
     
     - name: Fetch models
       run: |
