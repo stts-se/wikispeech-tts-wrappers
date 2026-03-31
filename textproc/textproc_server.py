@@ -57,7 +57,7 @@ class UttRequest(BaseModel):
         {'text': 'jag heter', 'type': 'text'},
         {'text': 'Karl XII', 'type': 'alias', 'alias': 'Karl den tolfte'},
         {'text': 'och jag är en', 'type': 'text'},
-        {'text': 'apa', 'type': 'phonemes', 'phonemes': '"" A: . p a'},
+        {'text': 'apa', 'type': 'phonemes', 'phonemes': '"" A: . p a'}
     ]
 
     #input: str = "jag föddes på S/S Norrskär och S/S Storskär, 1984 bl.a. och det var kul sa Karl XII och Gustav XVI både 1:a och 2:a gången också!"

@@ -345,7 +345,19 @@ class Textproc:
         for item in res:
             if "text" in item:
                 derived_input.append(item["text"])
+
+            # for punctuation on its own, we use the word attribute
             for token in item["words"]:
+                if token.get("word","") == "":
+                    pre = token.get("prepunct","")
+                    post = token.get("postpunct","")
+                    punct = pre+post
+                    token["word"] = punct
+                    if "prepunct" in token:
+                        token.pop("prepunct")
+                    if "postpunct" in token:
+                        token.pop("postpunct")                    
+
                 t = f"{token.get('prepunct','')}{token['word']}{token.get('postpunct','')}"
                 derived_output = derived_output + t
                 if not "nodelim" in token.get("tags",[]):
