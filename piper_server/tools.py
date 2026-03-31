@@ -24,6 +24,31 @@ def get_or_else(value1, value2, default=None):
     else:
         return default
 
+def postmatch_alignments(tokens_processed, tokens_aligned):
+    if len(tokens_aligned) == len(tokens_processed):
+        for i, t in enumerate(tokens_aligned):
+            hidden = tokens_aligned[i].get("hidden", False)
+            tokens_aligned[i] = tokens_aligned[i] | tokens_processed[i]
+    else: # if they don't match, try the same matching but with empty orth words removed instead
+        tokens_processed_nonempty = []
+        for i, t in enumerate(tokens_processed):
+            if "orth" not in t or t["orth"] == "":
+                continue
+            else:
+                tokens_processed_nonempty.append(t)
+
+        if len(tokens_aligned) == len(tokens_processed_nonempty):
+            for i, t in enumerate(tokens_aligned):
+                hidden = tokens_aligned[i].get("hidden", False)
+                tokens_aligned[i] = tokens_aligned[i] | tokens_processed_nonempty[i]
+        else:
+            logger.debug(f"Unable to match input tokens with aligned tokens! token counts: {len(tokens_processed)} / {len(tokens_aligned)}")
+            if len(tokens_processed_nonempty) != len(tokens_processed):
+                logger.debug(f"Unable to match input tokens with aligned tokens! token counts: {len(tokens_processed_nonempty)} / {len(tokens_aligned)}")
+            logger.debug(f"Unable to match input tokens with aligned tokens! tokens_processed: {tokens_processed}")
+            logger.debug(f"Unable to match input tokens with aligned tokens! tokens_aligned: {tokens_aligned}")            
+    return tokens_aligned
+    
 def align(alignments, sample_rate):
     at_sample = 0
     current_token = {

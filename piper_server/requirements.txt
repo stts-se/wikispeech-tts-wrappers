@@ -6,3 +6,4 @@ deep-phonemizer
 dotenv
 pytz
 tzlocal
+pytest

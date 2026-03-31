@@ -217,7 +217,7 @@ class Voice:
             raise e
                         
         if piper_alignments_enabled and len(alignments) == 0:
-            logger.warning(f" No alignments in output from synthesize_wav. This is probably because the model is not alignment-enabled. See https://github.com/OHF-Voice/piper1-gpl/blob/main/docs/ALIGNMENTS.md for information on how to enable alignments.")
+            logger.warning(f"No alignments in output from synthesize_wav. This is probably because the model is not alignment-enabled. See https://github.com/OHF-Voice/piper1-gpl/blob/main/docs/ALIGNMENTS.md for information on how to enable alignments.")
             #return
 
         result = {
@@ -228,14 +228,7 @@ class Voice:
 
         if piper_alignments_enabled:
             tokens = tools.align(alignments, sample_rate)
-            if len(tokens) == len(tokens_processed):
-                for i, t in enumerate(tokens):
-                    hidden = tokens[i].get("hidden", False)
-                    tokens[i] = tokens[i] | tokens_processed[i]
-            else:
-                logger.debug(f"Unable to match input tokens with aligned tokens: {tokens_processed} {tokens}")
-                # TODO: Smarter matching for aligned output
-            result["tokens"] = tokens
+            result["tokens"] = tools.postmatch_alignments(tokens_processed, tokens)
 
             # remove workaround-added final period, if added
             if len(tokens)>2:
