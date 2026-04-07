@@ -30,6 +30,20 @@ def roman2int(s):
         prev = val
     return result
 
+def load_nested_files(rules, resource_paths):
+    res = []
+    for r in rules:
+        if r["rule_type"] == "file":
+            path = io.find_file(r["file"], resource_paths)
+            if path is None:
+                raise IOError(f"Failed to find nexted textproc rules {r['file']}")
+            with open(path, "r") as fh:
+                rules = json.load(fh)
+                res.extend(rules)
+        else:
+            res.append(r)
+    return res
+
 def load_config(json_config):
     textprocs = {}
     with open(json_config, "r") as file:
@@ -54,8 +68,10 @@ def load_config(json_config):
                 p_re = f"^((?:{rules['punctuation_re']})*)(.*?)((?:{rules['punctuation_re']})*)$"
                 punctuation_re = re.compile(p_re)
                 punctuation_after_match = re.compile(f"^((?:{rules['punctuation_re']})+)( |$)")
-                rewrite_rules = rules["rules"]
+                rewrite_rules = load_nested_files(rules["rules"], resource_paths)
                 for id, r in enumerate(rewrite_rules,start=1):
+                    if r.get("rule_type","") == "file":
+                        raise IOError(f"A nested rule file cannot contain nested rule files: {r}")
                     r["id"] = id
                     if r.get("ignore_case",True): 
                         r["input_compiled"] = re.compile(r["input"],re.IGNORECASE)

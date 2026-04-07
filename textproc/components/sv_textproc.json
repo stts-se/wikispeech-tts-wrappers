@@ -8,6 +8,29 @@
     "rules":
     [
 	{
+	    "rule_type": "file",
+	    "file": "sv_time.json"
+	},
+	{
+	    "rule_type": "file",
+	    "file": "sv_abbrevs.json"
+	},
+	{
+	    "rule_type": "file",
+	    "file": "sv_units.json"
+	},
+	{
+	    "rule_type": "utterance",
+	    "input": "\\bB[. ]*P(\\.|\\b)",
+	    "output": "före nutid",
+	    "tests": [
+		{
+		    "from": "2000 BP",
+		    "to": "2000 före nutid"
+		}
+	    ]
+	},
+	{
 	    "rule_type": "utterance",
 	    "input": "\\bf[. ]*kr(\\.|\\b)",
 	    "output": "före Kristus",
@@ -165,232 +188,6 @@
 	},
 	{
 	    "rule_type": "utterance",
-	    "input": "\\bt[. ]*ex(\\.|\\b)",
-	    "output": "till exempel",
-	    "tests": [
-		{
-		    "from": "Man kan t.ex. baka med havremjöl istället",
-		    "to": "Man kan till exempel baka med havremjöl istället"
-		},
-		{
-		    "from": "Miljön t.ex.",
-		    "to": "Miljön till exempel"
-		}
-	    ]
-	},
-	{
-	    "rule_type": "utterance",
-	    "input": "\\bbl[. ]*a(\\.|\\b)",
-	    "output": "bland annat",
-	    "tests": [
-		{
-		    "from": "Det var bl.a. hans fel",
-		    "to": "Det var bland annat hans fel"
-		}
-	    ]
-	},
-	{
-	    "rule_type": "utterance",
-	    "input": "\\bdvs(\\.|\\b)",
-	    "output": "det vill säga",
-	    "tests": [
-		{
-		    "from": "Hon sa, dvs., inget",
-		    "to": "Hon sa, det vill säga, inget"
-		}
-	    ]
-	},
-	{
-	    "rule_type": "utterance",
-	    "input": "\\bo[. ]*s[. ]*v(\\.|\\b)",
-	    "output": "och så vidare",
-	    "tests": [
-		{
-		    "from": "Det var bad, bad, bad, osv., i all oändlighet.",
-		    "to": "Det var bad, bad, bad, och så vidare, i all oändlighet."
-		}
-	    ]
-	},
-	{
-	    "rule_type": "utterance",
-	    "input": "\\bkr(\\.|\\b)",
-	    "output": "kronor",
-	    "tests": [
-		{
-		    "from": "10 kr",
-		    "to": "10 kronor"
-		}
-	    ]
-	},
-	{
-	    "rule_type": "utterance",
-	    "input": "(\\b|[0-9,.]+) *kHz(\\.|\\b)",
-	    "output": "\\1 kilohertz",
-	    "tests": [
-		{
-		    "from": "10kHz",
-		    "to": "10 kilohertz"
-		},
-		{
-		    "from": "10 kHz",
-		    "to": "10 kilohertz"
-		}
-	    ]
-	},
-	{
-	    "rule_type": "utterance",
-	    "input": "(\\b|[0-9,.]+) *MHz(\\.|\\b)",
-	    "output": "\\1 megahertz",
-	    "tests": [
-		{
-		    "from": "10MHz",
-		    "to": "10 megahertz"
-		},
-		{
-		    "from": "10 MHz",
-		    "to": "10 megahertz"
-		}
-	    ]
-	},
-	{
-	    "rule_type": "utterance",
-	    "input": "(\\b|[0-9,.]+) *GHz(\\.|\\b)",
-	    "output": "\\1 gigahertz",
-	    "tests": [
-		{
-		    "from": "10.6GHz",
-		    "to": "10.6 gigahertz"
-		},
-		{
-		    "from": "10 GHz",
-		    "to": "10 gigahertz"
-		}
-	    ]
-	},
-	{
-	    "rule_type": "utterance",
-	    "input": "(\\b|[0-9,.]+) *THz(\\.|\\b)",
-	    "output": "\\1 terahertz",
-	    "tests": [
-		{
-		    "from": "10.6THz",
-		    "to": "10.6 terahertz"
-		},
-		{
-		    "from": "105.9 THz",
-		    "to": "105.9 terahertz"
-		}
-	    ]
-	},
-	{
-	    "rule_type": "utterance",
-	    "input": "\\bm[. ]*fl(\\.|\\b)",
-	    "output": "med flera",
-	    "tests": [
-		{
-		    "from": "Arresten på Bohus med Rolf Cederlöf, Gunilla Söderström, Loa Falkman m.fl",
-		    "to": "Arresten på Bohus med Rolf Cederlöf, Gunilla Söderström, Loa Falkman med flera"
-		}
-	    ]
-	},
-	{
-	    "rule_type": "utterance",
-	    "input": "\\bm[. ]+m(\\.|\\b)",
-	    "output": "med mera",
-	    "tests": [
-		{
-		    "from": "Våtmark, sankmark och sumpmark m. m. är enligt den svenska våtmarksinventeringens definition sådan mark.",
-		    "to": "Våtmark, sankmark och sumpmark med mera är enligt den svenska våtmarksinventeringens definition sådan mark."
-		}
-	    ]
-	},
-	{
-	    "rule_type": "utterance",
-	    "input": "\\bvs(\\.|\\b)",
-	    "output": "versus",
-	    "tests": [
-		{
-		    "from": "Gorilla vs. Bear",
-		    "to": "Gorilla versus Bear"
-		}
-	    ]
-	},
-	{
-	    "rule_type": "utterance",
-	    "input": "\\bB[. ]*P(\\.|\\b)",
-	    "output": "före nutid",
-	    "tests": [
-		{
-		    "from": "2000 BP",
-		    "to": "2000 före nutid"
-		}
-	    ]
-	},
-	{
-	    "rule_type": "utterance",
-	    "input": "(\\b|[0-9]+) *mm(\\.|\\b)",
-	    "output": "\\1 millimeter",
-	    "tests": [
-		{
-		    "from": "Bordsskivan var 17mm lång",
-		    "to": "Bordsskivan var 17 millimeter lång"
-		}
-	    ]
-	},
-	{
-	    "rule_type": "utterance",
-	    "input": "(\\b|[0-9]+) *cm(\\.|\\b)",
-	    "output": "\\1 centimeter",
-	    "tests": [
-		{
-		    "from": "Bordsskivan var 17cm lång",
-		    "to": "Bordsskivan var 17 centimeter lång"
-		},
-		{
-		    "from": "Bordsskivan var 17 cm lång",
-		    "to": "Bordsskivan var 17 centimeter lång"
-		}
-	    ]
-	},
-	{
-	    "rule_type": "utterance",
-	    "input": "(\\b|[0-9]+) *dm(\\.|\\b)",
-	    "output": "\\1 decimeter",
-	    "tests": [
-		{
-		    "from": "Bordsskivan var 17dm lång",
-		    "to": "Bordsskivan var 17 decimeter lång"
-		}
-	    ]
-	},
-	{
-	    "rule_type": "utterance",
-	    "input": "\\bkg(\\.|\\b)",
-	    "output": "kilo",
-	    "tests": [
-		{
-		    "from": "Massan är 123 kg.",
-		    "to": "Massan är 123 kilo"
-		}
-	    ]
-	},
-	{
-	    "rule_type": "utterance",
-	    "input": "(\\b|[0-9]*)%",
-	    "output": "\\1 procent",
-	    "tests": [
-		{
-		    "from": "Bordsskivan var 17% längre",
-		    "to": "Bordsskivan var 17 procent längre"
-		},
-		{
-		    "from": "Bordsskivan var 17 % längre",
-		    "to": "Bordsskivan var 17 procent längre"
-		}
-	    ]
-	},
-	{
-	    "rule_type": "utterance",
 	    "input": "\\b(Karl|Gusta[vf]|Johan|Erik|Harald|Håkon|Viktoria|Victoria|Elisabeth|Elizabeth|Sigismund|Fredrik|Oscar) +([0-9]+|[XIV]+)(\\.|\\b)",
 	    "ignore_case": true,
 	    "output": "\\1 den \\2|||ordinal",
@@ -476,50 +273,6 @@
 	    ]
 	},
 	{
-	    "rule_type": "utterance",
-	    "input": "-([0-9.,]+) *°",
-	    "output": "minus \\1 grader",
-	    "tests": [
-		{
-		    "from": "-12.5 °",
-		    "to": "minus 12.5 grader"
-		}
-	    ]
-	},
-	{
-	    "rule_type": "utterance",
-	    "input": "-([0-9.,]+) *° *C\\b",
-	    "output": "minus \\1 grader Celsius",
-	    "tests": [
-		{
-		    "from": "-12.5°C",
-		    "to": "minus 12.5 grader Celsius"
-		}
-	    ]
-	},
-	{
-	    "rule_type": "utterance",
-	    "input": "([0-9.,]+) *° *C\\b",
-	    "output": "\\1 grader Celsius",
-	    "tests": [
-		{
-		    "from": "12.5°C",
-		    "to": "12.5 grader Celsius"
-		}
-	    ]
-	},
-	{
-	    "rule_type": "utterance",
-	    "input": "([0-9.,]+) *°",
-	    "output": "\\1 grader",
-	    "tests": [
-		{
-		    "from": "12.5 °",
-		    "to": "12.5 grader"
-		}
-	    ]
-	},
-	{
 	    "rule_type": "token",
 	    "input": "\\b([\\w]+)-([0-9.,]+)\\b",
 	    "output": "\\1 \\2",
@@ -591,6 +344,14 @@
 	{
 	    "from": "48-bitars",
 	    "to": "fyrtio-åtta bitars"
+	},
+	{
+	    "from": "10:45",
+	    "to": "tio fyrtio-fem"
+	},
+	{
+	    "from": "09:45",
+	    "to": "noll nio fyrtio-fem"
 	}
 
     ]

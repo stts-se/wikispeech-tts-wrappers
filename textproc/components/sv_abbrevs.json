@@ -1,0 +1,83 @@
+[
+	{
+	    "rule_type": "utterance",
+	    "input": "\\bt[. ]*ex(\\.|\\b)",
+	    "output": "till exempel",
+	    "tests": [
+		{
+		    "from": "Man kan t.ex. baka med havremjöl istället",
+		    "to": "Man kan till exempel baka med havremjöl istället"
+		},
+		{
+		    "from": "Miljön t.ex.",
+		    "to": "Miljön till exempel"
+		}
+	    ]
+	},
+	{
+	    "rule_type": "utterance",
+	    "input": "\\bbl[. ]*a(\\.|\\b)",
+	    "output": "bland annat",
+	    "tests": [
+		{
+		    "from": "Det var bl.a. hans fel",
+		    "to": "Det var bland annat hans fel"
+		}
+	    ]
+	},
+	{
+	    "rule_type": "utterance",
+	    "input": "\\bdvs(\\.|\\b)",
+	    "output": "det vill säga",
+	    "tests": [
+		{
+		    "from": "Hon sa, dvs., inget",
+		    "to": "Hon sa, det vill säga, inget"
+		}
+	    ]
+	},
+	{
+	    "rule_type": "utterance",
+	    "input": "\\bo[. ]*s[. ]*v(\\.|\\b)",
+	    "output": "och så vidare",
+	    "tests": [
+		{
+		    "from": "Det var bad, bad, bad, osv., i all oändlighet.",
+		    "to": "Det var bad, bad, bad, och så vidare, i all oändlighet."
+		}
+	    ]
+	},
+	{
+	    "rule_type": "utterance",
+	    "input": "\\bm[. ]*fl(\\.|\\b)",
+	    "output": "med flera",
+	    "tests": [
+		{
+		    "from": "Arresten på Bohus med Rolf Cederlöf, Gunilla Söderström, Loa Falkman m.fl",
+		    "to": "Arresten på Bohus med Rolf Cederlöf, Gunilla Söderström, Loa Falkman med flera"
+		}
+	    ]
+	},
+	{
+	    "rule_type": "utterance",
+	    "input": "\\bm[. ]+m(\\.|\\b)",
+	    "output": "med mera",
+	    "tests": [
+		{
+		    "from": "Våtmark, sankmark och sumpmark m. m. är enligt den svenska våtmarksinventeringens definition sådan mark.",
+		    "to": "Våtmark, sankmark och sumpmark med mera är enligt den svenska våtmarksinventeringens definition sådan mark."
+		}
+	    ]
+	},
+	{
+	    "rule_type": "utterance",
+	    "input": "\\bvs(\\.|\\b)",
+	    "output": "versus",
+	    "tests": [
+		{
+		    "from": "Gorilla vs. Bear",
+		    "to": "Gorilla versus Bear"
+		}
+	    ]
+	}
+]
