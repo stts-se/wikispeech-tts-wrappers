@@ -9,6 +9,38 @@
     "output_path": "audio_files",
     "voices": [
 	{
+	    "name": "sv_vc_male_mart2nik_p",
+	    "lang": "sv-SE",
+	    "enabled": true,
+	    "load_on_startup": false,
+	    "model": "sv_vc_male_mart2nik",
+	    "phonemizers": [
+		{
+		    "name": "sv_se_braxen_full_sv",
+		    "type": "deep_phonemizer",
+		    "lang": "sv",
+		    "model": "dp_single_char_swe_sv.pt",
+		    "maptable": "TODO"
+		}
+	    ]
+	},
+	{
+	    "name": "sv_vc_female_mart2han_p",
+	    "lang": "sv-SE",
+	    "enabled": true,
+	    "load_on_startup": false,
+	    "model": "sv_vc_female_mart2han",
+	    "phonemizers": [
+		{
+		    "name": "sv_se_braxen_full_sv",
+		    "type": "deep_phonemizer",
+		    "lang": "sv",
+		    "model": "dp_single_char_swe_sv.pt",
+		    "maptable": "TODO"
+		}
+	    ]
+	},
+	{
 	    "name": "sv_se_nst_male1_p",
 	    "lang": "sv-SE",
 	    "enabled": true,
