@@ -9,7 +9,7 @@
     "output_path": "audio_files",
     "voices": [
 	{
-	    "name": "sv_vc_male_mart2nik_p",
+	    "name": "sv_vc_m2m_p",
 	    "lang": "sv-SE",
 	    "enabled": true,
 	    "load_on_startup": false,
@@ -25,7 +25,7 @@
 	    ]
 	},
 	{
-	    "name": "sv_vc_female_mart2han_p",
+	    "name": "sv_vc_m2f_p",
 	    "lang": "sv-SE",
 	    "enabled": true,
 	    "load_on_startup": false,
