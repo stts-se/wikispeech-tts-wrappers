@@ -30,7 +30,6 @@ jobs:
         pip install flake8
         python -m venv .venv
         source .venv/bin/activate
-        #pip install torch --index-url https://download.pytorch.org/whl/cpu
         pip install -r requirements.txt
         # workaround for pytorch
         sed -i 's/checkpoint = torch.load(checkpoint_path, map_location=device)/checkpoint = torch.load(checkpoint_path, map_location=device, weights_only=False)/' .venv/lib/python3.*/site-packages/dp/model/model.py
