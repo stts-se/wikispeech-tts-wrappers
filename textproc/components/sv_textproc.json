@@ -2,7 +2,7 @@
     "rbnf_lang": "sv",
     "sentence_split_re": "([.?!]) +([A-Z0-9]+)",
     "token_split_re": "[\\s]+",
-    "punctuation_re": "[(),;.¿?¡!-\"']+",
+    "punctuation_re": "[(),;.¿?¡!-\"”“']+",
     "rbnf_compound_delimiter": "-",
     "fail_on_error": true,
     "rules":
@@ -53,9 +53,14 @@
 	},
 	{
 	    "rule_type": "utterance",
-	    "input": "\\b([0-9.,]+) *– *([0-9.,]+)\\b",
+	    "description": "intervals with en dash (U2013)",
+	    "input": "\\b([0-9.,]+) *\u2013 *([0-9.,]+)\\b",
 	    "output": "\\1 till \\2",
 	    "tests": [
+		{
+		    "from": "3\u20132",
+		    "to": "3 till 2"
+		},
 		{
 		    "from": "3–2",
 		    "to": "3 till 2"
@@ -75,12 +80,42 @@
 	},
 	{
 	    "rule_type": "utterance",
-	    "input": "\\b([0-9.,]+) *- *([0-9.,]+)\\b",
+	    "input": "\\b([0-9.,]+) *\\+",
+	    "output": "\\1 plus",
+	    "tests": [
+		{
+		    "from": "3+ ord",
+		    "to": "3 plus ord"
+		}
+	    ]
+	},
+	{
+	    "rule_type": "utterance",
+	    "input": "\\b([0-9.,]+) *[-\u2212] *([0-9.,]+)\\b",
 	    "output": "\\1 minus \\2",
 	    "tests": [
 		{
+		    "from": "3−2",
+		    "to": "3 minus 2"
+		},
+		{
+		    "from": "3\u22122",
+		    "to": "3 minus 2"
+		},
+		{
 		    "from": "3-2",
 		    "to": "3 minus 2"
+		}
+	    ]
+	},
+	{
+	    "rule_type": "utterance",
+	    "input": "\\b([0-9.,]+) *− *([0-9.,]+)\\b",
+	    "output": "\\1 till \\2",
+	    "tests": [
+		{
+		    "from": "3−2",
+		    "to": "3 till 2"
 		}
 	    ]
 	},
@@ -167,6 +202,66 @@
 	},
 	{
 	    "rule_type": "utterance",
+	    "input": "(\\b|[0-9,.]+) *kHz(\\.|\\b)",
+	    "output": "\\1 kilohertz",
+	    "tests": [
+		{
+		    "from": "10kHz",
+		    "to": "10 kilohertz"
+		},
+		{
+		    "from": "10 kHz",
+		    "to": "10 kilohertz"
+		}
+	    ]
+	},
+	{
+	    "rule_type": "utterance",
+	    "input": "(\\b|[0-9,.]+) *MHz(\\.|\\b)",
+	    "output": "\\1 megahertz",
+	    "tests": [
+		{
+		    "from": "10MHz",
+		    "to": "10 megahertz"
+		},
+		{
+		    "from": "10 MHz",
+		    "to": "10 megahertz"
+		}
+	    ]
+	},
+	{
+	    "rule_type": "utterance",
+	    "input": "(\\b|[0-9,.]+) *GHz(\\.|\\b)",
+	    "output": "\\1 gigahertz",
+	    "tests": [
+		{
+		    "from": "10.6GHz",
+		    "to": "10.6 gigahertz"
+		},
+		{
+		    "from": "10 GHz",
+		    "to": "10 gigahertz"
+		}
+	    ]
+	},
+	{
+	    "rule_type": "utterance",
+	    "input": "(\\b|[0-9,.]+) *THz(\\.|\\b)",
+	    "output": "\\1 terahertz",
+	    "tests": [
+		{
+		    "from": "10.6THz",
+		    "to": "10.6 terahertz"
+		},
+		{
+		    "from": "105.9 THz",
+		    "to": "105.9 terahertz"
+		}
+	    ]
+	},
+	{
+	    "rule_type": "utterance",
 	    "input": "\\bm[. ]*fl(\\.|\\b)",
 	    "output": "med flera",
 	    "tests": [
@@ -211,12 +306,49 @@
 	},
 	{
 	    "rule_type": "utterance",
-	    "input": "(\\b|[0-9]+)mm(\\.|\\b)",
+	    "input": "(\\b|[0-9]+) *mm(\\.|\\b)",
 	    "output": "\\1 millimeter",
 	    "tests": [
 		{
 		    "from": "Bordsskivan var 17mm lång",
 		    "to": "Bordsskivan var 17 millimeter lång"
+		}
+	    ]
+	},
+	{
+	    "rule_type": "utterance",
+	    "input": "(\\b|[0-9]+) *cm(\\.|\\b)",
+	    "output": "\\1 centimeter",
+	    "tests": [
+		{
+		    "from": "Bordsskivan var 17cm lång",
+		    "to": "Bordsskivan var 17 centimeter lång"
+		},
+		{
+		    "from": "Bordsskivan var 17 cm lång",
+		    "to": "Bordsskivan var 17 centimeter lång"
+		}
+	    ]
+	},
+	{
+	    "rule_type": "utterance",
+	    "input": "(\\b|[0-9]+) *dm(\\.|\\b)",
+	    "output": "\\1 decimeter",
+	    "tests": [
+		{
+		    "from": "Bordsskivan var 17dm lång",
+		    "to": "Bordsskivan var 17 decimeter lång"
+		}
+	    ]
+	},
+	{
+	    "rule_type": "utterance",
+	    "input": "\\bkg(\\.|\\b)",
+	    "output": "kilo",
+	    "tests": [
+		{
+		    "from": "Massan är 123 kg.",
+		    "to": "Massan är 123 kilo"
 		}
 	    ]
 	},
@@ -301,12 +433,23 @@
 	},
 	{
 	    "rule_type": "token",
-	    "input": "^([a-z0-9]+)[.]([a-z0-9]+)@([a-z0-9]+)[.]([a-z0-9]+)",
-	    "output": "\\1 punkt \\2 snabel-a \\3 punkt \\4",
+	    "input": "^([a-z0-9]+)[.]([a-z0-9]+)@([a-z0-9]+)[.](se)$",
+	    "output": "\\1 punkt \\2 snabel-a \\3 punkt \\4|||spellout",
 	    "tests": [
 		{
 		    "from": "gurra.g@regeringen.se",
-		    "to": "gurra punkt g snabel-a regeringen punkt se"
+		    "to": "gurra punkt g snabel-a regeringen punkt se|||spellout"
+		}
+	    ]
+	},
+	{
+	    "rule_type": "token",
+	    "input": "^([a-z0-9]+)[.]([a-z0-9]+)@([a-z0-9]+)[.]([a-z0-9]+)$",
+	    "output": "\\1 punkt \\2 snabel-a \\3 punkt \\4",
+	    "tests": [
+		{
+		    "from": "gurra.g@regeringen.org",
+		    "to": "gurra punkt g snabel-a regeringen punkt org"
 		}
 	    ]
 	},
@@ -373,6 +516,19 @@
 		{
 		    "from": "48-bitars",
 		    "to": "48 bitars"
+		}
+	    ]
+	},
+	{
+	    "rule_type": "utterance",
+	    "description": "fallback rule to separate numbers from letters",
+	    "input": "([0-9,.]+)([A-Z]+)",
+	    "ignore_case": true,
+	    "output": "\\1 \\2",
+	    "tests": [
+		{
+		    "from": "100G",
+		    "to": "100 G"
 		}
 	    ]
 	}

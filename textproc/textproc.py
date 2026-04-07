@@ -254,7 +254,7 @@ class Textproc:
                 res.append({
                     "type": "alias",
                     "text": text,
-                    "alias": alias
+                    "alias": alias.strip()
                 })
             if len(rest) > 0:
                 end = {
