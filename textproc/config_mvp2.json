@@ -1,0 +1,22 @@
+{
+    "_comment": "You can add multiple folders to resource_paths. Environment variables are expanded, and relative paths are allowed. If the same resource is found in multiple folders, the first one will be used.",
+    "resource_paths": [
+	"./components"
+    ],
+    "textprocs": [
+	{
+	    "name": "sv_se_1",
+	    "lang": "sv",
+	    "enabled": true,
+	    "load_on_startup": true,
+	    "rules": "sv_textproc.json"
+	},
+	{
+	    "name": "en_1",
+	    "lang": "en",
+	    "enabled": true,
+	    "load_on_startup": true,
+	    "rules": "en_textproc.json"
+	}
+    ]
+}
