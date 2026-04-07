@@ -251,10 +251,12 @@ class Textproc:
                     n = len(mx.group(1))
                     rest = s[span[1]+n:len(s)]
                     alias = alias+mx.group(1)
+                    if rule.get("strip",False):
+                        alias = alias.strip()
                 res.append({
                     "type": "alias",
                     "text": text,
-                    "alias": alias.strip()
+                    "alias": alias
                 })
             if len(rest) > 0:
                 end = {
