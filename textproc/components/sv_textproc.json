@@ -9,6 +9,28 @@
     [
 	{
 	    "rule_type": "utterance",
+	    "input": "\\bf[. ]*kr(\\.|\\b)",
+	    "output": "före Kristus",
+	    "tests": [
+		{
+		    "from": "2000 F.Kr",
+		    "to": "2000 före Kristus"
+		}
+	    ]
+	},
+	{
+	    "rule_type": "utterance",
+	    "input": "\\be[. ]*kr(\\.|\\b)",
+	    "output": "efter Kristus",
+	    "tests": [
+		{
+		    "from": "2000 e.Kr",
+		    "to": "2000 efter Kristus"
+		}
+	    ]
+	},
+	{
+	    "rule_type": "utterance",
 	    "input": "\\b(del) ([XIV]+)\\b",
 	    "output": "\\1 \\2|||roman",
 	    "tests": [
