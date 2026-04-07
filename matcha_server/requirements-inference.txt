@@ -1,0 +1,11 @@
+--extra-index-url https://download.pytorch.org/whl/cpu
+
+Matcha-TTS==0.0.7.2
+uvicorn
+fastapi[standard]
+deep-phonemizer
+dotenv
+torch==2.11.0+cpu
+torchaudio==2.11.0+cpu
+pytz
+tzlocal
