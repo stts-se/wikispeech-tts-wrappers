@@ -61,33 +61,6 @@
             "batch_size": 32
 	},
 	{
-	    "name": "en_us_vctk",
-	    "enabled": true,
-	    "load_on_startup": false,
-	    "vocoder": "hifigan_univ_v1",
-	    "model": "matcha_vctk.ckpt",
-	    "phonemizers": [
-		{
-		    "name": "espeak",
-		    "type": "espeak",
-		    "lang": "en-us"
-		}
-	    ],
-	    "symbols": {
-		"pad": "_",
-		"punctuation": ";:,.!?¡¿—…\"«»“” ",
-		"letters": "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
-		"letters_ipa": "ɑɐɒæɓʙβɔɕçɗɖðʤəɘɚɛɜɝɞɟʄɡɠɢʛɦɧħɥʜɨɪʝɭɬɫɮʟɱɯɰŋɳɲɴøɵɸθœɶʘɹɺɾɻʀʁɽʂʃʈʧʉʊʋⱱʌɣɤʍχʎʏʑʐʒʔʡʕʢǀǁǂǃˈˌːˑʼʴʰʱʲʷˠˤ˞↓↑→↗↘'̩'ᵻ"
-	    },
-	    "speaking_rate": 0.85,
-            "denoiser_strength": 0.00025,
-            "steps": 10,
-	    "spk": 4,
-	    "spk_range": [0, 107],
-            "temperature": 0.667,
-            "batch_size": 32
-	},
-	{
 	    "name": "en_us_ljspeech",
 	    "enabled": true,
 	    "load_on_startup": false,
