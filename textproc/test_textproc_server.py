@@ -48,12 +48,14 @@ def test_single_word_post(client):
             {'text': 'apa', 'type': 'phonemes', 'phonemes': '"" A: . p a'}
         ]
     }
+    
     response = client.post("process_utt", json=payload)
     assert response.status_code == 200
     data = response.json()
     assert len(data) == 4
 
     tokens = data["tokens"]
+    #assert tokens == expect
     assert len(tokens) == 8
 
     assert tokens[0]["text"] == "jag"

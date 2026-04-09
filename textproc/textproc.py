@@ -288,27 +288,28 @@ class Textproc:
                 res.append(end)
 
         # combine text parts
-        converted_res = []
-        acc_text = []
-        for item in res:
-            if item["type"] == "text":
-                acc_text.append(item["text"])
-            else:
-                if len(acc_text) > 0:
-                    text = {
-                        "type": "text",
-                        "text": " ".join(acc_text)
-                    }
-                    converted_res.append(text)
-                    acc_text = []
-                converted_res.append(item)
-        if len(acc_text) > 0:
-            text = {
-                "type": "text",
-                "text": " ".join(acc_text)
-            }
-            converted_res.append(text)
-        return converted_res
+        # converted_res = []
+        # acc_text = []
+        # for item in res:
+        #     if item["type"] == "text":
+        #         acc_text.append(item["text"])
+        #     else:
+        #         if len(acc_text) > 0:
+        #             text = {
+        #                 "type": "text",
+        #                 "text": " ".join(acc_text)
+        #             }
+        #             converted_res.append(text)
+        #             acc_text = []
+        #         converted_res.append(item)
+        # if len(acc_text) > 0:
+        #     text = {
+        #         "type": "text",
+        #         "text": " ".join(acc_text)
+        #     }
+        #     converted_res.append(text)
+        # return converted_res
+        return res
         
     def apply_rewrite_rules(self, item: object):
         acc = [item]
