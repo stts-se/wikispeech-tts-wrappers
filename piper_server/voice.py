@@ -173,6 +173,9 @@ class Voice:
         tokens_processed = self.process_tokens(input_tokens)
         piper_input = tools.tokens2piper(tokens_processed)
 
+        print("??? voice tokens_processed:", tokens_processed)
+        print("??? voice piper_input:", piper_input)
+
         wav_file=str(Path(output_file).with_suffix('.wav'))
         lab_file=str(Path(output_file).with_suffix('.lab'))
 
@@ -228,6 +231,9 @@ class Voice:
 
         if piper_alignments_enabled:
             tokens = tools.align(alignments, sample_rate)
+            print("??? tokens processed", tokens_processed)
+            print("??? tokens alignments", alignments)
+            print("??? tokens aligned", tokens)
             result["tokens"] = tools.postmatch_alignments(tokens_processed, tokens)
 
             # remove workaround-added final period, if added
@@ -327,7 +333,7 @@ class Phonemizer:
         else:
             tmp = self.pher.phonemize([input], strip=True, njobs=1)
             if len(tmp) > 0:
-                return tmp[0]
+                return tmp[0].replace(" ","_")
             else:
                 raise Exception(f"Unexpected output from phonemize input '{input}': {tmp}")
 

@@ -360,7 +360,11 @@ class Phonemizer:
                     lang = self.lang
             return self.pher(input, lang)
         else:
-            return self.pher.phonemize([input], strip=True, njobs=1)[0]
+            tmp = self.pher.phonemize([input], strip=True, njobs=1)
+            if len(tmp) > 0:
+                return tmp[0].replace(" ","_")
+            else:
+                raise Exception(f"Unexpected output from phonemize input '{input}': {tmp}")
 
     def __str__(self):
         return f"(name={self.name},lang={self.lang},model={self.path})"

@@ -46,7 +46,7 @@ def postmatch_alignments(tokens_processed, tokens_aligned):
             if len(tokens_processed_nonempty) != len(tokens_processed):
                 logger.debug(f"Unable to match input tokens with aligned tokens! token counts: {len(tokens_processed_nonempty)} / {len(tokens_aligned)}")
             logger.debug(f"Unable to match input tokens with aligned tokens! tokens_processed: {tokens_processed}")
-            logger.debug(f"Unable to match input tokens with aligned tokens! tokens_aligned: {tokens_aligned}")            
+            logger.debug(f"Unable to match input tokens with aligned tokens! tokens_aligned: {tokens_aligned}")
     return tokens_aligned
     
 def align(alignments, sample_rate):
