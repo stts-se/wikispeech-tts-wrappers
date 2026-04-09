@@ -38,8 +38,8 @@ def load_nested_files(rules, resource_paths):
             if path is None:
                 raise IOError(f"Failed to find nexted textproc rules {r['file']}")
             with open(path, "r") as fh:
-                rules = json.load(fh)
-                res.extend(rules)
+                rls = json.load(fh)
+                res.extend(rls)
         else:
             res.append(r)
     return res
@@ -74,10 +74,12 @@ def load_config(json_config):
                         raise IOError(f"A nested rule file cannot contain nested rule files: {r}")
                     if r.get("rule_type","") not in ["token","utterance"]:
                         raise IOError(f"Invalid rule type: '{r.get('rule_type')}' for rule {r}")
-                    if not "input" in r:
+                    if "input" not in r:
                         raise IOError(f"input must be specified for rule {r}")
-                    if not "output" in r:
+                    if "output" not in r:
                         raise IOError(f"output must be specified for rule {r}")
+                    if "tests" not in r:
+                        raise IOError(f"tests must be specified for rule {r}")
                     r["id"] = id
                     if r.get("ignore_case",True): 
                         r["input_compiled"] = re.compile(r["input"],re.IGNORECASE)
@@ -93,11 +95,11 @@ def load_config(json_config):
                     punctuation_after_match = punctuation_after_match,
                     rbnf_compound_delimiter = rules.get("rbnf_compound_delimiter",None),
                     rewrite_rules = rewrite_rules,
-                    tests = rules.get("tests",rules.get("test", [])),
+                    tests = rules["tests"],
                     enabled = rules.get("enabled",True),
                     fail_on_error = rules.get("fail_on_error",True)
                 )
-                logger.info(f"Loaded textproc {name} with {len(rules['tests'])} rules")
+                logger.info(f"Loaded textproc {name} with {len(rules)} rules")
     return textprocs
 
 from dataclasses import dataclass, asdict
@@ -374,6 +376,14 @@ class Textproc:
                 }
                 res.append(i)
 
+        # tokenise any remaining text chunks
+        # converted_res = []
+        # for item in res:
+        #     if item["type"] == "text":
+        #         for i in self.toksplit(item["text"]):
+        #     else:
+        #         converted_res.add(item)
+        # res = converted_res
 
         # TODO: merge words with nodelim
         # for t in res:
@@ -434,7 +444,7 @@ class Textproc:
                 logger.error(err)
                 errs.append(err)
         for r in self.rewrite_rules:
-            for test in r.get("test",r.get("tests",[])):
+            for test in r["tests"]:
                 input = test["from"]
                 expect = test["to"]
                 result = self.apply_rewrite_rule(r, input)
