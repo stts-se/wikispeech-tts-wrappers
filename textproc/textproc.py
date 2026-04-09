@@ -280,7 +280,29 @@ class Textproc:
                     "text": rest.strip()
                 }
                 res.append(end)
-        return res
+
+        # combine text parts
+        converted_res = []
+        acc_text = []
+        for item in res:
+            if item["type"] == "text":
+                acc_text.append(item["text"])
+            else:
+                if len(acc_text) > 0:
+                    text = {
+                        "type": "text",
+                        "text": " ".join(acc_text)
+                    }
+                    converted_res.append(text)
+                    acc_text = []
+                converted_res.append(item)
+        if len(acc_text) > 0:
+            text = {
+                "type": "text",
+                "text": " ".join(acc_text)
+            }
+            converted_res.append(text)
+        return converted_res
         
     def apply_rewrite_rules(self, item: object):
         acc = [item]
@@ -301,7 +323,7 @@ class Textproc:
 
     def process_utt(self, input: object, input_type="text"):
         logger.info(f"textproc.process_utt called with {input} / {input_type}")
-        print(f"textproc.process_utt called with {input} / {input_type}")        
+        #print(f"textproc.process_utt called with {input} / {input_type}")        
         items = []
         if input_type == "text":
             items = [{
