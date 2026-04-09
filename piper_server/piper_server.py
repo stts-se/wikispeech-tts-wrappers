@@ -54,39 +54,26 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan,swagger_ui_parameters={"tryItOutEnabled": True})
 
-# @app.get("/synthesize/sv_se_nst_male1")
-# async def synthesize_sv_se_nst_male1(input_type: str = 'phonemes',
-#                                      input: str = "jˈⱭ ˈE ˈen g°am`al trˈøt g°ɵb`ə .",
-#                                      length_scale: Optional[float] = None,
-#                                      noise_scale: Optional[float] = None,
-#                                      noise_w_scale: Optional[float] = None):
-#     return await synthesize_as_get(voice = 'sv_se_nst_male1_p',
-#                                    input_type = input_type,
-#                                    input = input,
-#                                    length_scale = length_scale,
-#                                    noise_scale = noise_scale,
-#                                    noise_w_scale = noise_w_scale)
-
-@app.get("/synthesize/sv_vc_male_mart2nik_p")
-async def synthesize_sv_vc_male_mart2nik_p(input_type: str = 'phonemes',
+@app.get("/synthesize/sv_vc_m2m_p")
+async def synthesize_sv_vc_m2m_p(input_type: str = 'phonemes',
                                      input: str = "jˈⱭ ˈE ˈen g°am`al trˈøt g°ɵb`ə .",
                                      length_scale: Optional[float] = None,
                                      noise_scale: Optional[float] = None,
                                      noise_w_scale: Optional[float] = None):
-    return await synthesize_as_get(voice = 'sv_vc_male_mart2nik_p',
+    return await synthesize_as_get(voice = 'sv_vc_m2m_p',
                                    input_type = input_type,
                                    input = input,
                                    length_scale = length_scale,
                                    noise_scale = noise_scale,
                                    noise_w_scale = noise_w_scale)
 
-@app.get("/synthesize/sv_vc_female_mart2han_p")
-async def synthesize_sv_vc_female_mart2han_p(input_type: str = 'mixed',
+@app.get("/synthesize/sv_vc_m2f_p")
+async def synthesize_sv_vc_m2f_p(input_type: str = 'mixed',
                                      input: str = "[[ jˈⱭ ˈE ˈen g°am`al trˈøt ]] gumma .",
                                      length_scale: Optional[float] = None,
                                      noise_scale: Optional[float] = None,
                                      noise_w_scale: Optional[float] = None):
-    return await synthesize_as_get(voice = 'sv_vc_female_mart2han_p',
+    return await synthesize_as_get(voice = 'sv_vc_m2f_p',
                                    input_type = input_type,
                                    input = input,
                                    length_scale = length_scale,

@@ -72,6 +72,12 @@ def load_config(json_config):
                 for id, r in enumerate(rewrite_rules,start=1):
                     if r.get("rule_type","") == "file":
                         raise IOError(f"A nested rule file cannot contain nested rule files: {r}")
+                    if r.get("rule_type","") not in ["token","utterance"]:
+                        raise IOError(f"Invalid rule type: '{r.get('rule_type')}' for rule {r}")
+                    if not "input" in r:
+                        raise IOError(f"input must be specified for rule {r}")
+                    if not "output" in r:
+                        raise IOError(f"output must be specified for rule {r}")
                     r["id"] = id
                     if r.get("ignore_case",True): 
                         r["input_compiled"] = re.compile(r["input"],re.IGNORECASE)
@@ -87,7 +93,7 @@ def load_config(json_config):
                     punctuation_after_match = punctuation_after_match,
                     rbnf_compound_delimiter = rules.get("rbnf_compound_delimiter",None),
                     rewrite_rules = rewrite_rules,
-                    tests = rules["tests"],
+                    tests = rules.get("tests",rules.get("test", [])),
                     enabled = rules.get("enabled",True),
                     fail_on_error = rules.get("fail_on_error",True)
                 )

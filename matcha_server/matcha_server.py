@@ -52,20 +52,20 @@ app = FastAPI(lifespan=lifespan,swagger_ui_parameters={"tryItOutEnabled": True})
 
 # TODO: API-call to show valid symbols
 
-@app.get("/synthesize/sv_se_nst_male1")
-async def synthesize_sv_se_nst_male1(input_type: str = 'mixed',
+@app.get("/synthesize/sv_vc_m2m")
+async def synthesize_sv_vc_m2m(input_type: str = 'mixed',
                                      input: str = "så här skickar man in [[bl°and`ad]] input till en manlig röst",
                                      speaking_rate: float = None):
-    return await synthesize_as_get(voice = 'sv_se_nst_male1',
+    return await synthesize_as_get(voice = 'sv_vc_m2m',
                                    speaking_rate = speaking_rate,
                                    input_type = input_type,
                                    input = input)
 
-@app.get("/synthesize/sv_se_nst_female1")
-async def synthesize_sv_se_nst_female1(input_type: str = 'mixed',
-                                       input: str = "så här skickar man in [[bl°and`ad]] input till en kvinnlig röst",
-                                       speaking_rate: float = None):
-    return await synthesize_as_get(voice = 'sv_se_nst_female1',
+@app.get("/synthesize/sv_vc_m2f")
+async def synthesize_sv_vc_m2f(input_type: str = 'mixed',
+                               input: str = "så här skickar man in [[bl°and`ad]] input till en kvinnlig röst",
+                               speaking_rate: float = None):
+    return await synthesize_as_get(voice = 'sv_vc_m2f',
                                    speaking_rate = speaking_rate,
                                    input_type = input_type,
                                    input = input)
