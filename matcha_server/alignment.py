@@ -1,7 +1,10 @@
 import torch
 
-import tools
-logger = tools.get_logger()
+import os
+import sys
+parentdir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+sys.path.insert(0, parentdir)
+from common import log
 
 # Constants
 HOP_LENGTH = 256            # Typically 256 in most models
@@ -18,9 +21,9 @@ def combine(tokens, aligned):
             res.append(w | aligned[idx])
         return res
     else:
-        logger.error("Different number of tokens vs aligned tokens -- output json file will not include aligmnent")
-        logger.error(f"Tokens {tokens}")
-        logger.error(f"Aligned tokens {aligned}")
+        log.error("Different number of tokens vs aligned tokens -- output json file will not include aligmnent")
+        log.error(f"Tokens {tokens}")
+        log.error(f"Aligned tokens {aligned}")
         return tokens
 
 
@@ -54,7 +57,7 @@ def align(input_processed, output, id2symbol):
             pid = phoneme_ids[phoneme_idx].item()
             phoneme = id2symbol.get(pid, '?')
 
-            #logger.debug(f"alignment debug {pid} {phoneme} {start_time} {end_time}")
+            #log.debug(f"alignment debug {pid} {phoneme} {start_time} {end_time}")
 
             if acc_word['start_time'] is None:
                 acc_word['start_time'] = start_time

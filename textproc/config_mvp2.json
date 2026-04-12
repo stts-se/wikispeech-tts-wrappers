@@ -3,6 +3,10 @@
     "resource_paths": [
 	"./components"
     ],
+    "logger": {
+	"handler": "python",
+	"level": "debug"
+    },
     "textprocs": [
 	{
 	    "name": "sv_se_1",

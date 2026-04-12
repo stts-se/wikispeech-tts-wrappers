@@ -1,3 +1,4 @@
+import sys
 import os
 import re
 import json
@@ -5,18 +6,9 @@ from pathlib import Path
 import logging
 import shutil
 
-LOGGER = None
-
-def get_logger(name="matcha"):
-    global LOGGER
-    if LOGGER is not None:
-        return LOGGER
-    logging.getLogger('matplotlib').setLevel(logging.WARNING)
-    LOGGER = logging.getLogger(name)
-    logging.getLogger(name).setLevel(logging.DEBUG)
-    logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s:%(filename)s - %(levelname)s - %(message)s')
-    return LOGGER
-
+parentdir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+sys.path.insert(0, parentdir)
+from common import log
 
 # if the same model/file is found in multiple paths, the first one will be used
 def find_file(name, paths):
@@ -38,7 +30,7 @@ def create_path(p,create=True):
 
 
 def clear_audio(audio_path):
-    get_logger().info("Clearing audio set to true")
+    log.info("Clearing audio set to true")
     n=0
     for fn in os.listdir(audio_path):
         file_path = os.path.join(audio_path, fn)
@@ -46,7 +38,7 @@ def clear_audio(audio_path):
             os.remove(file_path)
             n+=1
             #print(fn, "is removed")
-    get_logger().debug(f"Deleted {n} files from folder {audio_path}")
+    log.debug(f"Deleted {n} files from folder {audio_path}")
 
 def get_or_else(value1, value2, default=None):
     if value1 is not None:

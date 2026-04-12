@@ -1,20 +1,11 @@
 import sys, os
 from pathlib import Path
 
-import json, re
+parentdir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+sys.path.insert(0, parentdir)
+from common import log
 
-logger = None
-def get_logger(name="piper"):
-    global logger
-    if logger is not None:
-        return logger
-    import logging
-    #logging.getLogger('matplotlib').setLevel(logging.WARNING)
-    logger = logging.getLogger(name)
-    logging.getLogger(name).setLevel(logging.DEBUG)
-    logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s:%(filename)s - %(levelname)s - %(message)s')
-    return logger
-logger=get_logger()
+import json, re
 
 def get_or_else(value1, value2, default=None):
     if value1 is not None:
@@ -42,11 +33,11 @@ def postmatch_alignments(tokens_processed, tokens_aligned):
                 hidden = tokens_aligned[i].get("hidden", False)
                 tokens_aligned[i] = tokens_aligned[i] | tokens_processed_nonempty[i]
         else:
-            logger.debug(f"Unable to match input tokens with aligned tokens! token counts: {len(tokens_processed)} / {len(tokens_aligned)}")
+            log.debug(f"Unable to match input tokens with aligned tokens! token counts: {len(tokens_processed)} / {len(tokens_aligned)}")
             if len(tokens_processed_nonempty) != len(tokens_processed):
-                logger.debug(f"Unable to match input tokens with aligned tokens! token counts: {len(tokens_processed_nonempty)} / {len(tokens_aligned)}")
-            logger.debug(f"Unable to match input tokens with aligned tokens! tokens_processed: {tokens_processed}")
-            logger.debug(f"Unable to match input tokens with aligned tokens! tokens_aligned: {tokens_aligned}")
+                log.debug(f"Unable to match input tokens with aligned tokens! token counts: {len(tokens_processed_nonempty)} / {len(tokens_aligned)}")
+            log.debug(f"Unable to match input tokens with aligned tokens! tokens_processed: {tokens_processed}")
+            log.debug(f"Unable to match input tokens with aligned tokens! tokens_aligned: {tokens_aligned}")
     return tokens_aligned
     
 def align(alignments, sample_rate):
@@ -106,14 +97,14 @@ def create_path(p,create=True):
     if create:
         folder = Path(p)
         folder.mkdir(exist_ok=True, parents=True)
-        #logger.debug(f"Created directory: {p}")
+        #log.debug(f"Created directory: {p}")
     if not os.path.isdir(p):
         raise IOError(f"Couldn't create output folder: {p}")
     return p
 
 
 def clear_audio(audio_path):
-    get_logger().info(f"Clearing audio set to true")
+    log.info(f"Clearing audio set to true")
     n=0
     for fn in os.listdir(audio_path):
         file_path = os.path.join(audio_path, fn)
@@ -121,7 +112,7 @@ def clear_audio(audio_path):
             os.remove(file_path)
             n+=1
             #print(fn, "is removed")
-    get_logger().debug(f"Deleted {n} files from folder {audio_path}")
+    log.debug(f"Deleted {n} files from folder {audio_path}")
    
 def copy_to_latest(result, output_folder):
     basename = Path(result["audio"]).with_suffix("")

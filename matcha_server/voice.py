@@ -1,21 +1,21 @@
-#import sys
+import sys
 import os
 #import re
 from pathlib import Path
 import json
 
 # Imports from this repo
-import alignment
 import tools
+parentdir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+sys.path.insert(0, parentdir)
+from common import log
 
-# Logging
-logger = tools.get_logger()
-
-logger.debug("Starting Matcha imports...")
+log.configure("matcha","python","debug")
+log.debug("Starting Matcha imports...")
 from matcha.utils.utils import intersperse
 from matcha.cli import to_waveform, save_to_folder, load_matcha, load_vocoder
 import torch
-logger.debug("    ... Matcha imports completed")
+log.debug("    ... Matcha imports completed")
 
 from dataclasses import dataclass, asdict
 @dataclass
@@ -82,7 +82,7 @@ class Voice:
 
     def load(self, model_paths):
         if not self.enabled:
-            logger.error("Cannot load voice {self.name} (voice not enabled)")
+            log.error("Cannot load voice {self.name} (voice not enabled)")
             return
 
         # load phonemizer(s)
@@ -121,7 +121,7 @@ class Voice:
         self.matcha_vocoder, self.matcha_denoiser = load_vocoder(vocoder_name, self.vocoder, self.device)
 
         self.loaded=True
-        logger.debug(f"Loaded voice {self.name}")
+        log.debug(f"Loaded voice {self.name}")
 
 
     def validate(self, fail_on_error = True):
@@ -130,13 +130,13 @@ class Voice:
             if fail_on_error:
                 raise Exception(msg)
             else:
-                logger.error(msg)
+                log.error(msg)
         if self.symbols == "":
             msg = f"No symbols defined for voice {self.name}"
             if fail_on_error:
                 raise Exception(msg)
             else:
-                logger.error(msg)
+                log.error(msg)
 
     def cleaned_text_to_sequence(self, cleaned_text):
         """Converts a string of text to a sequence of IDs corresponding to the symbols in the text.
@@ -152,7 +152,7 @@ class Voice:
                 result.append(id)
             else:
                 # TODO: error handling
-                logger.debug(f"Symbol '{symbol}' in input string '{cleaned_text}' was not found in symbol2id map")
+                log.debug(f"Symbol '{symbol}' in input string '{cleaned_text}' was not found in symbol2id map")
         return result
 
 
@@ -208,7 +208,7 @@ class Voice:
         return {"words": words, "x_orig": input, "x": x, "x_lengths": x_lengths, "x_phones": x_phones}
 
     def synthesize_all(self, inputs, input_type, output_folder, params):
-        logger.debug(f"voice.synthesize_all input {inputs}")
+        log.debug(f"voice.synthesize_all input {inputs}")
         import uuid
         uid = uuid.uuid4()
         res = []
@@ -252,7 +252,7 @@ class Voice:
         tokens = tokens_processed['words']
 
         aligned = alignment.align(tokens_processed, output, self.id2symbol)
-        logger.debug(f"ALIGNED {aligned}")
+        log.debug(f"ALIGNED {aligned}")
 
         tokens = alignment.combine(tokens, aligned)
 
@@ -277,20 +277,20 @@ class Voice:
         json_output = Path(output_file).with_suffix('.json')
         with open(json_output, 'w', encoding='utf-8') as f:
             json.dump(result, f, ensure_ascii=False, indent=4)
-            logger.debug(f"JSON output saved: {json_output}")
+            log.debug(f"JSON output saved: {json_output}")
 
         ## alignment output for debugging
         # alignment_output = Path(os.path.join(output_folder,f"{output_name}_alignment_debug")).with_suffix('.json')
         # with open(alignment_output, 'w', encoding='utf-8') as f:
         #     json.dump(aligned, f, ensure_ascii=False, indent=4)
-        #     logger.debug(f"Alignment output saved: {alignment_output}")
+        #     log.debug(f"Alignment output saved: {alignment_output}")
 
         # wav file
         with torch.no_grad():
             output["waveform"] = to_waveform(output["mel"], self.matcha_vocoder, self.matcha_denoiser, self.denoiser_strength)
 
         location = save_to_folder(output_name, output, output_folder)
-        logger.debug(f"Waveform saved: {location}")
+        log.debug(f"Waveform saved: {location}")
 
         if len(tokens) == len(aligned):
             # label file
@@ -299,7 +299,7 @@ class Voice:
                 for token in result['tokens']:
                     f.write(f"{token['start_time']/1000.0}\t{token['end_time']/1000.0}\t{token['phonemes']}\n")
         else:
-            logger.error(f"Different number of tokens vs aligned tokens -- label file will not be created")
+            log.error(f"Different number of tokens vs aligned tokens -- label file will not be created")
 
         return result
 
@@ -330,13 +330,13 @@ class Phonemizer:
                     preserve_punctuation=True,
                     with_stress=True,
                     language_switch="remove-flags",
-                    logger=logger,
+                    logger=log.pylogger or None,
                 )
             else:
                 raise Exception(f"Unknown phonemizer type {tpe} for {self.name}")
         except RuntimeError as e:
             msg = f"Couldn't load phonetizer for voice {name}: {e}. Voice will not be loaded."
-            logger.error(msg)
+            log.error(msg)
 
 
     def as_json(self):
@@ -356,7 +356,7 @@ class Phonemizer:
                 lang = self.lang
             else:
                 if lang not in self.pher.predictor.text_tokenizer.languages:
-                    logger.info(f"Language {lang} is not supported by phonemizer. Using {self.lang} instead")
+                    log.info(f"Language {lang} is not supported by phonemizer. Using {self.lang} instead")
                     lang = self.lang
             return self.pher(input, lang)
         else:

@@ -11,7 +11,7 @@ import json, re
 
 parentdir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 sys.path.insert(0, parentdir)
-from common import release
+from common import release, log
 
 import textproc
 
@@ -20,11 +20,6 @@ if not json_config:
     raise RuntimeError("Config not provided. Start server with --env-file")
 
 load_dotenv()
-
-# Logging
-import logging
-logger = logging.getLogger("textproc")
-logger.setLevel(logging.DEBUG)
 
 textprocs = {}
 
@@ -68,7 +63,7 @@ async def process_utt_as_post(request: UttRequest):
         raise Exception("textprocs not initialized")
     if not request.name in textprocs:
         msg = f"No such textproc: {request.name}"
-        logger.error(msg)
+        log.error(msg)
         raise HTTPException(status_code=404, detail=msg)
     comp = textprocs[request.name]
     res = comp.process_utt(request.input,request.input_type)
@@ -81,7 +76,7 @@ async def process_utt(name: str = "sv_se_1", input: str = "Karl XII, t.ex., kom 
         raise Exception("textprocs not initialized")
     if not name in textprocs:
         msg = f"No such textproc: {name}"
-        logger.error(msg)
+        log.error(msg)
         raise HTTPException(status_code=404, detail=msg)
     comp = textprocs[name]
     res = comp.process_utt(input,input_type)
@@ -96,7 +91,7 @@ async def process_text(
         raise Exception("textprocs not initialized")
     if not name in textprocs:
         msg = f"No such textproc: {name}"
-        logger.error(msg)
+        log.error(msg)
         raise HTTPException(status_code=404, detail=msg)
     comp = textprocs[name]
     res = comp.process_text(input)

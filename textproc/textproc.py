@@ -5,14 +5,9 @@ import re
 from unicode_rbnf import RbnfEngine, FormatPurpose, FormatOptions
 from typing import Final
 
-# Logging
-import logging
-logger = logging.getLogger("textproc")
-logger.setLevel(logging.DEBUG)
-
 parentdir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 sys.path.insert(0, parentdir)
-from common import io
+from common import io, log
 
 INT_RE: Final[str] = re.compile("^[0-9]+$")
 FLOAT_RE: Final[str] = re.compile("^[0-9]+[.][0-9]+$")
@@ -49,6 +44,8 @@ def load_config(json_config):
     with open(json_config, "r") as file:
         data = json.load(file)
         resource_paths = [os.path.expandvars(x) for x in data["resource_paths"]]
+        if "logger" in data:
+            log.configure("textproc", data["logger"].get("handler",log.default_handler), data["logger"].get("level",log.default_level))
         for component in data["textprocs"]:
             name = component["name"]
             enabled = component["enabled"]
@@ -99,7 +96,7 @@ def load_config(json_config):
                     enabled = rules.get("enabled",True),
                     fail_on_error = rules.get("fail_on_error",True)
                 )
-                logger.info(f"Loaded textproc {name} with {len(rules)} rules")
+                log.info(f"Loaded textproc {name} with {len(rules)} rules")
     return textprocs
 
 from dataclasses import dataclass, asdict
@@ -143,7 +140,7 @@ class Textproc:
         return res
 
     def process_text(self, text: str):
-        #logger.debug(f"textproc.process_text called with {text}")
+        #log.debug(f"textproc.process_text called with {text}")
         utts = []
         acc = text
         m = self.sentence_split_re.search(acc)
@@ -232,7 +229,7 @@ class Textproc:
                     try:
                         alias = rex.sub(rule["output"], tok["input"])
                     except Exception as e:
-                        logger.error(f"Couldn't replace {tok['input']} to {rule['output']} with rule {rule}")
+                        log.error(f"Couldn't replace {tok['input']} to {rule['output']} with rule {rule}")
                         raise e
                     res.append({
                         "type": "alias",
@@ -331,7 +328,7 @@ class Textproc:
         return acc
 
     def process_utt(self, input: object, input_type="text"):
-        logger.info(f"textproc.process_utt called with {input} / {input_type}")
+        log.info(f"textproc.process_utt called with {input} / {input_type}")
         #print(f"textproc.process_utt called with {input} / {input_type}")        
         items = []
         if input_type == "text":
@@ -437,11 +434,11 @@ class Textproc:
             result = self.process_utt(input)
             result_text = result["derived_output_text"]
             if expect == result_text:
-                logger.debug(f"textproc selftest {self.name} COMBINED | {input} -> {expect} | OK")
+                log.debug(f"textproc selftest {self.name} COMBINED | {input} -> {expect} | OK")
                 nOK+=1
             else:
                 err = f"textproc selftest {self.name} COMBINED | {input} -> expected: <{expect}> got: <{result_text}> | FAILED"
-                logger.error(err)
+                log.error(err)
                 errs.append(err)
         for r in self.rewrite_rules:
             for test in r["tests"]:
@@ -465,13 +462,13 @@ class Textproc:
                 result_text = result_text.strip()
                 result_text = result_text.replace("  "," ")
                 if expect == result_text:
-                    logger.debug(f"textproc selftest {self.name} rule #{r['id']} | {input} -> {expect} | OK")
+                    log.debug(f"textproc selftest {self.name} rule #{r['id']} | {input} -> {expect} | OK")
                     nOK+=1
                 else:
                     err = f"textproc selftest {self.name} rule #{r['id']} | {input} -> expected: <{expect}> got: <{result_text}> | FAILED"
-                    logger.error(err)
+                    log.error(err)
                     errs.append(err)
                             
-        logger.info(f"textproc selftests {self.name}: {nOK} OK, {len(errs)} failed")
+        log.info(f"textproc selftests {self.name}: {nOK} OK, {len(errs)} failed")
         return errs
         

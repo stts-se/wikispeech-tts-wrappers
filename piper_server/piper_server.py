@@ -10,7 +10,7 @@ import tools, config
 
 parentdir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 sys.path.insert(0, parentdir)
-from common import release
+from common import release, log
 
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
@@ -18,11 +18,6 @@ from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel # data models for post requests
 from dotenv import load_dotenv
-
-# Logging
-import logging
-logger = logging.getLogger('uvicorn')
-logger.setLevel(logging.DEBUG)
 
 from typing import Optional
 
@@ -121,10 +116,10 @@ class SynthRequest(BaseModel):
 async def synthesize_as_post(request: SynthRequest):
     if request.voice not in global_cfg.voices:
         msg = f"No such voice: {request.voice}"
-        logger.error(msg)
+        log.error(msg)
         raise HTTPException(status_code=404, detail=msg)              
     
-    logger.debug(f"synthesize input: {request}")
+    log.debug(f"synthesize input: {request}")
     syn_config = SynthesisConfig(
         volume=1.0,
         normalize_audio=False, # use raw audio from voice
@@ -141,7 +136,7 @@ async def synthesize_as_post(request: SynthRequest):
         v.load(global_cfg.model_paths)
     res = v.synthesize_all(request.input, request.input_type, global_cfg.output_path, syn_config)
 
-    logger.debug(f"synthesize_as_post res: {res}")
+    log.debug(f"synthesize_as_post res: {res}")
     
     # return type
     if request.return_type == 'json':
@@ -155,11 +150,11 @@ async def synthesize_as_post(request: SynthRequest):
             return FileResponse(full_path, filename=os.path.basename(f), media_type="audio/wav")
         else:
             msg = f"Cannot use return type {request.return_type} for multiple output objects. Try json instead."
-            logger.error(msg)
+            log.error(msg)
             raise HTTPException(status_code=400, detail=msg)
     else:
         msg = f"Invalid return type: '{request.return_type}'. Use one of the following: {return_types}"
-        logger.error(msg)
+        log.error(msg)
         raise HTTPException(status_code=400, detail=msg)
 
     
@@ -175,7 +170,7 @@ async def synthesize_as_get(voice: str = "en_US-ljspeech-high",
                             return_type: str = 'json'):
     if voice not in global_cfg.voices:
         msg = f"No such voice: {voice}"
-        logger.error(msg)
+        log.error(msg)
         raise HTTPException(status_code=404, detail=msg)
         
     import re
@@ -187,7 +182,7 @@ async def synthesize_as_get(voice: str = "en_US-ljspeech-high",
         inputs.remove(" ")
     if input_type not in input_types:
         msg = f"Invalid input type: '{input_type}'. Use one of the following: {input_types}"
-        logger.error(msg)
+        log.error(msg)
         raise HTTPException(status_code=400, detail=msg)
     res = []
     try:
@@ -221,11 +216,11 @@ async def synthesize_as_get(voice: str = "en_US-ljspeech-high",
             return FileResponse(full_path, filename=os.path.basename(f), media_type="audio/wav")
         else:
             msg = f"Cannot use return type {return_type} for multiple output objects. Try json instead."
-            logger.error(msg)
+            log.error(msg)
             raise HTTPException(status_code=400, detail=msg)
     else:
         msg = f"Invalid return type: '{return_type}'. Use one of the following: {return_types}"
-        logger.error(msg)
+        log.error(msg)
         raise HTTPException(status_code=400, detail=msg)
 
 
