@@ -61,6 +61,8 @@ def load_config(config_file):
         data = json.load(file)
         if "logger" in data:
             log.configure("matcha", data["logger"].get("handler",log.default_handler), data["logger"].get("level",log.default_level))
+        else:
+            log.configure("matcha", log.default_handler, log.default_level)
 
         result = MatchaConfig()
         result.model_paths = list(map(tools.create_path, data['model_paths']))

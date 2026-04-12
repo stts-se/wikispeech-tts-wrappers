@@ -46,6 +46,9 @@ def load_config(json_config):
         resource_paths = [os.path.expandvars(x) for x in data["resource_paths"]]
         if "logger" in data:
             log.configure("textproc", data["logger"].get("handler",log.default_handler), data["logger"].get("level",log.default_level))
+        else:
+            log.configure("matcha", log.default_handler, log.default_level)
+
         for component in data["textprocs"]:
             name = component["name"]
             enabled = component["enabled"]

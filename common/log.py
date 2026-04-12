@@ -3,7 +3,7 @@ import syslog
 import logging
 
 default_handler = "python"
-default_level = logging.WARNING
+default_level = "warning"
 
 handler = default_handler
 level = default_level
