@@ -17,7 +17,7 @@ syslog_level_map = {
     "info": syslog.LOG_INFO,
     "debug": syslog.LOG_DEBUG
 }
-logging_level_map = {
+pylog_level_map = {
     "fatal": logging.FATAL,
     "error": logging.ERROR,
     "warning": logging.WARNING,
@@ -32,13 +32,11 @@ def configure(name, hdlr, lvl):
     level = lvl
     #if handler == "python":
     logging.getLogger('matplotlib').setLevel(logging.WARNING)
-    logging_level = logging_level_map[level]
+    pylog_level = pylog_level_map[level]
     pylogger = logging.getLogger(name)
-    logging.getLogger("name").setLevel(logging_level)
+    logging.getLogger("name").setLevel(pylog_level)
     #logging.basicConfig(level=logging_level, format='%(asctime)s - %(name)s:%(filename)s - %(levelname)s - %(message)s')
-    logging.basicConfig(level=logging_level, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')        
-    #if handler == "syslog":
-    logging_level = syslog_level_map[level]
+    logging.basicConfig(level=pylog_level, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     
 
 def log(lvl, msg):
@@ -57,11 +55,11 @@ def log(lvl, msg):
         if handler == "stderr":
             print(f"{level.upper()} {msg}", file=sys.stderr)
         elif handler == "stdout":
-            print(msg)
+            print(f"{level.upper()} {msg}")
         elif handler == "python":
-            logging_level = logging_level_map[level]
-            pylogger.log(logging_level, msg)
-        elif handler == "syslog":            
+            pylog_level = pylog_level_map[level]
+            pylogger.log(pylog_level, msg)
+        elif handler == "syslog":
             syslog_level = syslog_level_map[level]        
             syslog.syslog(syslog_level, msg)
         else:
