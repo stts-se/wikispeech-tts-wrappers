@@ -1,13 +1,13 @@
 import json
-#import sys
+import sys
 import os
 
 # Imports from this repo
 import tools
 import voice
-
-# Logging
-logger = tools.get_logger()
+parentdir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+sys.path.insert(0, parentdir)
+from common import log
 
 defaults = {
     "steps": 10,
@@ -59,6 +59,9 @@ def load_from_args(args):
 def load_config(config_file):
     with open(config_file, 'r', encoding="utf-8") as file:
         data = json.load(file)
+        if "logger" in data:
+            log.configure("matcha", data["logger"].get("handler",log.default_handler), data["logger"].get("level",log.default_level))
+
         result = MatchaConfig()
         result.model_paths = list(map(tools.create_path, data['model_paths']))
         result.output_path = tools.create_path(data['output_path'], create=True)
@@ -93,11 +96,11 @@ def load_config(config_file):
                             selected_phonemizer_index=0)
             result.voices[name] = v
             if not voice_config.get('enabled', True):
-                logger.debug(f"Skipping voice {name} (not enabled)")
+                log.debug(f"Skipping voice {name} (not enabled)")
                 continue
             v.enabled = True
             if not voice_config.get('load_on_startup', True):
-                logger.debug(f"Not loading voice {name} on startup")
+                log.debug(f"Not loading voice {name} on startup")
                 continue
             v.load(result.model_paths)
 

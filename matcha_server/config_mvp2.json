@@ -6,6 +6,10 @@
 	"$HOME/.local/share/matcha_tts",
 	"$HOME/.local/share/deep_phonemizer"
     ],
+    "logger": {
+	"handler": "python",
+	"level": "debug"
+    },
     "output_path": "audio_files",
     "voices": [
 	{

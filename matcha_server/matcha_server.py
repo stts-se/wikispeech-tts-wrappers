@@ -6,15 +6,11 @@ from argparse import Namespace
 import json
 
 # Imports from this repo
-import tools
-
-logger = tools.get_logger("matcha_server")
-
 import config
 
 parentdir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 sys.path.insert(0, parentdir)
-from common import release
+from common import release, log
 
 # Other imports
 from contextlib import asynccontextmanager
@@ -127,19 +123,19 @@ class SynthRequest(BaseModel):
 
 @app.post("/synthesize/")
 async def synthesize_as_post(request: SynthRequest):
-    logger.debug(f"matcha_server.synthesize_as_post with input {request}")
+    log.debug(f"matcha_server.synthesize_as_post with input {request}")
     if request.voice not in global_cfg.voices:
         msg = f"No such voice: {request.voice}"
-        logger.error(msg)
+        log.error(msg)
         raise HTTPException(status_code=404, detail=msg)
 
     voice = global_cfg.voices[request.voice]
     if not voice.enabled:
         msg = f"Voice not enabled: {request.voice}"
-        logger.error(msg)
+        log.error(msg)
         raise HTTPException(status_code=404, detail=msg)
     
-    logger.debug(f"synthesize input: {request}")
+    log.debug(f"synthesize input: {request}")
 
     # remap default values from json
     if request.speaking_rate <= 0:
@@ -156,12 +152,12 @@ async def synthesize_as_post(request: SynthRequest):
         try:
             voice.load(global_cfg.model_paths)
         except Exception as e:
-            logger.error(f"Matcha error: {e}")
+            log.error(f"Matcha error: {e}")
             raise HTTPException(status_code=500, detail=f"Couldn't load voice {request.voice}, see server log for details")
     try:
         res = voice.synthesize_all(request.input, request.input_type, global_cfg.output_path, params)
     except RuntimeError as e:
-        logger.error(f"Matcha error: {e}")
+        log.error(f"Matcha error: {e}")
         raise HTTPException(status_code=500, detail="Couldn't synthesize for voice {request.voice}, see server log for details")
 
         
@@ -178,11 +174,11 @@ async def synthesize_as_post(request: SynthRequest):
             return FileResponse(full_path, filename=os.path.basename(f), media_type="audio/wav")
         else:
             msg = f"Cannot use return type {request.return_type} for multiple output objects. Try json instead."
-            logger.error(msg)
+            log.error(msg)
             raise HTTPException(status_code=400, detail=msg)
     else:
         msg = f"Invalid return type: '{request.return_type}'. Use one of the following: {return_types}"
-        logger.error(msg)
+        log.error(msg)
         raise HTTPException(status_code=400, detail=msg)
 
 
@@ -197,15 +193,15 @@ async def synthesize_as_get(voice: str = 'sv_se_nst_female1',
                             return_type: str = 'json'):
     if voice not in global_cfg.voices:
         msg = f"No such voice: {voice}"
-        logger.error(msg)
+        log.error(msg)
         raise HTTPException(status_code=404, detail=msg)
 
     if not global_cfg.voices[voice].enabled:
         msg = f"Voice not enabled: {voice}"
-        logger.error(msg)
+        log.error(msg)
         raise HTTPException(status_code=404, detail=msg)
 
-    logger.debug(f"synthesize input: {input}")
+    log.debug(f"synthesize input: {input}")
     
     import re
     input = input.strip()
@@ -219,19 +215,19 @@ async def synthesize_as_get(voice: str = 'sv_se_nst_female1',
     )
     if input_type not in input_types:
         msg = f"Invalid input type: '{input_type}'. Use one of the following: {input_types}"
-        logger.error(msg)
+        log.error(msg)
         raise HTTPException(status_code=400, detail=msg)
     v = global_cfg.voices[voice]
     if not v.loaded:
         try:
             v.load(global_cfg.model_paths)
         except Exception as e:
-            logger.error(f"Matcha error: {e}")
+            log.error(f"Matcha error: {e}")
             raise HTTPException(status_code=500, detail=f"Couldn't load voice {voice}, see server log for details")
     try:
         res = v.synthesize_all(inputs, input_type, global_cfg.output_path, params)
     except RuntimeError as e:
-        logger.error(f"Matcha error: {e}")
+        log.error(f"Matcha error: {e}")
         raise HTTPException(status_code=500, detail="Couldn't synthesize for voice {voice}, see server log for details")
         
 
@@ -245,11 +241,11 @@ async def synthesize_as_get(voice: str = 'sv_se_nst_female1',
             return FileResponse(full_path, filename=os.path.basename(f), media_type="audio/wav")
         else:
             msg = f"Cannot use return type {return_type} for multiple output objects. Try json instead."
-            logger.error(msg)
+            log.error(msg)
             raise HTTPException(status_code=400, detail=msg)
     else:
         msg = f"Invalid return type: '{return_type}'. Use one of the following: {return_types}"
-        logger.error(msg)
+        log.error(msg)
         raise HTTPException(status_code=400, detail=msg)
 
 @app.get("/ping")

@@ -1,15 +1,15 @@
-# Imports from this repo
-import tools
-
-# Logging
-logger = tools.get_logger()
-
 from piper import PiperVoice, SynthesisConfig
 import wave
 
 import sys, os, re
 from pathlib import Path
 import json
+
+# Imports from this repo
+import tools
+parentdir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+sys.path.insert(0, parentdir)
+from common import log
 
 phoneme_input_re = re.compile("\\[\\[(.*)\\]\\]")
 separate_comma_re = re.compile("(^|[^\\[]) *, *($|[^\\]])")
@@ -61,7 +61,7 @@ class Voice:
 
     def load(self, model_paths):
         if not self.enabled:
-            logger.error(f"Cannot load voice {self.name} (voice not enabled)")
+            log.error(f"Cannot load voice {self.name} (voice not enabled)")
             return
         phonemizers = []
         defaultPhnIndex = 0
@@ -96,7 +96,7 @@ class Voice:
         onnx_fn = str(Path(self.config['model']).with_suffix(".onnx"))
         self.model_path = tools.find_file(onnx_fn, model_paths)
         self.loaded = True
-        logger.debug(f"Loaded voice {self.name}")
+        log.debug(f"Loaded voice {self.name}")
     
     def validate(self, fail_on_error = True):
         if self.length_scale < -1.0 or self.length_scale > 5.0:
@@ -104,7 +104,7 @@ class Voice:
             if fail_on_error:
                 raise Exception(msg)
             else:
-                logger.error(msg)
+                log.error(msg)
 
     def selected_phonemizer(self):
         if len(self.phonemizers) > 0:
@@ -166,15 +166,15 @@ class Voice:
         if not self.loaded:
             return None
 
-        logger.debug(f"voice.synthesize input: {input}")
+        log.debug(f"voice.synthesize input: {input}")
         input_tokens = tools.input2tokens(input, input_type, self.lang)
         
         set_wav_format = True
         tokens_processed = self.process_tokens(input_tokens)
         piper_input = tools.tokens2piper(tokens_processed)
 
-        print("??? voice tokens_processed:", tokens_processed)
-        print("??? voice piper_input:", piper_input)
+        log.debug(f"??? voice tokens_processed: {tokens_processed}")
+        log.debug(f"??? voice piper_input: {piper_input}")
 
         wav_file=str(Path(output_file).with_suffix('.wav'))
         lab_file=str(Path(output_file).with_suffix('.lab'))
@@ -183,9 +183,9 @@ class Voice:
         piper_alignments_enabled = True
         sample_rate = None
 
-        logger.debug(f"Input: {input}")
-        logger.debug(f"Piper input: {piper_input}")
-        logger.debug(f"syn_config: {syn_config}")
+        log.debug(f"Input: {input}")
+        log.debug(f"Piper input: {piper_input}")
+        log.debug(f"syn_config: {syn_config}")
 
         try:
             with wave.open(wav_file, "wb") as wf:
@@ -193,11 +193,11 @@ class Voice:
                 try:
                     chunks = self.piper_voice.synthesize(piper_input, syn_config=syn_config, include_alignments=piper_alignments_enabled)
                 except TypeError as e:
-                    logger.warning(f"Got TypeError from voice.synthesize: {e}. Likely caused by running on piper release 1.3.0 rather than a dev build (because of alignment dependency). Alignment output will be disabled.")    
+                    log.warning(f"Got TypeError from voice.synthesize: {e}. Likely caused by running on piper release 1.3.0 rather than a dev build (because of alignment dependency). Alignment output will be disabled.")    
                     chunks = self.piper_voice.synthesize(piper_input, syn_config=syn_config)
                     piper_alignments_enabled = False
                 except Exception as e:
-                    logger.warning(f"Got Exception from voice.synthesize: {e}")    
+                    log.warning(f"Got Exception from voice.synthesize: {e}")    
                     chunks = self.piper_voice.synthesize(piper_input, syn_config=syn_config)
                     piper_alignments_enabled = False
                 first_chunk = True
@@ -211,16 +211,16 @@ class Voice:
                     first_chunk = False
 
                     wf.writeframes(audio_chunk.audio_int16_bytes)
-                    logger.info(f"Audio saved to {wav_file}")
+                    log.info(f"Audio saved to {wav_file}")
 
                     if piper_alignments_enabled and audio_chunk.phoneme_alignments:
                         alignments.extend(audio_chunk.phoneme_alignments)
         except Exception as e:
-            logger.error(f"Got exception: {e}")
+            log.error(f"Got exception: {e}")
             raise e
                         
         if piper_alignments_enabled and len(alignments) == 0:
-            logger.warning(f"No alignments in output from synthesize_wav. This is probably because the model is not alignment-enabled. See https://github.com/OHF-Voice/piper1-gpl/blob/main/docs/ALIGNMENTS.md for information on how to enable alignments.")
+            log.warning(f"No alignments in output from synthesize_wav. This is probably because the model is not alignment-enabled. See https://github.com/OHF-Voice/piper1-gpl/blob/main/docs/ALIGNMENTS.md for information on how to enable alignments.")
             #return
 
         result = {
@@ -231,9 +231,9 @@ class Voice:
 
         if piper_alignments_enabled:
             tokens = tools.align(alignments, sample_rate)
-            print("??? tokens processed", tokens_processed)
-            print("??? tokens alignments", alignments)
-            print("??? tokens aligned", tokens)
+            log.debug(f"??? tokens processed {tokens_processed}")
+            log.debug(f"??? tokens alignments {alignments}")
+            log.debug(f"??? tokens aligned: {tokens}")
             result["tokens"] = tools.postmatch_alignments(tokens_processed, tokens)
 
             # remove workaround-added final period, if added
@@ -262,13 +262,13 @@ class Voice:
         json_output = Path(wav_file).with_suffix('.json')
         with open(json_output, 'w', encoding='utf-8') as f:
             json.dump(result, f, ensure_ascii=False, indent=4)
-            logger.info(f"JSON saved to {json_output}")
+            log.info(f"JSON saved to {json_output}")
 
         # lab file
         with open(lab_file, "w") as f:
             for t in tokens:
                 f.write(f"{t['start_time']}\t{t['end_time']}\t{t['phonemes']}\n")
-        logger.info(f"Label style output saved to {lab_file}")
+        log.info(f"Label style output saved to {lab_file}")
 
         return result
 
@@ -292,7 +292,7 @@ class Phonemizer:
                 if not os.path.isfile(self.path):
                     raise Exception(f"Model path for deep phonemizer {name} does not exist: {path}")
                 self.pher = Phonemizer.from_checkpoint(path)
-                logger.debug(f"Loaded dp phonemizer {self.pher}")
+                log.debug(f"Loaded dp phonemizer {self.pher}")
             elif tpe == "espeak":
                 import phonemizer
                 self.pher = phonemizer.backend.EspeakBackend(
@@ -300,14 +300,14 @@ class Phonemizer:
                     preserve_punctuation=True,
                     with_stress=True,
                     language_switch="remove-flags",
-                    logger=logger,
+                    logger=log.pylogger or None,
                 )
-                logger.debug(f"Loaded espeak phonemizer {self.pher}")
+                log.debug(f"Loaded espeak phonemizer {self.pher}")
             else:
                 raise Exception(f"Unknown phonemizer type {tpe} for {self.name}")
         except RuntimeError as e:
             msg = f"Couldn't load phonetizer for voice {name}: {e}. Voice will not be loaded."
-            logger.error(msg)
+            log.error(msg)
 
 
     def as_json(self):
@@ -327,7 +327,7 @@ class Phonemizer:
                 lang = self.lang
             else:
                 if lang not in self.pher.predictor.text_tokenizer.languages:
-                    logger.info(f"Language {lang} is not supported by phonemizer. Using {self.lang} instead")
+                    log.info(f"Language {lang} is not supported by phonemizer. Using {self.lang} instead")
                     lang = self.lang
             return self.pher(input, lang)
         else:

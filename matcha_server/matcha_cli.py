@@ -4,10 +4,12 @@ import argparse
 
 # imports from this repo
 import config
-import tools
 
 # Logging
-logger = tools.get_logger("matcha_cli")
+logging.getLogger('matplotlib').setLevel(logging.WARNING)
+logger = logging.getLogger(name)
+logging.getLogger(name).setLevel(logging.DEBUG)
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s:%(filename)s - %(levelname)s - %(message)s')
 
 ### EXAMPLE COMMANDS WITH PUBLICLY AVAILABLE MODELS
 
