@@ -437,7 +437,7 @@ class Textproc:
             result = self.process_utt(input)
             result_text = result["derived_output_text"]
             if expect == result_text:
-                log.debug(f"textproc selftest {self.name} COMBINED | {input} -> {expect} | OK")
+                #log.debug(f"textproc selftest {self.name} COMBINED | {input} -> {expect} | OK")
                 nOK+=1
             else:
                 err = f"textproc selftest {self.name} COMBINED | {input} -> expected: <{expect}> got: <{result_text}> | FAILED"
@@ -465,7 +465,7 @@ class Textproc:
                 result_text = result_text.strip()
                 result_text = result_text.replace("  "," ")
                 if expect == result_text:
-                    log.debug(f"textproc selftest {self.name} rule #{r['id']} | {input} -> {expect} | OK")
+                    #log.debug(f"textproc selftest {self.name} rule #{r['id']} | {input} -> {expect} | OK")
                     nOK+=1
                 else:
                     err = f"textproc selftest {self.name} rule #{r['id']} | {input} -> expected: <{expect}> got: <{result_text}> | FAILED"
