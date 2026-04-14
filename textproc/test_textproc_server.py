@@ -110,3 +110,15 @@ def test_orphan_punct(client):
     data = response.json()
     tokens = data["tokens"]
     assert tokens == expect
+
+
+# sv. "e.kr."
+# cirka år 400 e.Kr. till 1500 e.Kr.
+def test_sv_ekr(client):
+    response = client.get("/process_text?name=sv_se_1&input=cirka år 400 e.Kr. till 1500 e.Kr.")
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data) == 1
+    toks = data[0]["tokens"]
+    assert len(toks) == 9
+    assert data[0]["derived_output_text"] == "cirka år fyra-hundra efter Kristus till femton-hundra efter Kristus."
