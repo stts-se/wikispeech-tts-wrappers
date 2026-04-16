@@ -26,7 +26,7 @@ sed -i 's|\(plot_spectrogram_to_numpy.*\) f"{filename}.png")|\1 folder / f"{file
 
 **2. Models**
 
-Follow instructions for Matcha and Deep Phonemizer on this page: https://stts-se.github.io/wikispeech/wikispeech1.html under <em>1.2 Language models</em>
+Follow instructions for Matcha and Deep Phonemizer on this page: https://stts-se.github.io/wikispeech/wikispeech1.html under <em>1.2&nbsp;Language&nbsp;models</em>
 
 **3. Check config**
 

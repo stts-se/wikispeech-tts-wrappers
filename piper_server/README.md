@@ -28,7 +28,7 @@ sed -i 's/checkpoint = torch.load(checkpoint_path, map_location=device)/checkpoi
 
 **2. Models**
 
-Follow instructions for Piper and Deep Phonemizer on this page: https://stts-se.github.io/wikispeech/wikispeech1.html under <em>1.2 Language models</em>
+Follow instructions for Piper and Deep Phonemizer on this page: https://stts-se.github.io/wikispeech/wikispeech1.html under <em>1.2&nbsp;Language&nbsp; models</em>
 
 
 <!--
