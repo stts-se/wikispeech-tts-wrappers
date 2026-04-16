@@ -28,28 +28,10 @@ sed -i 's/checkpoint = torch.load(checkpoint_path, map_location=device)/checkpoi
 
 **2. Models**
 
-___2.1 Download Piper models___
+Follow instructions for Piper and Deep Phonemizer on this page: https://stts-se.github.io/wikispeech/wikispeech1.html under <em>1.2 Language models</em>
 
-Replace `$HOME/.local/share/piper_tts` if you want to save your models elsewhere.
-
-``` sh
-mkdir -p $HOME/.local/share/piper_tts
-cd $HOME/.local/share/piper_tts
-wget https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/ar/ar_JO/kareem/medium/ar_JO-kareem-medium.onnx
-wget https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/ar/ar_JO/kareem/medium/ar_JO-kareem-medium.onnx.json
-wget https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/en/en_US/bryce/medium/en_US-bryce-medium.onnx
-wget https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/en/en_US/bryce/medium/en_US-bryce-medium.onnx.json
-cd -
-```
 
 <!--
-___2.2 Additional models___
-
-For now, these models are only available for users approved by STTS. Some of these will be made publicly available once we sort out some licensing issues.
-
-Download additional Piper + Deep Phonemizer models from :
--->
-
 ___2.2 Alignment patching___
 
 ```
@@ -58,7 +40,7 @@ python3 -m piper.patch_voice_with_alignment /path/to/model.onnx
 ```
 
 Docs: https://github.com/OHF-Voice/piper1-gpl/blob/main/docs/ALIGNMENTS.md    
-
+-->
 
 
 **3. Check config**

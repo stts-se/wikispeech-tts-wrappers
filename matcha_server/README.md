@@ -26,17 +26,7 @@ sed -i 's|\(plot_spectrogram_to_numpy.*\) f"{filename}.png")|\1 folder / f"{file
 
 **2. Models**
 
-Replace `$HOME/.local/share/matcha_tts` if you want to save your models elsewhere. In that case, you also have to update `model_paths` in your config file (see below).
-
-``` sh
-mkdir -p $HOME/.local/share/matcha_tts
-cd $HOME/.local/share/matcha_tts
-curl -L https://github.com/shivammehta25/Matcha-TTS-checkpoints/releases/download/v1.0/generator_v1 -o hifigan_T2_v1
-curl -L https://github.com/shivammehta25/Matcha-TTS-checkpoints/releases/download/v1.0/g_02500000 -o hifigan_univ_v1
-curl -L https://github.com/shivammehta25/Matcha-TTS-checkpoints/releases/download/v1.0/matcha_ljspeech.ckpt -o matcha_ljspeech.ckpt
-curl -L https://github.com/shivammehta25/Matcha-TTS-checkpoints/releases/download/v1.0/matcha_vctk.ckpt -o matcha_vctk.ckpt
-cd -
-```
+Follow instructions for Matcha and Deep Phonemizer on this page: https://stts-se.github.io/wikispeech/wikispeech1.html under <em>1.2 Language models</em>
 
 **3. Check config**
 
