@@ -83,9 +83,20 @@ class Voice:
             raise Exception(f"Couldn't find phonemizer for voice '{self.config['name']}'")
 
         onnx_fn = str(Path(self.config['model']).with_suffix(".onnx"))
-        model_path = tools.find_file( onnx_fn, model_paths)
+        model_path = tools.find_file(onnx_fn, model_paths)
+        # for debugging: temporarily list files in model_paths
+        all_found = []
+        from os import listdir
+        from os.path import join
+        for p in model_paths:
+            for f in listdir(p):
+                all_found.append(f"{p}/{f}")
+        log.debug(f"While looking for {onnx_fn}, I found all these files in configured model_paths {model_paths}: {all_found}")
         if model_path is None:
-            raise Exception(f"Couldn't find model {onnx_fn} for {self.name}. Looked in {model_paths}")
+            msg = f"Couldn't find model {onnx_fn} for {self.name}. Looked in {model_paths}"
+            log.error(msg)
+            #log.error(f"All files in configured {model_paths}: {all_found}")
+            raise Exception(msg)
         cuda = False
         config = None # Explicit path to config file, but we should always have the config file stored with the onnx model
         piper_voice = PiperVoice.load(model_path, config, cuda)

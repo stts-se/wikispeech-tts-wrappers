@@ -4,9 +4,7 @@ from pytz import timezone
 import sys
 import subprocess
 
-import logging
-logger = logging.getLogger("common")
-logger.setLevel(logging.DEBUG)
+from . import log
 
 def versionInfo(name: str, startedAt: str):
     res = []
@@ -28,21 +26,25 @@ def versionInfo(name: str, startedAt: str):
     try:
         commit = subprocess.check_output(["git", "rev-parse", "HEAD"]).decode("utf-8").strip()
         branch = subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"]).decode("utf-8").strip()
-        logger.info(f"git branch {branch}")
-        logger.info(f"git commit {commit}")
+        log.info(f"git branch {branch}")
+        log.info(f"git commit {commit}")
+        commit = commit[0:7]
+        res.append( ("Commit %s on branch %s") % (commit, branch) )
         try:
             tag = subprocess.check_output(["git","describe","--tags"]).decode("utf-8").strip()
-            logger.info(f"git tag {tag}")
+            log.info(f"git tag {tag}")
             res.append( ("Release %s on branch %s") % (tag, branch) )
         except: 
-            logger.warning("couldn't retrieve git tags: %s" % sys.exc_info()[1])
-            commit = commit[0:7]
-            res.append( ("Commit %s on branch %s") % (commit, branch) )
+            log.warning("couldn't retrieve git tags: %s" % sys.exc_info()[1])
+            #commit = commit[0:7]
+            #res.append( ("Commit %s on branch %s") % (commit, branch) )
     except:
-        logger.warning("couldn't retrieve git release info: %s" % sys.exc_info()[1])
+        log.warning("couldn't retrieve git release info: %s" % sys.exc_info()[1])
         res.append("Release: unknown");
 
     res.append("Started: " + startedAt)
+    for l in res:
+        log.info(f"LOGGING VERSION INFO {l}")
     return res
 
 
@@ -57,5 +59,5 @@ def genStartedAtString():
             now = now.astimezone(pytz.utc)
             return '{:%Y-%m-%d %H:%M:%S %Z}'.format(now)
     except Exception as e:
-        logger.info(f"Couldn't retrieve start time: {e}")
+        log.info(f"Couldn't retrieve start time: {e}")
         return "unknown"

@@ -33,12 +33,12 @@ global_cfg = None
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     global global_cfg, vInfo
-    startedAt = release.genStartedAtString()
-    vInfo = release.versionInfo("piper",startedAt)
     json_config = os.getenv("PIPER_CONFIG") # Reads from .env file passed to uvicorn
     if not json_config:
         raise RuntimeError("Config not provided. Start server with --env-file")
     global_cfg = config.load_config(json_config)
+    startedAt = release.genStartedAtString()
+    vInfo = release.versionInfo("piper",startedAt)
     for v in global_cfg.voices:
         global_cfg.voices[v].validate(fail_on_error=False)
 

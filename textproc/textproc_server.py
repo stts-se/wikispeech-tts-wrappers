@@ -26,9 +26,9 @@ textprocs = {}
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     global textprocs, vInfo
+    textprocs = textproc.load_config(json_config)
     startedAt = release.genStartedAtString()
     vInfo = release.versionInfo("textproc",startedAt)
-    textprocs = textproc.load_config(json_config)
     errs_total = []
     fail = False
     for tpname in textprocs:

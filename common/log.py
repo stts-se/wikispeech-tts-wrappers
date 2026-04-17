@@ -53,14 +53,14 @@ def log(lvl, msg):
 
     if l >= ll:
         if handler == "stderr":
-            print(f"{level.upper()} {msg}", file=sys.stderr)
+            print(f"{lvl.upper()} {msg}", file=sys.stderr)
         elif handler == "stdout":
-            print(f"{level.upper()} {msg}")
+            print(f"{lvl.upper()} {msg}")
         elif handler == "python":
-            pylog_level = pylog_level_map[level]
+            pylog_level = pylog_level_map[lvl]
             pylogger.log(pylog_level, msg)
         elif handler == "syslog":
-            syslog_level = syslog_level_map[level]        
+            syslog_level = syslog_level_map[lvl]        
             syslog.syslog(syslog_level, msg)
         else:
             with open(handler,"a") as out:
