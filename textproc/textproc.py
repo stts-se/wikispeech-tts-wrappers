@@ -168,6 +168,8 @@ class Textproc:
             else:
                 word2, tags = word, []
             postpunct = m.group(3)
+            words = self.token_split_re.split(word2)
+            # if len(words) == 1:
             word = {
                 "input": t,
                 "word": word2
@@ -179,6 +181,20 @@ class Textproc:
             if len(postpunct) > 0:
                 word["postpunct"] = postpunct
             res.append(word)
+            # else:
+            #     for i, w in enumerate(words):
+            #         word = {
+            #             "input": w,
+            #             "word": w
+            #         }
+            #         if tags is not None and len(tags) > 0:
+            #             word["tags"] = tags
+            #         if i==0 and len(prepunct) > 0:
+            #             word["prepunct"] = prepunct
+            #         if i==len(words)-1 and len(postpunct) > 0:
+            #             word["postpunct"] = postpunct
+            #         res.append(word)
+
         return res           
     
     def process_numeral(self, s: str):

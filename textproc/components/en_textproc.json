@@ -2,7 +2,7 @@
     "rbnf_lang": "en",
     "sentence_split_re": "([.?!]) +([A-Z0-9]+)",
     "token_split_re": "[\\s]+",
-    "punctuation_re": "[(),;.¿?¡!-\"”“']+",
+    "punctuation_re": "[(),;.¿?¡!-\"”“':]+",
     "rbnf_compound_delimiter": "-",
     "fail_on_error": true,
     "rules":

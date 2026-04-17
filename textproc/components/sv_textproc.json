@@ -2,7 +2,7 @@
     "rbnf_lang": "sv",
     "sentence_split_re": "([.?!]) +([A-Z0-9]+)",
     "token_split_re": "[\\s]+",
-    "punctuation_re": "[(),;.¿?¡!-\"”“']+",
+    "punctuation_re": "[(),;.¿?¡!-\"”“':]+",
     "rbnf_compound_delimiter": "-",
     "fail_on_error": true,
     "rules":
@@ -65,7 +65,7 @@
 	},
 	{
 	    "rule_type": "utterance",
-	    "input": "\\b([0-9]+)[ \u00A0]+([0-9]+)\\b",
+	  "input": "\\b([0-9]+)[ \u00A0]+([0-9]{3})\\b",
 	    "output": "\\1\\2",
 	    "tests": [
 		{
@@ -215,7 +215,7 @@
 	},
 	{
 	    "rule_type": "token",
-	    "input": "^(1[1-9][0-9]{2})$",
+	    "input": "^([12][1-9][0-9]{2})$",
 	    "output": "\\1|||year",
 	    "tests": [
 		{
@@ -356,6 +356,18 @@
 	{
 	    "from": "År 1200 e.Kr",
 	    "to": "År tolv-hundra efter Kristus"
+	},
+	{
+	    "from": "Det hände år 2025",
+	    "to": "Det hände år två-tusen tjugo-fem"
+	},
+	{
+	    "from": "Det hände år 2025 och 26",
+	    "to": "Det hände år två-tusen tjugo-fem och tjugo-sex"
+	},
+	{
+	    "from": "Det hände år 2025 26",
+	    "to": "Det hände år två-tusen tjugo-fem tjugo-sex"
 	}
 
     ]
