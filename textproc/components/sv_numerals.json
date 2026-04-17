@@ -1,0 +1,13 @@
+[
+    {
+	"rule_type": "utterance",
+	"input": "\\b[0]([0-9])\\b",
+	"output": "0 \\1",
+	"tests": [
+	    {
+		"from": "06",
+		"to": "0 6"
+	    }
+	]
+    }
+]

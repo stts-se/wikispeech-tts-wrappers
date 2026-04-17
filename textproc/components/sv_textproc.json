@@ -13,6 +13,10 @@
 	},
 	{
 	    "rule_type": "file",
+	    "file": "sv_numerals.json"
+	},
+	{
+	    "rule_type": "file",
 	    "file": "sv_abbrevs.json"
 	},
 	{
