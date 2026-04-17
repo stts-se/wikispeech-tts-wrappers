@@ -360,7 +360,7 @@ class Phonemizer:
                     lang = self.lang
             return self.pher(input, lang)
         else:
-            tmp = self.pher.phonemize([input], strip=True, njobs=1)
+            tmp = self.pher.phonemize([input], strip=True, njobs=1).replace(" ","_")
             if len(tmp) > 0:
                 return tmp[0].replace(" ","_")
             else:

@@ -340,7 +340,7 @@ class Phonemizer:
                 if lang not in self.pher.predictor.text_tokenizer.languages:
                     log.info(f"Language {lang} is not supported by phonemizer. Using {self.lang} instead")
                     lang = self.lang
-            return self.pher(input, lang)
+            return self.pher(input, lang).replace(" ","_")
         else:
             tmp = self.pher.phonemize([input], strip=True, njobs=1)
             if len(tmp) > 0:
