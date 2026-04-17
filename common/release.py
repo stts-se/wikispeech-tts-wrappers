@@ -20,8 +20,8 @@ def versionInfo(name: str, startedAt: str):
     # else:
 
     res.append(f"Application name: {name}")
-    res.append("Build timestamp: n/a")
-    res.append("Built by: user")
+    # res.append("Build timestamp: n/a")
+    # res.append("Built by: user")
     
     try:
         commit = subprocess.check_output(["git", "rev-parse", "HEAD"]).decode("utf-8").strip()
@@ -56,8 +56,8 @@ def genStartedAtString():
         now = datetime.datetime.now()
         if local_tz != None:
             now = now.replace(tzinfo=local_tz)
-            now = now.astimezone(pytz.utc)
-            return '{:%Y-%m-%d %H:%M:%S %Z}'.format(now)
+            #now = now.astimezone(pytz.utc)
+        return '{:%Y-%m-%d %H:%M:%S %Z}'.format(now)
     except Exception as e:
         log.info(f"Couldn't retrieve start time: {e}")
         return "unknown"
