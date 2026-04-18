@@ -363,15 +363,15 @@
 	},
 	{
 	    "from": "Det hände år 2025",
-	    "to": "Det hände år två-tusen tjugo-fem"
+	    "to": "Det hände år två-tusen-tjugo-fem"
 	},
 	{
 	    "from": "Det hände år 2025 och 26",
-	    "to": "Det hände år två-tusen tjugo-fem och tjugo-sex"
+	    "to": "Det hände år två-tusen-tjugo-fem och tjugo-sex"
 	},
 	{
 	    "from": "Det hände år 2025 26",
-	    "to": "Det hände år två-tusen tjugo-fem tjugo-sex"
+	    "to": "Det hände år två-tusen-tjugo-fem tjugo-sex"
 	}
 
     ]

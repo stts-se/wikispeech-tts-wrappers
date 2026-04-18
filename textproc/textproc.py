@@ -140,6 +140,7 @@ class Textproc:
             res = rbnfed.text
         if self.rbnf_compound_delimiter is not None:
             res = res.replace(SOFT_HYPHEN, self.rbnf_compound_delimiter)
+            res = res.replace(" ",self.rbnf_compound_delimiter)
         return res
 
     def process_text(self, text: str):
