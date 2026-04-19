@@ -107,7 +107,7 @@ class Voice:
         onnx_fn = str(Path(self.config['model']).with_suffix(".onnx"))
         self.model_path = tools.find_file(onnx_fn, model_paths)
         self.loaded = True
-        log.debug(f"Loaded voice {self.name}")
+        log.debug(f"Loaded voice {json.dumps(self.as_json(), indent=4)}")
     
     def validate(self, fail_on_error = True):
         if self.length_scale < -1.0 or self.length_scale > 5.0:
