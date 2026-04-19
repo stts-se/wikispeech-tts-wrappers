@@ -43,9 +43,9 @@ async def lifespan(app: FastAPI):
     matchaVersionFile = os.path.join(scriptdir,".venv/lib/python3.10/site-packages/matcha/VERSION")
     if os.path.isfile(matchaVersionFile):
         with open(matchaVersionFile, 'r') as file:
-            matchaVersion = "Installation type: pre-compiled version " + file.read().strip()
+            matchaVersion = "TTS engine installed from release package " + file.read().strip()
     else:
-        matchaVersion = "Installation type: from source"
+        matchaVersion = "TTS engine installed from source"
     if len(vInfo) > 0:
         vInfo.insert(len(vInfo)-2, matchaVersion)
     else:
