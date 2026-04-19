@@ -35,6 +35,7 @@ jobs:
         # uv venv --python 3.10
         # source .venv/bin/activate
         # uv pip install -r requirements.txt
+        # uv pip install Matcha-TTS==0.0.7.2
         # bash patch.sh
 
         # Install Matcha from source
