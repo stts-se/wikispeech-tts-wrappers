@@ -47,6 +47,8 @@ class Voice:
             phner = self.selected_phonemizer().name
         obj = {
             "name": self.name,
+            "enabled": self.enabled,
+            "loaded": self.loaded,
             "model": self.model,
 
             "length_scale": self.length_scale,

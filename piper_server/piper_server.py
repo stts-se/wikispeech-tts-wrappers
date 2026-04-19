@@ -158,7 +158,7 @@ async def synthesize_as_post(request: SynthRequest):
         raise HTTPException(status_code=400, detail=msg)
 
     
-@app.get("/synthesize/")
+@app.get("/synthesize")
 async def synthesize_as_get(voice: str = "en_US-ljspeech-high",
                             input: str = "hello my name is ljspeech with a get request",
                             input_type: str = "mixed",
@@ -224,7 +224,23 @@ async def synthesize_as_get(voice: str = "en_US-ljspeech-high",
         raise HTTPException(status_code=400, detail=msg)
 
 
-@app.get("/voices/")
+@app.get("/load")
+async def load(voice: str):
+    for k,v in global_cfg.voices.items():
+        if v.name == voice and not v.loaded:
+            v.load(global_cfg.model_paths)
+            return f"Loaded voice {v.name}"
+
+@app.get("/load_all")
+async def load_all():
+    res = []
+    for k,v in global_cfg.voices.items():
+        if not v.loaded:
+            v.load(global_cfg.model_paths)
+            res.append(v.name)
+    return f"Loaded voices: {' '.join(res)}"
+
+@app.get("/voices")
 async def voices():
     res = []
     for k,v in global_cfg.voices.items():
