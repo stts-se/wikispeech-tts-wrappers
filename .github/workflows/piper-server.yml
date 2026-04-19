@@ -62,9 +62,16 @@ jobs:
       run: |
         cd piper_server
         source .venv/bin/activate
-        uvicorn piper_server:app --env-file config_minimal.env --port 8010 &
+        uvicorn piper_server:app --env-file config_minimal.env --port 8010 &> piper.log &
         sleep 20
 
     - name: Ping server
       run: |
-        curl -f http://localhost:8010/ping
+        curl -f http://localhost:8010/ping || cat piper.log
+
+    - name: Load voices
+      run: |
+        curl -f http://localhost:8010/load_all || cat piper.log
+
+    - name: Log
+      run: cat piper.log
