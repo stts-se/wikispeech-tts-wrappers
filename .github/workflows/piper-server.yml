@@ -65,9 +65,10 @@ jobs:
         uvicorn piper_server:app --env-file config_minimal.env --port 8010 &> server.log &
         sleep 20
 
-    - name: Ping server
+    - name: Say hello to server
       run: |
-        curl -f http://localhost:8010/ping || cat piper_server/server.log
+        curl -f http://localhost:8009/ping || cat piper_server/server.log
+        curl -f http://localhost:8009/version || cat piper_server/server.log
 
     - name: Load voices
       run: |

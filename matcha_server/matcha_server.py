@@ -8,7 +8,8 @@ import json
 # Imports from this repo
 import config
 
-parentdir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+scriptdir = os.path.dirname(os.path.realpath(__file__))
+parentdir = os.path.dirname(scriptdir)
 sys.path.insert(0, parentdir)
 from common import release, log
 
@@ -36,6 +37,19 @@ async def lifespan(app: FastAPI):
     global_cfg = config.load_config(json_config_path)
     startedAt = release.genStartedAtString()
     vInfo = release.versionInfo("matcha",startedAt)
+    from os import walk
+    f = []
+    matchaVersion = None
+    matchaVersionFile = os.path.join(scriptdir,".venv/lib/python3.10/site-packages/matcha/VERSION")
+    if os.path.isfile(matchaVersionFile):
+        with open(matchaVersionFile, 'r') as file:
+            matchaVersion = "Installation type: pre-compiled version " + file.read().strip()
+    else:
+        matchaVersion = "Installation type: from source"
+    if len(vInfo) > 0:
+        vInfo.insert(len(vInfo)-2, matchaVersion)
+    else:
+        vInfo.append(matchaVersion)
     for v in global_cfg.voices:
         global_cfg.voices[v].validate(fail_on_error=False)
 

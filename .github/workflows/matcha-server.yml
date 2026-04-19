@@ -76,9 +76,10 @@ jobs:
         uvicorn matcha_server:app --env-file config_minimal.env --port 8009 &> server.log &
         sleep 30
 
-    - name: Ping server
+    - name: Say hello to server
       run: |
         curl -f http://localhost:8009/ping || cat matcha_server/server.log
+        curl -f http://localhost:8009/version || cat matcha_server/server.log
 
     - name: Load voices
       run: |
