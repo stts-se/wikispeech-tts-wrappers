@@ -20,6 +20,7 @@ Please note that Matcha-TTS 0.0.7.2 requires Python 3.10. If you are not using `
 uv venv --python 3.10
 source .venv/bin/activate
 uv pip install -r requirements.txt
+uv pip install Matcha-TTS==0.0.7.2
 bash patch.sh
 ```
 -->
@@ -28,7 +29,7 @@ bash patch.sh
 uv venv
 source .venv/bin/activate
 uv pip install -r requirements.txt
-git clone https://github.com/stts-se/Matcha-TTS ../Matcha-TTS
+git clone https://github.com/stts-se/Matcha-TTS ../../Matcha-TTS
 uv pip install -e ../../Matcha-TTS
 bash patch.sh
 ```
