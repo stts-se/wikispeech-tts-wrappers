@@ -9,4 +9,3 @@ uv pip install -r requirements.txt
 uv pip install -e ../../Matcha-TTS
 bash patch.sh
 #uvicorn matcha_server:app --env-file config_mvp2.env --port 8009
-
