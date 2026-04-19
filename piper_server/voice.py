@@ -177,6 +177,9 @@ class Voice:
         if not self.loaded:
             return None
 
+        import time
+        outer_start_time = time.time()
+
         log.debug(f"voice.synthesize input: {input}")
         input_tokens = tools.input2tokens(input, input_type, self.lang)
         
@@ -202,7 +205,9 @@ class Voice:
             with wave.open(wav_file, "wb") as wf:
                 chunks = []
                 try:
+                    piper_start_time = time.time()
                     chunks = self.piper_voice.synthesize(piper_input, syn_config=syn_config, include_alignments=piper_alignments_enabled)
+                    log.info("voice.py::synthesize - piper.synthesize - took %s seconds" % (time.time() - piper_start_time))
                 except TypeError as e:
                     log.warning(f"Got TypeError from voice.synthesize: {e}. Likely caused by running on piper release 1.3.0 rather than a dev build (because of alignment dependency). Alignment output will be disabled.")    
                     chunks = self.piper_voice.synthesize(piper_input, syn_config=syn_config)
@@ -260,6 +265,8 @@ class Voice:
                 
         result["audio"] = os.path.basename(wav_file)
 
+        save_start_time = time.time()
+
         # json file
         json_obj = result
         json_obj["tts_config"] = {
@@ -281,6 +288,8 @@ class Voice:
                 f.write(f"{t['start_time']}\t{t['end_time']}\t{t['phonemes']}\n")
         log.info(f"Label style output saved to {lab_file}")
 
+        log.info("voice.py::synthesize - save output - took %s seconds" % (time.time() - save_start_time))
+        log.info("voice.py::synthesize - overall     - took %s seconds" % (time.time() - outer_start_time))
         return result
 
 
