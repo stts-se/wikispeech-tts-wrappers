@@ -53,6 +53,7 @@ parser.add_argument('--device', type=str, default="cpu")
 parser.add_argument('--speaker', type=int, default=None) # default is fetched from voice config
 parser.add_argument('--speaking-rate', type=float, default=None, help=f"higher value=>slower, lower=>faster, default: {config.defaults['speaking_rate']}") # default is fetched from voice config
 parser.add_argument('--clear-audio', action='store_true', help="Clear audio on startup")
+parser.add_argument('--trim-silence', action='store_true', help="Trim leading and trailing silences")
 
 parser.add_argument('--phonemizer-type')
 parser.add_argument('--phonemizer')

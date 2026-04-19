@@ -35,7 +35,8 @@ class Voice:
     speaking_rate: float
     speaker: object
     symbols: str
-
+    trim_silence: bool
+    
     phonemizers: list
     selected_phonemizer_index: int
 
@@ -225,6 +226,8 @@ class Voice:
         return res
 
     def synthesize(self, input, input_type, output_file, params):
+        import time
+        outer_start_time = time.time()
         input_tokens = tools.input2tokens(input, input_type)
 
         output_name = os.path.basename(output_file)
@@ -238,6 +241,7 @@ class Voice:
         spk = torch.tensor([spk_id],device=self.device) if spk_id is not None else None
 
         speaking_rate = tools.get_or_else(vars(params).get("speaking_rate"), self.speaking_rate)
+        matcha_start_time = time.time()
         output = self.matcha_model.synthesise(
             tokens_processed["x"],
             tokens_processed["x_lengths"],
@@ -245,7 +249,9 @@ class Voice:
             temperature=self.temperature, # TODO: pass in runtime as with speaking_rate
             spks=spk,
             length_scale=speaking_rate,
+            trim_silence=self.trim_silence
         )
+        log.info("voice.py::synthesize - matcha.synthesize - took %s seconds" % (time.time() - matcha_start_time))
 
         ## PROCESS ALIGNMENT
         import alignment
@@ -272,12 +278,14 @@ class Voice:
         result["audio"] = f"{Path(os.path.basename(output_file)).with_suffix('.wav')}"
 
         ## SAVE OUTPUT
-
+        save_start_time = time.time()
+        
         # json file
         json_output = Path(output_file).with_suffix('.json')
         with open(json_output, 'w', encoding='utf-8') as f:
             json.dump(result, f, ensure_ascii=False, indent=4)
             log.debug(f"JSON output saved: {json_output}")
+        log.info("voice.py::synthesize - save json - took %s seconds" % (time.time() - save_start_time))
 
         ## alignment output for debugging
         # alignment_output = Path(os.path.join(output_folder,f"{output_name}_alignment_debug")).with_suffix('.json')
@@ -286,11 +294,16 @@ class Voice:
         #     log.debug(f"Alignment output saved: {alignment_output}")
 
         # wav file
+        save_wav_start_time = time.time()
         with torch.no_grad():
             output["waveform"] = to_waveform(output["mel"], self.matcha_vocoder, self.matcha_denoiser, self.denoiser_strength)
+            log.info("voice.py::synthesize - to_waveform - took %s seconds" % (time.time() - save_wav_start_time))
 
+        save_wav_file_start_time = time.time()
         location = save_to_folder(output_name, output, output_folder)
         log.debug(f"Waveform saved: {location}")
+        log.info("voice.py::synthesize - save wav file - took %s seconds" % (time.time() - save_wav_file_start_time))
+        log.info("voice.py::synthesize - save wav - took %s seconds" % (time.time() - save_wav_start_time))
 
         if len(tokens) == len(aligned):
             # label file
@@ -301,6 +314,8 @@ class Voice:
         else:
             log.error(f"Different number of tokens vs aligned tokens -- label file will not be created")
 
+        log.info("voice.py::synthesize - save output - took %s seconds" % (time.time() - save_start_time))
+        log.info("voice.py::synthesize - overall     - took %s seconds" % (time.time() - outer_start_time))
         return result
 
 

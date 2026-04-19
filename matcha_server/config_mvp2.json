@@ -32,11 +32,12 @@
 		"letters" : "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
 		"letters_ipa": "#`°ˈ̝̯aAãæÆⱭbɕdðɖeEəɛƐfghɧIɪjklɭmnɳŋoOøØŒɶɔɵprRɾsʂʃtʈuUʉɄʊƱvwYʏʒθ"
 	    },
-	    "speaking_rate": 0.85,
+	    "speaking_rate": 0.75,
             "denoiser_strength": 0.00025,
             "steps": 10,
             "temperature": 0.667,
-            "batch_size": 32
+            "batch_size": 32,
+            "trim_silence": true
 	},
 	{
 	    "name": "sv_vc_m2f",
@@ -58,11 +59,12 @@
 		"letters" : "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
 		"letters_ipa": "#`°ˈ̝̯aAãæÆⱭbɕdðɖeEəɛƐfghɧIɪjklɭmnɳŋoOøØŒɶɔɵprRɾsʂʃtʈuUʉɄʊƱvwYʏʒθ"
 	    },
-	    "speaking_rate": 0.85,
+	    "speaking_rate": 0.75,
             "denoiser_strength": 0.00025,
             "steps": 10,
             "temperature": 0.667,
-            "batch_size": 32
+            "batch_size": 32,
+            "trim_silence": true
 	},
 	{
 	    "name": "en_us_vctk",

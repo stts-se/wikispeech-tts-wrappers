@@ -52,6 +52,7 @@ def load_from_args(args):
                        device=args.device,
                        denoiser_strength=args.denoiser_strength,
                        symbols=symbols,
+                       trim_silence=args.trim_silence,
                        phonemizers=phonemizers,
                        selected_phonemizer_index=0)
 
@@ -94,6 +95,7 @@ def load_config(config_file):
                             device=voice_config.get('device','cpu'),
                             denoiser_strength=voice_config.get('denoiser_strength',0.00025),
                             symbols=symbols,
+                            trim_silence=voice_config.get('trim_silence',False),
                             phonemizers=[],
                             selected_phonemizer_index=0)
             result.voices[name] = v

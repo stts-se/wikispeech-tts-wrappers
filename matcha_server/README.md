@@ -18,10 +18,7 @@ Please note that MatchaTTS requires Python 3.10. If you are not using `uv` for t
 uv venv --python 3.10
 source .venv/bin/activate
 uv pip install -r requirements.txt
-# workaround for PyTorch (Deep Phonemizer) and MatchaTTS
-sed -i 's/checkpoint = torch.load(checkpoint_path, map_location=device)/checkpoint = torch.load(checkpoint_path, map_location=device, weights_only=False)/' .venv/lib/python3.*/site-packages/dp/model/model.py
-sed -i 's/MatchaTTS.load_from_checkpoint(checkpoint_path, map_location=device)/MatchaTTS.load_from_checkpoint(checkpoint_path, map_location=device, weights_only=False)/' .venv/lib/python3.*/site-packages/matcha/cli.py
-sed -i 's|\(plot_spectrogram_to_numpy.*\) f"{filename}.png")|\1 folder / f"{filename}.png")|' .venv/lib/python3.*/site-packages/matcha/cli.py
+bash patch.sh
 ```
 
 **2. Models**
@@ -73,26 +70,3 @@ Please note that the server's default setting is to clear the `output_path` on s
 Usage example for output_type=wav: 
 http://localhost:8009/synthesize/?voice=sv_se_nst_STTS-test&input_type=mixed&input=s%C3%A5%20h%C3%A4r%20skickar%20man%20in%20[[bl%C2%B0and`ad]]%20input%20och%20f%C3%A5r%20en%20ljudfil%20direkt&speaking_rate=1&return_type=wav
 
-
-<!--
---------
-
-# Vendoring dependencies (experimental)
-
-**2a. Set up `venv` and install Matcha-TTS**
-
-```
-uv venv
-source .venv/bin/activate
-uv pip install Matcha-TTS --prefix vendor
-uv pip install uvicorn dotenv
-```
-
-**2b. Add imports to matcha_server.py**
-
-```
-parent_dir = os.path.abspath(os.path.dirname(__file__))
-vendor_dir = os.path.join(parent_dir, 'vendor/lib/python3.10/site-packages')
-sys.path.append(vendor_dir)
-```
--->
