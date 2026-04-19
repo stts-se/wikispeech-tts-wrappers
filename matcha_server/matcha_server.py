@@ -86,14 +86,30 @@ async def synthesize_en_us_ljspeech(input_type: str = 'text',
                             speaking_rate = speaking_rate,
                             input = input)
        
-@app.get("/voices/")
+@app.get("/load")
+async def load(voice: str):
+    for k,v in global_cfg.voices.items():
+        if v.name == voice and not v.loaded:
+            v.load(global_cfg.model_paths)
+            return f"Loaded voice {v.name}"
+
+@app.get("/load_all")
+async def load_all():
+    res = []
+    for k,v in global_cfg.voices.items():
+        if not v.loaded:
+            v.load(global_cfg.model_paths)
+            res.append(v.name)
+    return f"Loaded voices: {' '.join(res)}"
+
+@app.get("/voices")
 async def voices():
     res = []
     for k,v in global_cfg.voices.items():
         res.append(v.as_json())
     return res
 
-@app.get("/symbol_set/")
+@app.get("/symbol_set")
 async def symbols_set(voice: str):
     for k,v in global_cfg.voices.items():
         if v.name == voice:
@@ -121,7 +137,7 @@ class SynthRequest(BaseModel):
     speaker_id: int = -1
     return_type: str = 'json'
 
-@app.post("/synthesize/")
+@app.post("/synthesize")
 async def synthesize_as_post(request: SynthRequest):
     log.debug(f"matcha_server.synthesize_as_post with input {request}")
     if request.voice not in global_cfg.voices:
@@ -183,7 +199,7 @@ async def synthesize_as_post(request: SynthRequest):
 
 
 
-@app.get("/synthesize/")
+@app.get("/synthesize")
 async def synthesize_as_get(voice: str = 'sv_se_nst_female1',
                             input_type: str = 'text',
                             input: str="Vi testar talsyntes och det är kul.",
@@ -228,7 +244,7 @@ async def synthesize_as_get(voice: str = 'sv_se_nst_female1',
         res = v.synthesize_all(inputs, input_type, global_cfg.output_path, params)
     except RuntimeError as e:
         log.error(f"Matcha error: {e}")
-        raise HTTPException(status_code=500, detail="Couldn't synthesize for voice {voice}, see server log for details")
+        raise HTTPException(status_code=500, detail=f"Couldn't synthesize for voice {voice}, see server log for details")
         
 
     # return type

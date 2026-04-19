@@ -1,7 +1,8 @@
 # Server for Matcha-TTS
 
-Wrapper for runtime use of the [Matcha-TTS](https://github.com/shivammehta25/Matcha-TTS) text-to-speech engine.    
-Supported Matcha version: [0.0.7.2](https://pypi.org/project/matcha-tts/0.0.7.2)
+Wrapper for runtime use of the [Matcha-TTS](https://github.com/shivammehta25/Matcha-TTS) text-to-speech engine.
+Supported version: [STTS fork of Matcha-TTS](https://github.com/stts-se/Matcha-TTS).
+<!--Supported version: master (commit [0.0.7.2](https://pypi.org/project/matcha-tts/0.0.7.2)-->
 
 [![Matcha server](https://github.com/stts-se/wikispeech-tts-wrappers/actions/workflows/matcha-server.yml/badge.svg)](https://github.com/stts-se/wikispeech-tts-wrappers/actions/workflows/matcha-server.yml)
 
@@ -11,8 +12,9 @@ ___1.1 Install [uv](https://docs.astral.sh/uv/getting-started/installation) (opt
 
 ___1.2 Set up `venv` and install Matcha-TTS___
 
-Please note that MatchaTTS requires Python 3.10. If you are not using `uv` for the virtual environment, you may need to explicitly specify the Python version when you create the virtual environment.
 
+<!-- INSTALL FROM PRE-RELEASED MATCH>>
+Please note that Matcha-TTS 0.0.7.2 requires Python 3.10. If you are not using `uv` for the virtual environment, you may need to explicitly specify the Python version when you create the virtual environment.
 
 ``` sh
 uv venv --python 3.10
@@ -20,6 +22,17 @@ source .venv/bin/activate
 uv pip install -r requirements.txt
 bash patch.sh
 ```
+-->
+
+``` sh
+uv venv
+source .venv/bin/activate
+uv pip install -r requirements.txt
+git clone https://github.com/stts-se/Matcha-TTS ../Matcha-TTS
+uv pip install -e ../../Matcha-TTS
+bash patch.sh
+```
+
 
 **2. Models**
 

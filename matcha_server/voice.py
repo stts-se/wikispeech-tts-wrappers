@@ -75,6 +75,7 @@ class Voice:
             "speaking_rate": self.speaking_rate,
             "speaker": self.speaker,
             "symbols": "".join(self.symbols),
+            "trim_silence": self.trim_silence,
 
             "phonemizers": list(map(lambda p: p.as_json(), self.phonemizers)),
             "selected_phonemizer": phner
@@ -122,7 +123,7 @@ class Voice:
         self.matcha_vocoder, self.matcha_denoiser = load_vocoder(vocoder_name, self.vocoder, self.device)
 
         self.loaded=True
-        log.debug(f"Loaded voice {self.name}")
+        log.debug(f"Loaded voice {json.dumps(self.as_json(), indent=4)}")
 
 
     def validate(self, fail_on_error = True):
@@ -241,6 +242,7 @@ class Voice:
         spk = torch.tensor([spk_id],device=self.device) if spk_id is not None else None
 
         speaking_rate = tools.get_or_else(vars(params).get("speaking_rate"), self.speaking_rate)
+        log.info(f"matcha speaking rate {speaking_rate}")
         matcha_start_time = time.time()
         output = self.matcha_model.synthesise(
             tokens_processed["x"],
@@ -302,8 +304,8 @@ class Voice:
         save_wav_file_start_time = time.time()
         location = save_to_folder(output_name, output, output_folder)
         log.debug(f"Waveform saved: {location}")
-        log.info("voice.py::synthesize - save wav file - took %s seconds" % (time.time() - save_wav_file_start_time))
-        log.info("voice.py::synthesize - save wav - took %s seconds" % (time.time() - save_wav_start_time))
+        log.info("voice.py::synthesize - save wav - took %s seconds" % (time.time() - save_wav_file_start_time))
+        log.info("voice.py::synthesize - to_waveform+save_wav - took %s seconds" % (time.time() - save_wav_start_time))
 
         if len(tokens) == len(aligned):
             # label file
