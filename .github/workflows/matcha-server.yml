@@ -73,17 +73,17 @@ jobs:
       run: |
         cd matcha_server
         source .venv/bin/activate
-        uvicorn matcha_server:app --env-file config_minimal.env --port 8009 &> matcha.log &
+        uvicorn matcha_server:app --env-file config_minimal.env --port 8009 &> server.log &
         sleep 30
 
     - name: Ping server
       run: |
-        curl -f http://localhost:8009/ping || cat matcha.log
+        curl -f http://localhost:8009/ping || cat matcha_server/server.log
 
     - name: Load voices
       run: |
-        curl -f http://localhost:8009/load_all || cat matcha.log
+        curl -f http://localhost:8009/load_all || cat matcha_server/server.log
 
     - name: Log
-      run: cat matcha.log
+      run: cat matcha_server/server.log
 
