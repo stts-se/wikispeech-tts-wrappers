@@ -2,7 +2,7 @@ set -e
 
 deactivate || echo -n ""
 rm -rf .venv || echo -n ""
-uv venv
+uv venv --python 3.10
 source .venv/bin/activate
 git clone https://github.com/stts-se/Matcha-TTS ../../Matcha-TTS || echo "It's OK, Matcha-TTS is already checked out"
 uv pip install -r requirements.txt
