@@ -25,6 +25,28 @@
 	},
 	{
 	    "rule_type": "utterance",
+ 	    "input": "\\b([0-9]{1,2})[.]? *[–-] *([0-9]{1,2})[.]? +(januari|februari|mars|april|maj|juni|juli|augusti|september|oktober|november|december)\\b",
+	    "output": "\\1|||ordinal till \\2|||ordinal \\3",
+	    "tests": [
+		{
+		    "from": "3-5 februari",
+		    "to": "3|||ordinal till 5|||ordinal februari"
+		}
+	    ]
+	},
+	{
+	    "rule_type": "utterance",
+	    "input": "\\b([0-9]{1,2}[.]?) +(januari|februari|mars|april|maj|juni|juli|augusti|september|oktober|november|december)\\b",
+	    "output": "\\1|||ordinal \\2",
+	    "tests": [
+		{
+		    "from": "3 februari",
+		    "to": "3|||ordinal februari"
+		}
+	    ]
+	},
+	{
+	    "rule_type": "utterance",
 	    "input": "\\bB[. ]*P(\\.|\\b)",
 	    "output": "före nutid",
 	    "tests": [
@@ -102,22 +124,6 @@
 	},
 	{
 	    "rule_type": "utterance",
-	    "description": "intervals with en dash (U2013)",
-	    "input": "\\b([0-9.,]+) *\u2013 *([0-9.,]+)\\b",
-	    "output": "\\1 till \\2",
-	    "tests": [
-		{
-		    "from": "3\u20132",
-		    "to": "3 till 2"
-		},
-		{
-		    "from": "3–2",
-		    "to": "3 till 2"
-		}
-	    ]
-	},
-	{
-	    "rule_type": "utterance",
 	    "input": "\\b([0-9.,]+) *\\+ *([0-9.,]+)\\b",
 	    "output": "\\1 plus \\2",
 	    "tests": [
@@ -154,6 +160,22 @@
 		{
 		    "from": "3-2",
 		    "to": "3 minus 2"
+		}
+	    ]
+	},
+	{
+	    "rule_type": "utterance",
+	    "description": "intervals with en dash (U2013)",
+	    "input": "\\b([0-9.,]+) *\u2013 *([0-9.,]+)\\b",
+	    "output": "\\1 till \\2",
+	    "tests": [
+		{
+		    "from": "3\u20132",
+		    "to": "3 till 2"
+		},
+		{
+		    "from": "3–2",
+		    "to": "3 till 2"
 		}
 	    ]
 	},
@@ -203,17 +225,6 @@
 		{
 		    "from": "Det var karl XII, som dog.",
 		    "to": "Det var karl den XII|||ordinal, som dog."
-		}
-	    ]
-	},
-	{
-	    "rule_type": "utterance",
-	    "input": "\\b([0-9]{1,2}[.]?) +(januari|februari|mars|april|maj|juni|juli|augusti|september|oktober|november|december)\\b",
-	    "output": "\\1|||ordinal \\2",
-	    "tests": [
-		{
-		    "from": "3 februari",
-		    "to": "3|||ordinal februari"
 		}
 	    ]
 	},
@@ -372,6 +383,10 @@
 	{
 	    "from": "Det hände år 2025 26",
 	    "to": "Det hände år två-tusen-tjugo-fem tjugo-sex"
+	},
+	{
+	    "from": "Tävlingen hölls 17-18 september",
+	    "to": "Tävlingen hölls sjuttonde till artonde september"
 	}
 
     ]
