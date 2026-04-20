@@ -178,6 +178,7 @@ class Voice:
 
         for t in tokens:
             w = {}
+            log.debug(f"t in tokens: {t}")
             if "orth" in t:
                 w["orth"] = t["orth"]
             if "lang" in t:
@@ -192,6 +193,7 @@ class Voice:
                 lang = w.get("lang", None)
                 phner = self.selected_phonemizer()
                 result = phner.phonemize(t["orth"], lang)
+                log.debug(f"phonemize result {result}")
                 phn_list.append(result)
                 w["input"] = t["orth"]
                 w["phonemes"] = result
@@ -236,6 +238,7 @@ class Voice:
         output_folder = os.path.dirname(output_file)
 
         ### SYNTHESIZE
+        log.debug(f"synthesize input {input}")
         tokens_processed = self.process_tokens(input_tokens)
 
         spk_id = tools.get_or_else(vars(params).get("speaker"), self.speaker, None)
@@ -320,8 +323,6 @@ class Voice:
         log.info("voice.py::synthesize - overall     - took %s seconds" % (time.time() - outer_start_time))
         return result
 
-
-
 class Phonemizer:
     name: str
     tpe: str
@@ -368,7 +369,11 @@ class Phonemizer:
     def phonemize(self, input, lang=None):
         if input == "":
             return ""
-        if self.tpe == "deep_phonemizer":
+        elif input in [",", ":"]: # experiment for pausing
+            return "__"
+        elif input in ["..",".","_","__", "#", "##", ",", ",,", "!", "!!"]: # experiment for pausing
+            return input
+        elif self.tpe == "deep_phonemizer":
             if lang is None:
                 lang = self.lang
             else:

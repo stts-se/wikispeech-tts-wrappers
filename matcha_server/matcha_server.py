@@ -236,7 +236,7 @@ async def synthesize_as_get(voice: str = 'sv_se_nst_female1',
     import re
     input = input.strip()
     input = re.sub("  +"," ",input)
-    inputs = re.split(r" *[.!?]+(?: +|$)", input)
+    inputs = [input]#re.split(r" *[.!?]+(?: +|$)", input)
     while "" in inputs:
         inputs.remove("")
     params = Namespace(
