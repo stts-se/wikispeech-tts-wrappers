@@ -344,7 +344,7 @@ class Phonemizer:
     def phonemize(self, input, lang=None):
         if input == "":
             return ""
-        elif input in [",", ":"]:
+        elif input in [",", ":"]: # experiment for pausing
             return "__"
         elif input in ["..",".","_","__", "#", "##", ",", ",,", "!", "!!"]: # experiment for pausing
             return input
