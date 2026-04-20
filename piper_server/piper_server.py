@@ -175,7 +175,7 @@ async def synthesize_as_get(voice: str = "en_US-ljspeech-high",
         
     import re
     input = input.strip()
-    inputs = re.split(r"[.!?]+( +|$)", input)
+    inputs = [input] # re.split(r"[.!?]+( +|$)", input)
     while "" in inputs:
         inputs.remove("")
     while " " in inputs:
