@@ -14,11 +14,11 @@
     {
 	"rule_type": "utterance",
 	"input": "\\b[0]([0-9])\\b",
-	"output": "0 \\1",
+	"output": "0|||nodelim \\1",
 	"tests": [
 	    {
 		"from": "06",
-		"to": "0 6"
+		"to": "0|||nodelim 6"
 	    }
 	]
     }

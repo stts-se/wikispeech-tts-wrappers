@@ -1,180 +1,299 @@
 [
-    {
-	"rule_type": "utterance",
-	"input": "([0-9]+) kr(\\.|\\b)",
-	"output": "\\1 kronor",
-	"tests": [
-	    {
-		"from": "10 kr",
-		"to": "10 kronor"
-	    }
-	]
-    },
-    {
-	"rule_type": "utterance",
-	"input": "(\\b|[0-9,.]+) *kHz(\\.|\\b)",
-	"output": "\\1 kilohertz",
-	"tests": [
-	    {
-		"from": "10kHz",
-		"to": "10 kilohertz"
-	    },
-	    {
-		"from": "10 kHz",
-		"to": "10 kilohertz"
-	    }
-	]
-    },
-    {
-	"rule_type": "utterance",
-	"input": "(\\b|[0-9,.]+) *MHz(\\.|\\b)",
-	"output": "\\1 megahertz",
-	"tests": [
-	    {
-		"from": "10MHz",
-		"to": "10 megahertz"
-	    },
-	    {
-		"from": "10 MHz",
-		"to": "10 megahertz"
-	    }
-	]
-    },
-    {
-	"rule_type": "utterance",
-	"input": "(\\b|[0-9,.]+) *GHz(\\.|\\b)",
-	"output": "\\1 gigahertz",
-	"tests": [
-	    {
-		"from": "10.6GHz",
-		"to": "10.6 gigahertz"
-	    },
-	    {
-		"from": "10 GHz",
-		"to": "10 gigahertz"
-	    }
-	]
-    },
-    {
-	"rule_type": "utterance",
-	"input": "(\\b|[0-9,.]+) *THz(\\.|\\b)",
-	"output": "\\1 terahertz",
-	"tests": [
-	    {
-		"from": "10.6THz",
-		"to": "10.6 terahertz"
-	    },
-	    {
-		"from": "105.9 THz",
-		"to": "105.9 terahertz"
-	    }
-	]
-    },
-    {
-	"rule_type": "utterance",
-	"input": "(\\b|[0-9]+) *mm(\\.|\\b)",
-	"output": "\\1 millimeter",
-	"tests": [
-	    {
-		"from": "Bordsskivan var 17mm lång",
-		"to": "Bordsskivan var 17 millimeter lång"
-	    }
-	]
-    },
-    {
-	"rule_type": "utterance",
-	"input": "(\\b|[0-9]+) *cm(\\.|\\b)",
-	"output": "\\1 centimeter",
-	"tests": [
-	    {
-		"from": "Bordsskivan var 17cm lång",
-		"to": "Bordsskivan var 17 centimeter lång"
-	    },
-	    {
-		"from": "Bordsskivan var 17 cm lång",
-		"to": "Bordsskivan var 17 centimeter lång"
-	    }
-	]
-    },
-    {
-	"rule_type": "utterance",
-	"input": "(\\b|[0-9]+) *dm(\\.|\\b)",
-	"output": "\\1 decimeter",
-	"tests": [
-	    {
-		"from": "Bordsskivan var 17dm lång",
-		"to": "Bordsskivan var 17 decimeter lång"
-	    }
-	]
-    },
-    {
-	"rule_type": "utterance",
-	"input": "\\bkg(\\.|\\b)",
-	"output": "kilo",
-	"tests": [
-	    {
-		"from": "Massan är 123 kg.",
-		"to": "Massan är 123 kilo"
-	    }
-	]
-    },
-    {
-	"rule_type": "utterance",
-	"input": "(\\b|[0-9]*)%",
-	"output": "\\1 procent",
-	"tests": [
-	    {
-		"from": "Bordsskivan var 17% längre",
-		"to": "Bordsskivan var 17 procent längre"
-	    },
-	    {
-		"from": "Bordsskivan var 17 % längre",
-		"to": "Bordsskivan var 17 procent längre"
-	    }
-	]
-    },
-    {
-	"rule_type": "utterance",
-	"input": "-([0-9.,]+) *°",
-	"output": "minus \\1 grader",
-	"tests": [
-	    {
-		"from": "-12.5 °",
-		"to": "minus 12.5 grader"
-	    }
-	]
-    },
-    {
-	"rule_type": "utterance",
-	"input": "-([0-9.,]+) *° *C\\b",
-	"output": "minus \\1 grader Celsius",
-	"tests": [
-	    {
-		"from": "-12.5°C",
-		"to": "minus 12.5 grader Celsius"
-	    }
-	]
-    },
-    {
-	"rule_type": "utterance",
-	"input": "([0-9.,]+) *° *C\\b",
-	"output": "\\1 grader Celsius",
-	"tests": [
-	    {
-		"from": "12.5°C",
-		"to": "12.5 grader Celsius"
-	    }
-	]
-    },
-    {
-	"rule_type": "utterance",
-	"input": "([0-9.,]+) *°",
-	"output": "\\1 grader",
-	"tests": [
-	    {
-		"from": "12.5 °",
-		"to": "12.5 grader"
-	    }
-	]
-    }
+  {
+    "rule_type": "utterance",
+    "input": "([0-9]+) kr(\\.|\\b)",
+    "output": "\\1 kronor",
+    "tests": [
+      {
+	"from": "10 kr",
+	"to": "10 kronor"
+      }
+    ]
+  },
+  {
+    "rule_type": "utterance",
+    "input": "(\\b|[0-9,.]+) *kHz(\\.|\\b)",
+    "output": "\\1 kilohertz",
+    "tests": [
+      {
+	"from": "10kHz",
+	"to": "10 kilohertz"
+      },
+      {
+	"from": "10 kHz",
+	"to": "10 kilohertz"
+      }
+    ]
+  },
+  {
+    "rule_type": "utterance",
+    "input": "(\\b|[0-9,.]+) *MHz(\\.|\\b)",
+    "output": "\\1 megahertz",
+    "tests": [
+      {
+	"from": "10MHz",
+	"to": "10 megahertz"
+      },
+      {
+	"from": "10 MHz",
+	"to": "10 megahertz"
+      }
+    ]
+  },
+  {
+    "rule_type": "utterance",
+    "input": "(\\b|[0-9,.]+) *GHz(\\.|\\b)",
+    "output": "\\1 gigahertz",
+    "tests": [
+      {
+	"from": "10.6GHz",
+	"to": "10.6 gigahertz"
+      },
+      {
+	"from": "10 GHz",
+	"to": "10 gigahertz"
+      }
+    ]
+  },
+  {
+    "rule_type": "utterance",
+    "input": "(\\b|[0-9,.]+) *THz(\\.|\\b)",
+    "output": "\\1 terahertz",
+    "tests": [
+      {
+	"from": "10.6THz",
+	"to": "10.6 terahertz"
+      },
+      {
+	"from": "105.9 THz",
+	"to": "105.9 terahertz"
+      }
+    ]
+  },
+  {
+    "rule_type": "utterance",
+    "input": "(\\b|[0-9]+) *mm(\\.|\\b)",
+    "output": "\\1 millimeter",
+    "tests": [
+      {
+	"from": "Bordsskivan var 17mm lång",
+	"to": "Bordsskivan var 17 millimeter lång"
+      }
+    ]
+  },
+  {
+    "rule_type": "utterance",
+    "input": "(\\b|[0-9]+) *cm(\\.|\\b)",
+    "output": "\\1 centimeter",
+    "tests": [
+      {
+	"from": "Bordsskivan var 17cm lång",
+	"to": "Bordsskivan var 17 centimeter lång"
+      },
+      {
+	"from": "Bordsskivan var 17 cm lång",
+	"to": "Bordsskivan var 17 centimeter lång"
+      }
+    ]
+  },
+  {
+    "rule_type": "utterance",
+    "input": "(\\b|[0-9]+) *dm(\\.|\\b)",
+    "output": "\\1 decimeter",
+    "tests": [
+      {
+	"from": "Bordsskivan var 17dm lång",
+	"to": "Bordsskivan var 17 decimeter lång"
+      }
+    ]
+  },
+  {
+    "rule_type": "utterance",
+    "input": "(\\b|[0-9]+) *km(\\.|\\b)",
+    "output": "\\1 kilometer",
+    "tests": [
+      {
+	"from": "Bordsskivan var 17km lång",
+	"to": "Bordsskivan var 17 kilometer lång"
+      }
+    ]
+  },
+  {
+    "rule_type": "utterance",
+    "input": "(\\b|[0-9]*)%",
+    "output": "\\1 procent",
+    "tests": [
+      {
+	"from": "Bordsskivan var 17% längre",
+	"to": "Bordsskivan var 17 procent längre"
+      },
+      {
+	"from": "Bordsskivan var 17 % längre",
+	"to": "Bordsskivan var 17 procent längre"
+      }
+    ]
+  },
+  {
+    "rule_type": "utterance",
+    "input": "-([0-9.,]+) *°",
+    "output": "minus \\1 grader",
+    "tests": [
+      {
+	"from": "-12.5 °",
+	"to": "minus 12.5 grader"
+      }
+    ]
+  },
+  {
+    "rule_type": "utterance",
+    "input": "-([0-9.,]+) *° *C\\b",
+    "output": "minus \\1 grader Celsius",
+    "tests": [
+      {
+	"from": "-12.5°C",
+	"to": "minus 12.5 grader Celsius"
+      }
+    ]
+  },
+  {
+    "rule_type": "utterance",
+    "input": "([0-9.,]+) *° *C\\b",
+    "output": "\\1 grader Celsius",
+    "tests": [
+      {
+	"from": "12.5°C",
+	"to": "12.5 grader Celsius"
+      }
+    ]
+  },
+  {
+    "rule_type": "utterance",
+    "input": "([0-9.,]+) *°",
+    "output": "\\1 grader",
+    "tests": [
+      {
+	"from": "12.5 °",
+	"to": "12.5 grader"
+      }
+    ]
+  },
+  {
+    "rule_type": "utterance",
+    "input": "(\\b|[0-9,.]+) *kW(\\.|\\b)",
+    "output": "\\1 kilowatt",
+    "tests": [
+      {
+	"from": "10kW",
+	"to": "10 kilowatt"
+      },
+      {
+	"from": "10 kW",
+	"to": "10 kilowatt"
+      }
+    ]
+  },
+  {
+    "rule_type": "utterance",
+    "input": "(\\b|[0-9,.]+) *MW(\\.|\\b)",
+    "output": "\\1 megawatt",
+    "tests": [
+      {
+	"from": "10MW",
+	"to": "10 megawatt"
+      },
+      {
+	"from": "10 MW",
+	"to": "10 megawatt"
+      }
+    ]
+  },
+  {
+    "rule_type": "utterance",
+    "input": "(\\b|[0-9,.]+) *GW(\\.|\\b)",
+    "output": "\\1 gigawatt",
+    "tests": [
+      {
+	"from": "10.6GW",
+	"to": "10.6 gigawatt"
+      },
+      {
+	"from": "10 GW",
+	"to": "10 gigawatt"
+      }
+    ]
+  },
+  {
+    "rule_type": "utterance",
+    "input": "(\\b|[0-9,.]+) *TW(\\.|\\b)",
+    "output": "\\1 terawatt",
+    "tests": [
+      {
+	"from": "10.6TW",
+	"to": "10.6 terawatt"
+      },
+      {
+	"from": "105.9 TW",
+	"to": "105.9 terawatt"
+      }
+    ]
+  },
+  {
+    "rule_type": "utterance",
+    "input": "(\\b|[0-9,.]+) *mW(\\.|\\b)",
+    "output": "\\1 milliwatt",
+    "tests": [
+      {
+	"from": "10.6mW",
+	"to": "10.6 milliwatt"
+      },
+      {
+	"from": "105.9 mW",
+	"to": "105.9 milliwatt"
+      }
+    ]
+  },
+  {
+    "rule_type": "utterance",
+    "input": "\\bdg(\\.|\\b)",
+    "output": "decigram",
+    "tests": [
+      {
+	"from": "Massan är 123 dg.",
+	"to": "Massan är 123 decigram"
+      }
+    ]
+  },
+  {
+    "rule_type": "utterance",
+    "input": "\\bmg(\\.|\\b)",
+    "output": "milligram",
+    "tests": [
+      {
+	"from": "Massan är 123 mg.",
+	"to": "Massan är 123 milligram"
+      }
+      ]
+  },
+  {
+    "rule_type": "utterance",
+    "input": "\\bcg(\\.|\\b)",
+    "output": "centigram",
+    "tests": [
+      {
+	"from": "Massan är 123 cg.",
+	"to": "Massan är 123 centigram"
+      }
+      ]
+  },
+  {
+    "rule_type": "utterance",
+    "input": "\\bha(\\.|\\b)",
+    "output": "hektar",
+    "tests": [
+      {
+	"from": "Området är 14 ha.",
+	"to": "Området är 14 hektar"
+      }
+    ]
+  }
 ]
