@@ -113,6 +113,18 @@
 	},
 	{
 	    "rule_type": "utterance",
+	  "input": "\\b(SS|AA|SA|CC)\\b",
+	    "output": "\\1|||spellout",
+	    "ignore_case": false,
+	    "tests": [
+		{
+		    "from": "CC by",
+		    "to": "CC|||spellout by"
+		}
+	    ]
+	},
+	{
+	    "rule_type": "utterance",
 	    "input": "\\b([0-9][0-9]+)-(tal(?:et)?s?)\\b",
 	    "output": "\\1|||year|||nodelim \\2",
 	    "tests": [
@@ -405,6 +417,14 @@
 	{
 	    "from": "3+",
 	    "to": "tre plus"
+	},
+	{
+	    "from": "CC by",
+	    "to": "C-C by"
+	},
+	{
+	    "from": "By-SA 4.0",
+	    "to": "By- S-A fyra punkt noll"
 	}
     ]
 }

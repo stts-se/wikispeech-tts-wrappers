@@ -12,6 +12,7 @@ from common import io, log
 INT_RE: Final[str] = re.compile("^[0-9]+$")
 FLOAT_RE: Final[str] = re.compile("^[0-9]+[.][0-9]+$")
 ROMAN_RE: Final[str] = re.compile("^[XIVMCLD]+$")
+ROMAN_RE_EXCEPTION: Final[str] = re.compile("^CC$")
 YEAR_RE: Final[str] = re.compile("^1[0-9]{3}$")
 COMMA_FLOAT_RE: Final[str] = re.compile("^[0-9]+[,][0-9]+$")
 
@@ -188,7 +189,11 @@ class Textproc:
             else:
                 word2, tags = word, []
             postpunct = m.group(3)
-            words = self.token_split_re.split(word2)
+            if "spellout" in tags:
+                words = list(word2)
+                word2 = self.rbnf_compound_delimiter.join(words)
+            else:
+                words = self.token_split_re.split(word2)
             # if len(words) == 1:
             word = {
                 "input": t,
@@ -216,7 +221,10 @@ class Textproc:
             #         res.append(word)
 
         return res           
-    
+
+    def is_roman(self, s: str):
+        return ROMAN_RE.match(s) and not ROMAN_RE_EXCEPTION.match(s)
+
     def process_numeral(self, s: str):
         fs = s.split("|||",maxsplit=1)
         s = fs[0]
@@ -231,13 +239,13 @@ class Textproc:
         if SPELLOUT_NUMBER in tags:
             formatPurpose = SPELLOUT_NUMBER
         processed_token = s
-        if len(s) > 1 and ROMAN_RE.match(s):
+        if len(s) > 1 and self.is_roman(s):
             i = roman2int(s)
             processed_token = self.rbnfify(i, formatPurpose)
-        elif ROMAN_RE.match(s) and "roman" in tags:
+        elif self.is_roman(s) and "roman" in tags:
             i = roman2int(s)
             processed_token = self.rbnfify(i, formatPurpose)
-        elif ROMAN_RE.match(s) and "ordinal" in tags:
+        elif self.is_roman(s) and "ordinal" in tags:
             i = roman2int(s)
             processed_token = self.rbnfify(i, formatPurpose)
         elif YEAR_RE.match(s):
