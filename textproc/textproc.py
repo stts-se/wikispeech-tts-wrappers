@@ -85,26 +85,34 @@ def load_config(json_config):
                         r["input_compiled"] = re.compile(r["input"],re.IGNORECASE)
                     else:
                         r["input_compiled"] = re.compile(r["input"])
-                textprocs[name] = Textproc(
-                    name = name,
-                    lang = lang,
-                    rbnf_lang = rbnf_lang,
-                    sentence_split_re = sentence_split_re,
-                    token_split_re = token_split_re,
-                    punctuation_re = punctuation_re,
-                    punctuation_after_match = punctuation_after_match,
-                    rbnf_compound_delimiter = rules.get("rbnf_compound_delimiter",None),
-                    rewrite_rules = rewrite_rules,
-                    tests = rules["tests"],
-                    enabled = rules.get("enabled",True),
-                    fail_on_error = rules.get("fail_on_error",True)
-                )
+                    comp_delim = rules.get("rbnf_compound_delimiter",None)
+                    if comp_delim is None:
+                        comp_delim_repeated = None
+                    else:
+                        comp_delim_repeated = re.compile(f"({comp_delim})+")
+                    textprocs[name] = Textproc(
+                        name = name,
+                        lang = lang,
+                        rbnf_lang = rbnf_lang,
+                        sentence_split_re = sentence_split_re,
+                        token_split_re = token_split_re,
+                        punctuation_re = punctuation_re,
+                        punctuation_after_match = punctuation_after_match,
+                        rbnf_compound_delimiter = comp_delim,
+                        rbnf_compound_delimiter_repeated = comp_delim_repeated,
+                        rewrite_rules = rewrite_rules,
+                        tests = rules["tests"],
+                        enabled = rules.get("enabled",True),
+                        fail_on_error = rules.get("fail_on_error",True)
+                    )
                 log.info(f"Loaded textproc {name} with {len(rules)} rules")
     return textprocs
 
 from dataclasses import dataclass, asdict
 
 SOFT_HYPHEN: Final[str] = "\u00AD"
+SOFT_HYPHEN_REPEATED: Final[re.Pattern] = re.compile("(\u00AD)+")
+SPELLOUT_NUMBER: Final[str] = "spellout_number"
 
 @dataclass
 class Textproc:
@@ -116,6 +124,7 @@ class Textproc:
     punctuation_re: object
     punctuation_after_match: object
     rbnf_compound_delimiter: str or None
+    rbnf_compound_delimiter_repeated: re.Pattern or None
     rewrite_rules: list
     tests: list
     fail_on_error: bool
@@ -135,12 +144,22 @@ class Textproc:
         if fmt is None:
             rbnfed = self.rbnf.format_number(number=number, options=opts)
             res = rbnfed.text
+        elif fmt == SPELLOUT_NUMBER:
+            resx = []
+            for n in f"{number}":
+                if INT_RE.match(n):
+                    rbnfed = self.rbnf.format_number(number=n, options=opts)
+                    resx.append(rbnfed.text)
+                else:
+                    resx.append(n)
+            res = " ".join(resx)#rbnfed.text
         else:
             rbnfed = self.rbnf.format_number(number=number, purpose=fmt, options=opts)
             res = rbnfed.text
         if self.rbnf_compound_delimiter is not None:
             res = res.replace(SOFT_HYPHEN, self.rbnf_compound_delimiter)
             res = res.replace(" ",self.rbnf_compound_delimiter)
+            res = self.rbnf_compound_delimiter_repeated.sub(self.rbnf_compound_delimiter, res)
         return res
 
     def process_text(self, text: str):
@@ -209,6 +228,8 @@ class Textproc:
             formatPurpose = FormatPurpose.ORDINAL
         if "year" in tags:
             formatPurpose = FormatPurpose.YEAR
+        if SPELLOUT_NUMBER in tags:
+            formatPurpose = SPELLOUT_NUMBER
         processed_token = s
         if len(s) > 1 and ROMAN_RE.match(s):
             i = roman2int(s)
@@ -235,6 +256,8 @@ class Textproc:
         elif COMMA_FLOAT_RE.match(s):
             f = float(s.replace(",", "."))
             processed_token = self.rbnfify(f, formatPurpose)
+        elif SPELLOUT_NUMBER in tags:
+            processed_token = self.rbnfify(s, formatPurpose)
         return processed_token, tags
     
     def apply_rewrite_rule(self, rule, s: str):
@@ -248,6 +271,8 @@ class Textproc:
                     alias = ""
                     try:
                         alias = rex.sub(rule["output"], tok["input"])
+                        if rule.get("trim",False):
+                            alias = alias.strip()
                     except Exception as e:
                         log.error(f"Couldn't replace {tok['input']} to {rule['output']} with rule {rule}")
                         raise e
@@ -272,7 +297,7 @@ class Textproc:
                             "type": "text",
                             "text": tok["input"]
                         })
-        else:
+        else: # rule type utterance
             matches = rex.finditer(s)
             i = 0
             rest = s
@@ -287,6 +312,8 @@ class Textproc:
                 i = span[1]
                 alias = rex.sub(rule["output"],text)
                 alias = alias.replace("  "," ")
+                if rule.get("trim",False):
+                    alias = alias.strip()
                 mx = self.punctuation_after_match.match(rest)
                 if mx:
                     n = len(mx.group(1))

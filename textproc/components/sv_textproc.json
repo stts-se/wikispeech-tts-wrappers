@@ -124,12 +124,17 @@
 	},
 	{
 	    "rule_type": "utterance",
-	    "input": "\\b([0-9.,]+) *\\+ *([0-9.,]+)\\b",
-	    "output": "\\1 plus \\2",
+	  "input": "\\b([0-9.,]+) *\\+",
+	  "trim": true,
+            "output": "\\1 plus ",
 	    "tests": [
 		{
 		    "from": "3+2",
 		    "to": "3 plus 2"
+		},
+		{
+		    "from": "3+",
+		    "to": "3 plus"
 		}
 	    ]
 	},
@@ -387,7 +392,14 @@
 	{
 	    "from": "Tävlingen hölls 17-18 september",
 	    "to": "Tävlingen hölls sjuttonde till artonde september"
+	},
+	{
+	    "from": "ISBN-numret 91-528-0439-9",
+	    "to": "ISBN-numret nio-ett-fem-två-åtta-noll-fyra-tre-nio-nio"
+	},
+	{
+	    "from": "3+",
+	    "to": "tre plus"
 	}
-
     ]
 }

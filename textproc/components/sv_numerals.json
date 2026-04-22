@@ -1,5 +1,17 @@
 [
     {
+      "rule_type": "utterance",
+      "comment": "ISBN",
+      "input": "\\b(([0-9]{2})-([0-9]{3})-([0-9]{4})-([0-9]))\\b",
+      "output": "\\1|||spellout_number",
+      "tests": [
+	    {
+		"from": "91-528-0439-9",
+		"to": "91-528-0439-9|||spellout_number"
+	    }
+	]
+    },
+    {
 	"rule_type": "utterance",
 	"input": "\\b[0]([0-9])\\b",
 	"output": "0 \\1",
