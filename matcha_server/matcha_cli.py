@@ -3,13 +3,13 @@ import os
 import argparse
 
 # imports from this repo
+parentdir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+sys.path.insert(0, parentdir)
+from common import log
 import config
 
 # Logging
-logging.getLogger('matplotlib').setLevel(logging.WARNING)
-logger = logging.getLogger(name)
-logging.getLogger(name).setLevel(logging.DEBUG)
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s:%(filename)s - %(levelname)s - %(message)s')
+log.configure("matcha", log.default_handler, log.default_level)
 
 ### EXAMPLE COMMANDS WITH PUBLICLY AVAILABLE MODELS
 
@@ -131,11 +131,11 @@ if args.device:
     voice.device=args.device
 
 if not voice.enabled:
-    logger.error(f"Voice not enabled: {voice.name}")
+    log.error(f"Voice not enabled: {voice.name}")
     sys.exit(1)
 
 voice.validate()
-logger.debug(f"Loaded voice: {voice.name}: {voice}")
+log.debug(f"Loaded voice: {voice.name}: {voice}")
 if not voice.loaded:
     voice.load(global_cfg.model_paths)
 
@@ -153,7 +153,7 @@ else:
     if not FOUND_NAMED_PHONEMIZER:
         raise KeyError(f"No phonemizer named {args.phonemizer} for voice {voice.name}")
 
-logger.debug(f"Selected phonemizer: {voice.selected_phonemizer()}")
+log.debug(f"Selected phonemizer: {voice.selected_phonemizer()}")
 
 voice.validate()
 
