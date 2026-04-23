@@ -93,7 +93,7 @@ import psutil
 
 class MemoryLogger:
 
-    def __init__(self, interval=1):
+    def __init__(self, interval=60):
         self.interval = interval
     
     def log_memory(self):
