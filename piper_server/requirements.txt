@@ -9,3 +9,4 @@ dotenv
 pytz
 tzlocal
 pytest
+psutil

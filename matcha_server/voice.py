@@ -247,81 +247,84 @@ class Voice:
         speaking_rate = tools.get_or_else(vars(params).get("speaking_rate"), self.speaking_rate)
         log.info(f"matcha speaking rate {speaking_rate}")
         matcha_start_time = time.time()
-        output = self.matcha_model.synthesise(
-            tokens_processed["x"],
-            tokens_processed["x_lengths"],
-            n_timesteps=self.steps, # TODO: pass in runtime as with speaking_rate
-            temperature=self.temperature, # TODO: pass in runtime as with speaking_rate
-            spks=spk,
-            length_scale=speaking_rate,
-            trim_silence=self.trim_silence
-        )
-        log.info("voice.py::synthesize - matcha.synthesize - took %s seconds" % (time.time() - matcha_start_time))
+        #with torch.no_grad():
+        with torch.inference_mode():        
+            output = self.matcha_model.synthesise(
+                tokens_processed["x"],
+                tokens_processed["x_lengths"],
+                n_timesteps=self.steps, # TODO: pass in runtime as with speaking_rate
+                temperature=self.temperature, # TODO: pass in runtime as with speaking_rate
+                spks=spk,
+                length_scale=speaking_rate,
+                trim_silence=self.trim_silence
+            )
+            log.info("voice.py::synthesize - matcha.synthesize - took %s seconds" % (time.time() - matcha_start_time))
 
-        ## PROCESS ALIGNMENT
-        import alignment
-        tokens = tokens_processed['words']
+            ## PROCESS ALIGNMENT
+            import alignment
+            tokens = tokens_processed['words']
 
-        aligned = alignment.align(tokens_processed, output, self.id2symbol)
-        log.debug(f"ALIGNED {aligned}")
+            aligned = alignment.align(tokens_processed, output, self.id2symbol)
+            log.debug(f"ALIGNED {aligned}")
 
-        tokens = alignment.combine(tokens, aligned)
+            tokens = alignment.combine(tokens, aligned)
 
-        result = {
-            "input": input,
-            "input_type": input_type,
-            "speaking_rate": speaking_rate,
-            "speaker_id": spk_id,
-        }
-        phonemes = []
-        for token in tokens:
-            if "phonemes" in token:
-                phonemes.append(token["phonemes"])
-        if len(phonemes) > 0:
-            result["phonemes"]=" ".join(phonemes)
-        result["tokens"] = tokens
-        result["audio"] = f"{Path(os.path.basename(output_file)).with_suffix('.wav')}"
+            result = {
+                "input": input,
+                "input_type": input_type,
+                "speaking_rate": speaking_rate,
+                "speaker_id": spk_id,
+            }
+            phonemes = []
+            for token in tokens:
+                if "phonemes" in token:
+                    phonemes.append(token["phonemes"])
+            if len(phonemes) > 0:
+                result["phonemes"]=" ".join(phonemes)
+            result["tokens"] = tokens
+            result["audio"] = f"{Path(os.path.basename(output_file)).with_suffix('.wav')}"
 
-        ## SAVE OUTPUT
-        save_start_time = time.time()
-        
-        # json file
-        json_output = Path(output_file).with_suffix('.json')
-        with open(json_output, 'w', encoding='utf-8') as f:
-            json.dump(result, f, ensure_ascii=False, indent=4)
-            log.debug(f"JSON output saved: {json_output}")
-        log.info("voice.py::synthesize - save json - took %s seconds" % (time.time() - save_start_time))
+            ## SAVE OUTPUT
+            save_start_time = time.time()
 
-        ## alignment output for debugging
-        # alignment_output = Path(os.path.join(output_folder,f"{output_name}_alignment_debug")).with_suffix('.json')
-        # with open(alignment_output, 'w', encoding='utf-8') as f:
-        #     json.dump(aligned, f, ensure_ascii=False, indent=4)
-        #     log.debug(f"Alignment output saved: {alignment_output}")
+            # json file
+            json_output = Path(output_file).with_suffix('.json')
+            with open(json_output, 'w', encoding='utf-8') as f:
+                json.dump(result, f, ensure_ascii=False, indent=4)
+                log.debug(f"JSON output saved: {json_output}")
+            log.info("voice.py::synthesize - save json - took %s seconds" % (time.time() - save_start_time))
 
-        # wav file
-        save_wav_start_time = time.time()
-        with torch.no_grad():
-            output["waveform"] = to_waveform(output["mel"], self.matcha_vocoder, self.matcha_denoiser, self.denoiser_strength)
-            log.info("voice.py::synthesize - to_waveform - took %s seconds" % (time.time() - save_wav_start_time))
+            ## alignment output for debugging
+            # alignment_output = Path(os.path.join(output_folder,f"{output_name}_alignment_debug")).with_suffix('.json')
+            # with open(alignment_output, 'w', encoding='utf-8') as f:
+            #     json.dump(aligned, f, ensure_ascii=False, indent=4)
+            #     log.debug(f"Alignment output saved: {alignment_output}")
 
-        save_wav_file_start_time = time.time()
-        location = save_to_folder(output_name, output, output_folder)
-        log.debug(f"Waveform saved: {location}")
-        log.info("voice.py::synthesize - save wav - took %s seconds" % (time.time() - save_wav_file_start_time))
-        log.info("voice.py::synthesize - to_waveform+save_wav - took %s seconds" % (time.time() - save_wav_start_time))
+            # wav file
+            save_wav_start_time = time.time()
+            #with torch.no_grad():
+            with torch.inference_mode():            
+                output["waveform"] = to_waveform(output["mel"], self.matcha_vocoder, self.matcha_denoiser, self.denoiser_strength)
+                log.info("voice.py::synthesize - to_waveform - took %s seconds" % (time.time() - save_wav_start_time))
 
-        if len(tokens) == len(aligned):
-            # label file
-            lab_file = os.path.join(output_folder, f"{output_name}.lab")
-            with open(lab_file, "w") as f:
-                for token in result['tokens']:
-                    f.write(f"{token['start_time']/1000.0}\t{token['end_time']/1000.0}\t{token['phonemes']}\n")
-        else:
-            log.error(f"Different number of tokens vs aligned tokens -- label file will not be created")
+            save_wav_file_start_time = time.time()
+            location = save_to_folder(output_name, output, output_folder)
+            log.debug(f"Waveform saved: {location}")
+            log.info("voice.py::synthesize - save wav - took %s seconds" % (time.time() - save_wav_file_start_time))
+            log.info("voice.py::synthesize - to_waveform+save_wav - took %s seconds" % (time.time() - save_wav_start_time))
 
-        log.info("voice.py::synthesize - save output - took %s seconds" % (time.time() - save_start_time))
-        log.info("voice.py::synthesize - overall     - took %s seconds" % (time.time() - outer_start_time))
-        return result
+            if len(tokens) == len(aligned):
+                # label file
+                lab_file = os.path.join(output_folder, f"{output_name}.lab")
+                with open(lab_file, "w") as f:
+                    for token in result['tokens']:
+                        f.write(f"{token['start_time']/1000.0}\t{token['end_time']/1000.0}\t{token['phonemes']}\n")
+            else:
+                log.error(f"Different number of tokens vs aligned tokens -- label file will not be created")
+
+            log.info("voice.py::synthesize - save output - took %s seconds" % (time.time() - save_start_time))
+            log.info("voice.py::synthesize - overall     - took %s seconds" % (time.time() - outer_start_time))
+            return result
 
 class Phonemizer:
     name: str

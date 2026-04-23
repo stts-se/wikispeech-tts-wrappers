@@ -103,18 +103,27 @@ async def synthesize_en_us_ljspeech(input_type: str = 'text',
 @app.get("/load")
 async def load(voice: str):
     for k,v in global_cfg.voices.items():
-        if v.name == voice and not v.loaded:
-            v.load(global_cfg.model_paths)
-            return f"Loaded voice {v.name}"
+        if v.name == voice:
+            if v.loaded:
+                return f"Voice {v.name} is already loaded"
+            else:
+                v.load(global_cfg.model_paths)
+                return f"Loaded voice {v.name}"
+    return f"No such voice: {v.name}"
 
 @app.get("/load_all")
 async def load_all():
-    res = []
+    res = {
+        "loaded": [],
+        "already_loaded": []        
+    }
     for k,v in global_cfg.voices.items():
-        if not v.loaded:
+        if v.loaded:
+            res["already_loaded"].append(v.name)
+        else:
             v.load(global_cfg.model_paths)
-            res.append(v.name)
-    return f"Loaded voices: {' '.join(res)}"
+            res["loaded"].append(v.name)
+    return res
 
 @app.get("/voices")
 async def voices():

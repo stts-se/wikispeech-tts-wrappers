@@ -6,6 +6,7 @@
 	"$HOME/.local/share/piper_tts",
 	"$HOME/.local/share/deep_phonemizer"
     ],
+    "log_memory_usage": true,
     "logger": {
 	"handler": "python",
 	"level": "debug"

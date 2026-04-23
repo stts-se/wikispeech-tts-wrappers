@@ -84,3 +84,26 @@ def error(msg):
 def fatal(msg):
     log("fatal", msg)
     sys.exit(1)
+
+
+import os    
+import threading
+import time
+import psutil
+
+class MemoryLogger:
+
+    def __init__(self, interval=1):
+        self.interval = interval
+    
+    def log_memory(self):
+        process = psutil.Process(os.getpid())
+        while True:
+            mem = process.memory_info().rss / (1024 ** 3)  # GB
+            debug(f"[MEM] {mem:.2f} GB")
+            #mem = process.memory_info().rss / (1024 ** 2)
+            #debug(f"[MEM] {mem:.2f} MB")
+            time.sleep(self.interval)
+
+    def start(self):
+        threading.Thread(target=self.log_memory, daemon=True).start()
