@@ -65,7 +65,7 @@ def load_config(config_file):
         else:
             log.configure("matcha", log.default_handler, log.default_level)
 
-        if data.get("log_memory_usage",False):    
+        if data.get("log_memory_usage",False):
             memLogger = log.MemoryLogger()
             memLogger.start()
 
