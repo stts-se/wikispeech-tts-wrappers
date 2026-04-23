@@ -32,7 +32,8 @@
             "denoiser_strength": 0.00025,
             "steps": 10,
             "temperature": 0.667,
-            "batch_size": 32
+            "batch_size": 32,
+	    "trim_silence": true   
 	},
 	{
 	    "name": "sv_vc_m2f",
@@ -58,7 +59,8 @@
             "denoiser_strength": 0.00025,
             "steps": 10,
             "temperature": 0.667,
-            "batch_size": 32
+            "batch_size": 32,
+	    "trim_silence": true
 	},
 	{
 	    "name": "sv_se_nst_female1",
