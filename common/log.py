@@ -95,6 +95,7 @@ class MemoryLogger:
 
     def __init__(self, interval=60):
         self.interval = interval
+        debug(f"Initializing memory logger with interal {interval}")
     
     def log_memory(self):
         process = psutil.Process(os.getpid())
