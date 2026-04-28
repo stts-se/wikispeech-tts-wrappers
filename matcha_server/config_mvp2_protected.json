@@ -63,6 +63,60 @@
 	    "trim_silence": true
 	},
 	{
+	    "name": "sv_vc_f2m",
+	    "enabled": true,
+	    "load_on_startup": false,
+	    "vocoder": "hifigan_univ_v1",
+	    "model": "sv_vc_male_maa2nik.ckpt",
+	    "phonemizers": [
+		{
+		    "name": "sv_se_braxen_full_sv",
+		    "type": "deep_phonemizer",
+		    "lang": "sv",
+		    "model": "dp_single_char_swe_sv.pt"
+		}
+	    ],
+	    "symbols": {
+		"pad": "_",
+		"punctuation" : ";:,.!?¡¿—…\"«»“” ",
+		"letters" : "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
+		"letters_ipa": "#`°ˈ̝̯aAãæÆⱭbɕdðɖeEəɛƐfghɧIɪjklɭmnɳŋoOøØŒɶɔɵprRɾsʂʃtʈuUʉɄʊƱvwYʏʒθ"
+	    },
+	    "speaking_rate": 0.85,
+            "denoiser_strength": 0.00025,
+            "steps": 10,
+            "temperature": 0.667,
+            "batch_size": 32,
+	    "trim_silence": true   
+	},
+	{
+	    "name": "sv_vc_f2f",
+	    "enabled": true,
+	    "load_on_startup": false,
+	    "vocoder": "hifigan_univ_v1",
+	    "model": "sv_vc_female_maa2han.ckpt",
+	    "phonemizers": [
+		{
+		    "name": "sv_se_braxen_full_sv",
+		    "type": "deep_phonemizer",
+		    "lang": "sv",
+		    "model": "dp_single_char_swe_sv.pt"
+		}
+	    ],
+	    "symbols": {
+		"pad": "_",
+		"punctuation" : ";:,.!?¡¿—…\"«»“” ",
+		"letters" : "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
+		"letters_ipa": "#`°ˈ̝̯aAãæÆⱭbɕdðɖeEəɛƐfghɧIɪjklɭmnɳŋoOøØŒɶɔɵprRɾsʂʃtʈuUʉɄʊƱvwYʏʒθ"
+	    },
+	    "speaking_rate": 0.85,
+            "denoiser_strength": 0.00025,
+            "steps": 10,
+            "temperature": 0.667,
+            "batch_size": 32,
+	    "trim_silence": true
+	},
+	{
 	    "name": "sv_se_nst_female1",
 	    "enabled": true,
 	    "load_on_startup": false,
