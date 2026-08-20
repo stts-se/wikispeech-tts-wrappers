@@ -4,9 +4,9 @@ name: Matcha server
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "mvp_may_2026" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main", "mvp_may_2026" ]
 
 permissions:
   contents: read
