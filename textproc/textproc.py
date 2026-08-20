@@ -62,7 +62,6 @@ def load_config(json_config):
                 raise IOError(f"Failed to find textproc rules {rf}")
             with open(path, "r") as fh:
                 rules = json.load(fh)
-                rbnf_lang = rules["rbnf_lang"]
                 if rules["sentence_split_re"]:
                     sentence_split_re = re.compile(rules["sentence_split_re"])
                 token_split_re = re.compile(rules["token_split_re"])
@@ -91,6 +90,10 @@ def load_config(json_config):
                         comp_delim_repeated = None
                     else:
                         comp_delim_repeated = re.compile(f"({comp_delim})+")
+                    rbnf_lang = rules.get("rbnf_lang", None)
+                    rbnf_engine = None
+                    if rbnf_lang:
+                        rbnf_engine = RbnfEngine.for_language(rbnf_lang)
                     textprocs[name] = Textproc(
                         name = name,
                         lang = lang,
@@ -99,6 +102,7 @@ def load_config(json_config):
                         token_split_re = token_split_re,
                         punctuation_re = punctuation_re,
                         punctuation_after_match = punctuation_after_match,
+                        rbnf_engine = rbnf_engine,
                         rbnf_compound_delimiter = comp_delim,
                         rbnf_compound_delimiter_repeated = comp_delim_repeated,
                         rewrite_rules = rewrite_rules,
@@ -124,6 +128,7 @@ class Textproc:
     token_split_re: object
     punctuation_re: object
     punctuation_after_match: object
+    rbnf_engine: RbnfEngine or None
     rbnf_compound_delimiter: str or None
     rbnf_compound_delimiter_repeated: re.Pattern or None
     rewrite_rules: list
@@ -133,7 +138,6 @@ class Textproc:
 
     def __post_init__(self):
         self.loaded = False
-        self.rbnf = RbnfEngine.for_language(self.rbnf_lang)
 
     def __str__(self):
         dict = asdict(self)
@@ -141,21 +145,21 @@ class Textproc:
 
     def rbnfify(self, number, fmt=None):
         opts = FormatOptions.PRESERVE_SOFT_HYPENS
-        res = number
-        if fmt is None:
-            rbnfed = self.rbnf.format_number(number=number, options=opts)
+        res = f"{number}"
+        if fmt is None and self.rbnf_engine:
+            rbnfed = self.rbnf_engine.format_number(number=number, options=opts)
             res = rbnfed.text
         elif fmt == SPELLOUT_NUMBER:
             resx = []
             for n in f"{number}":
-                if INT_RE.match(n):
-                    rbnfed = self.rbnf.format_number(number=n, options=opts)
+                if INT_RE.match(n) and self.rbnf_engine:
+                    rbnfed = self.rbnf_engine.format_number(number=n, options=opts)
                     resx.append(rbnfed.text)
                 else:
                     resx.append(n)
             res = " ".join(resx)#rbnfed.text
-        else:
-            rbnfed = self.rbnf.format_number(number=number, purpose=fmt, options=opts)
+        elif self.rbnf_engine is not None:
+            rbnfed = self.rbnf_engine.format_number(number=number, purpose=fmt, options=opts)
             res = rbnfed.text
         if self.rbnf_compound_delimiter is not None:
             res = res.replace(SOFT_HYPHEN, self.rbnf_compound_delimiter)
